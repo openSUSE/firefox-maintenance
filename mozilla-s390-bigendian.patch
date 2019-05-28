@@ -1,0 +1,20 @@
+# HG changeset patch
+# User msirringhaus@suse.de
+# Date 1558452126 -7200
+#      Tue May 21 17:22:06 2019 +0200
+# Node ID 8241a8abd9d7fc0426a5bb6a602e31464c1711cc
+# Parent  bfc83da8bcd654f03938089e097f9455297c72f9
+[mq]: mozilla-s390-bigendian.patch
+
+diff -r bfc83da8bcd6 -r 8241a8abd9d7 build/autoconf/icu.m4
+--- a/build/autoconf/icu.m4	Tue May 21 17:12:20 2019 +0200
++++ b/build/autoconf/icu.m4	Tue May 21 17:22:06 2019 +0200
+@@ -78,7 +78,7 @@
+     # TODO: the l is actually endian-dependent
+     # We could make this set as 'l' or 'b' for little or big, respectively,
+     # but we'd need to check in a big-endian version of the file.
+-    ICU_DATA_FILE="icudt${version}l.dat"
++    ICU_DATA_FILE="icudt${version}b.dat"
+ fi
+ 
+ AC_SUBST(MOZ_ICU_VERSION)

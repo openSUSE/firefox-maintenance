@@ -1,0 +1,20 @@
+# HG changeset patch
+# User Petr Cerny <pcerny@novell.com>
+# Date 1558442920 -7200
+#      Tue May 21 14:48:40 2019 +0200
+# Node ID 074efb062eae0521794e521a1194d37b2d624675
+# Parent  6ac4f044b439b3492945f75a8615264b0d874bee
+Bug 634334 - call to the ntlm_auth helper fails
+
+diff --git a/extensions/auth/nsAuthSambaNTLM.cpp b/extensions/auth/nsAuthSambaNTLM.cpp
+--- a/extensions/auth/nsAuthSambaNTLM.cpp
++++ b/extensions/auth/nsAuthSambaNTLM.cpp
+@@ -161,7 +161,7 @@
+   const char* username = PR_GetEnv("USER");
+   if (!username) return NS_ERROR_FAILURE;
+ 
+-  const char* const args[] = {"ntlm_auth",
++  const char* const args[] = {"/usr/bin/ntlm_auth",
+                               "--helper-protocol",
+                               "ntlmssp-client-1",
+                               "--use-cached-creds",

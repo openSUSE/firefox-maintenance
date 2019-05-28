@@ -1,0 +1,30 @@
+# HG changeset patch
+# User Andreas Stieger <astieger@suse.com>
+# Date 1456503609 0
+#      Fri Feb 26 16:20:09 2016 +0000
+# Node ID 9a0fe18c7b744a15228ef1683d4bd549dc6e2380
+# Parent  76aff0b134600a95f0e2349a3706fa5a44f64927
+For UnifiedBindings*.cpp files, reduce number of files per unified file
+Upstream: no
+home/abuild/rpmbuild/BUILD/obj/dom/bindings/UnifiedBindings16.cpp
+[ 1589s] UnifiedBindings17.o
+[ 1612s] [ 1567.621989] Out of memory: Kill process 19849 (cc1plus) score 170 or sacrifice child
+[ 1612s] [ 1567.625099] Killed process 19849 (cc1plus) total-vm:905704kB, anon-rss:102500kB, file-rss:156kB
+[ 1616s] {standard input}: Assembler messages:
+[ 1616s] {standard input}:316015: Warning: end of file not at end of a line; newline inserted
+[ 1635s] {standard input}: Error: open CFI at the end of file; missing .cfi_endproc directive
+[ 1636s] c++: internal compiler error: Killed (program cc1plus)
+[ 1636s] Please submit a full bug report,
+
+diff --git a/python/mozbuild/mozbuild/frontend/data.py b/python/mozbuild/mozbuild/frontend/data.py
+--- a/python/mozbuild/mozbuild/frontend/data.py
++++ b/python/mozbuild/mozbuild/frontend/data.py
+@@ -320,7 +320,7 @@
+         return list(group_unified_files(self.all_regular_cpp_basenames(),
+                                         unified_prefix='UnifiedBindings',
+                                         unified_suffix='cpp',
+-                                        files_per_unified_file=32))
++                                        files_per_unified_file=16))
+ 
+     def all_source_files(self):
+         from mozwebidlcodegen import WebIDLCodegenManager

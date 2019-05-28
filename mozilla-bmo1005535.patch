@@ -1,0 +1,20 @@
+# HG changeset patch
+# User Steve Singer <steve@ssinger.info>
+# Date 1558451540 -7200
+#      Tue May 21 17:12:20 2019 +0200
+# Node ID bfc83da8bcd654f03938089e097f9455297c72f9
+# Parent  808d200a848b90d78f2e7d7e8ca53ad25b750be6
+Bug 1005535 - Get skia GPU building on big endian.
+
+diff -r 808d200a848b -r bfc83da8bcd6 gfx/skia/skia/include/private/GrColor.h
+--- a/gfx/skia/skia/include/private/GrColor.h	Mon May 28 16:15:13 2018 +0900
++++ b/gfx/skia/skia/include/private/GrColor.h	Tue May 21 17:12:20 2019 +0200
+@@ -63,7 +63,7 @@
+  *  Since premultiplied means that alpha >= color, we construct a color with
+  *  each component==255 and alpha == 0 to be "illegal"
+  */
+-#define GrColor_ILLEGAL     (~(0xFF << GrColor_SHIFT_A))
++#define GrColor_ILLEGAL     ((uint32_t)(~(0xFF << GrColor_SHIFT_A)))
+ 
+ /** Normalizes and coverts an uint8_t to a float. [0, 255] -> [0.0, 1.0] */
+ static inline float GrNormalizeByteToFloat(uint8_t value) {
