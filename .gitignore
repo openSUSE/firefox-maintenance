@@ -1,0 +1,5 @@
+*.tar.xz
+*.tar.xz.asc
+source-stamp.txt
+_*
+create-tar.sh
