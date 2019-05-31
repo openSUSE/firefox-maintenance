@@ -400,7 +400,10 @@ ac_add_options --with-system-zlib
 %ifarch %power64 s390x s390
 # jemalloc is broken on (some) secondary architectures, definitely on ppc64le
 ac_add_options --disable-jemalloc
-ac_add_options --with-system-icu
+# NOTE: Currently, system-icu is too old, so we can't build with that,
+#       but have to generate the .dat-file freshly. This seems to be a
+#       less fragile approach anyways. See below (next line with echo)
+# ac_add_options --with-system-icu
 %endif
 ac_add_options --disable-updater
 ac_add_options --disable-tests
@@ -432,6 +435,18 @@ ac_add_options --with-arch=armv7-a
 ac_add_options --disable-webrtc
 %endif
 EOF
+
+%ifarch ppc64 s390x s390
+# NOTE: Currently, system-icu is too old, so we can't build with that,
+#       but have to generate the .dat-file freshly. This seems to be a
+#       less fragile approach anyways.
+# ac_add_options --with-system-icu
+echo "Generate big endian version of config/external/icu/data/icud58l.dat"
+./mach python intl/icu_sources_data.py .
+ls -l config/external/icu/data
+rm -f config/external/icu/data/icudt*l.dat
+%endif
+
 ./mach build
 
 %install
