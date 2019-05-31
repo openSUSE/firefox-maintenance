@@ -266,7 +266,7 @@ symbols meant for upload to Mozilla's crash collector database.
 %endif
 cd $RPM_BUILD_DIR/%{source_prefix}
 %patch1 -p1
-#%patch2 -p1
+%patch2 -p1
 %patch3 -p1
 %patch4 -p1
 %ifarch %ix86
@@ -290,7 +290,7 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 %patch20 -p1
 %patch21 -p1
 # Firefox
-#%patch101 -p1
+%patch101 -p1
 %patch102 -p1
 
 %build

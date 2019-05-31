@@ -1,11 +1,10 @@
 # HG changeset patch
-# Parent  18632e53d0b0c4c03f254ca2dbbeac8f48ec6f5c
+# Parent  3001cd8340d0f49be9fd39369bfd3ad0afbc7fca
 
-diff --git a/browser/base/content/browser-kde.xul b/browser/base/content/browser-kde.xul
-new file mode 100644
---- /dev/null
-+++ b/browser/base/content/browser-kde.xul
-@@ -0,0 +1,1404 @@
+diff -r 3001cd8340d0 browser/base/content/browser-kde.xul
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/browser/base/content/browser-kde.xul	Fri May 31 12:55:51 2019 +0200
+@@ -0,0 +1,1403 @@
 +#filter substitution
 +<?xml version="1.0"?>
 +# -*- Mode: HTML -*-
@@ -631,7 +630,6 @@ new file mode 100644
 +#include popup-notifications.inc
 +
 +#include ../../components/customizableui/content/panelUI.inc.xul
-+#include ../../components/controlcenter/content/panel.inc.xul
 +#include ../../components/downloads/content/downloadsPanel.inc.xul
 +#include browser-allTabsMenu.inc.xul
 +
@@ -1410,37 +1408,22 @@ new file mode 100644
 +  </vbox>
 +
 +</window>
-diff --git a/browser/base/jar.mn b/browser/base/jar.mn
---- a/browser/base/jar.mn
-+++ b/browser/base/jar.mn
-@@ -28,16 +28,18 @@ browser.jar:
-         content/browser/aboutTabCrashed.js            (content/aboutTabCrashed.js)
-         content/browser/aboutTabCrashed.xhtml         (content/aboutTabCrashed.xhtml)
- *       content/browser/browser.css                   (content/browser.css)
-         content/browser/browser.js                    (content/browser.js)
- #ifdef MOZ_BROWSER_XHTML
- *       content/browser/browser.xhtml                 (content/browser.xhtml)
- #endif
+diff -r 3001cd8340d0 browser/base/jar.mn
+--- a/browser/base/jar.mn	Fri May 31 11:28:11 2019 +0200
++++ b/browser/base/jar.mn	Fri May 31 12:55:51 2019 +0200
+@@ -33,6 +33,8 @@
+ #else
  *       content/browser/browser.xul                   (content/browser.xul)
+ #endif
 +*       content/browser/browser-kde.xul               (content/browser-kde.xul)
 +%       override chrome://browser/content/browser.xul chrome://browser/content/browser-kde.xul desktop=kde
          content/browser/browser-addons.js             (content/browser-addons.js)
          content/browser/browser-allTabsMenu.js        (content/browser-allTabsMenu.js)
          content/browser/browser-captivePortal.js      (content/browser-captivePortal.js)
-         content/browser/browser-ctrlTab.js            (content/browser-ctrlTab.js)
-         content/browser/browser-customization.js      (content/browser-customization.js)
-         content/browser/browser-data-submission-info-bar.js (content/browser-data-submission-info-bar.js)
-         content/browser/browser-compacttheme.js       (content/browser-compacttheme.js)
-         content/browser/browser-contentblocking.js    (content/browser-contentblocking.js)
-diff --git a/browser/components/preferences/in-content/main.js b/browser/components/preferences/in-content/main.js
---- a/browser/components/preferences/in-content/main.js
-+++ b/browser/components/preferences/in-content/main.js
-@@ -288,16 +288,23 @@ var gMainPane = {
-           this._backoffIndex++ : backoffTimes.length - 1]);
-       };
- 
-       window.setTimeout(() => {
-         window.requestIdleCallback(pollForDefaultBrowser);
+diff -r 3001cd8340d0 browser/components/preferences/in-content/main.js
+--- a/browser/components/preferences/in-content/main.js	Fri May 31 11:28:11 2019 +0200
++++ b/browser/components/preferences/in-content/main.js	Fri May 31 12:55:51 2019 +0200
+@@ -294,6 +294,13 @@
        }, backoffTimes[this._backoffIndex]);
      }
  
@@ -1454,17 +1437,7 @@ diff --git a/browser/components/preferences/in-content/main.js b/browser/compone
      this.initBrowserContainers();
      this.buildContentProcessCountMenuList();
  
-     let performanceSettingsLink = document.getElementById("performanceSettingsLearnMore");
-     let performanceSettingsUrl = Services.urlFormatter.formatURLPref("app.support.baseURL") + "performance";
-     performanceSettingsLink.setAttribute("href", performanceSettingsUrl);
- 
-     this.updateDefaultPerformanceSettingsPref();
-@@ -1025,16 +1032,27 @@ var gMainPane = {
-       // Reset exponential backoff delay time in order to do visual update in pollForDefaultBrowser.
-       this._backoffIndex = 0;
- 
-       let shellSvc = getShellService();
-       if (!shellSvc)
+@@ -983,6 +990,17 @@
          return;
        try {
          shellSvc.setDefaultBrowser(true, false);
@@ -1482,20 +1455,10 @@ diff --git a/browser/components/preferences/in-content/main.js b/browser/compone
        } catch (ex) {
          Cu.reportError(ex);
          return;
-       }
- 
-       let selectedIndex = shellSvc.isDefaultBrowser(false, true) ? 1 : 0;
-       document.getElementById("setDefaultPane").selectedIndex = selectedIndex;
-     }
-diff --git a/browser/components/shell/moz.build b/browser/components/shell/moz.build
---- a/browser/components/shell/moz.build
-+++ b/browser/components/shell/moz.build
-@@ -29,16 +29,18 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'coco
-     ]
- elif 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
-     XPIDL_SOURCES += [
-         'nsIGNOMEShellService.idl',
-     ]
+diff -r 3001cd8340d0 browser/components/shell/moz.build
+--- a/browser/components/shell/moz.build	Fri May 31 11:28:11 2019 +0200
++++ b/browser/components/shell/moz.build	Fri May 31 12:55:51 2019 +0200
+@@ -33,6 +33,8 @@
  
      SOURCES += [
          'nsGNOMEShellService.cpp',
@@ -1504,15 +1467,9 @@ diff --git a/browser/components/shell/moz.build b/browser/components/shell/moz.b
      ]
  elif CONFIG['OS_ARCH'] == 'WINNT':
      SOURCES += [
-         'nsWindowsShellService.cpp',
-     ]
-     LOCAL_INCLUDES += [
-         '../../../other-licenses/nsis/Contrib/CityHash/cityhash',
-     ]
-diff --git a/browser/components/shell/nsKDEShellService.cpp b/browser/components/shell/nsKDEShellService.cpp
-new file mode 100644
---- /dev/null
-+++ b/browser/components/shell/nsKDEShellService.cpp
+diff -r 3001cd8340d0 browser/components/shell/nsKDEShellService.cpp
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/browser/components/shell/nsKDEShellService.cpp	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,150 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* This Source Code Form is subject to the terms of the Mozilla Public
@@ -1664,10 +1621,9 @@ new file mode 100644
 +    return nsKDEUtils::command( command ) ? NS_OK : NS_ERROR_FAILURE;
 +}
 +
-diff --git a/browser/components/shell/nsKDEShellService.h b/browser/components/shell/nsKDEShellService.h
-new file mode 100644
---- /dev/null
-+++ b/browser/components/shell/nsKDEShellService.h
+diff -r 3001cd8340d0 browser/components/shell/nsKDEShellService.h
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/browser/components/shell/nsKDEShellService.h	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,32 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* This Source Code Form is subject to the terms of the Mozilla Public
@@ -1701,10 +1657,9 @@ new file mode 100644
 +};
 +
 +#endif // nskdeshellservice_h____
-diff --git a/browser/components/shell/nsUnixShellService.cpp b/browser/components/shell/nsUnixShellService.cpp
-new file mode 100644
---- /dev/null
-+++ b/browser/components/shell/nsUnixShellService.cpp
+diff -r 3001cd8340d0 browser/components/shell/nsUnixShellService.cpp
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/browser/components/shell/nsUnixShellService.cpp	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,22 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* This Source Code Form is subject to the terms of the Mozilla Public
@@ -1728,10 +1683,9 @@ new file mode 100644
 +        return nsKDEShellServiceConstructor( aOuter, aIID, aResult );
 +    return nsGNOMEShellServiceConstructor( aOuter, aIID, aResult );
 +}
-diff --git a/browser/components/shell/nsUnixShellService.h b/browser/components/shell/nsUnixShellService.h
-new file mode 100644
---- /dev/null
-+++ b/browser/components/shell/nsUnixShellService.h
+diff -r 3001cd8340d0 browser/components/shell/nsUnixShellService.h
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/browser/components/shell/nsUnixShellService.h	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,15 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* This Source Code Form is subject to the terms of the Mozilla Public
@@ -1748,15 +1702,10 @@ new file mode 100644
 +nsUnixShellServiceConstructor(nsISupports *aOuter, REFNSIID aIID, void **aResult);
 +
 +#endif // nsunixshellservice_h____
-diff --git a/browser/installer/package-manifest.in b/browser/installer/package-manifest.in
---- a/browser/installer/package-manifest.in
-+++ b/browser/installer/package-manifest.in
-@@ -286,16 +286,18 @@
- @RESPATH@/browser/defaults/settings/pinning
- @RESPATH@/browser/defaults/settings/main
- 
- ; Warning: changing the path to channel-prefs.js can cause bugs (Bug 756325)
- ; Technically this is an app pref file, but we are keeping it in the original
+diff -r 3001cd8340d0 browser/installer/package-manifest.in
+--- a/browser/installer/package-manifest.in	Fri May 31 11:28:11 2019 +0200
++++ b/browser/installer/package-manifest.in	Fri May 31 12:55:51 2019 +0200
+@@ -301,6 +301,8 @@
  ; gre location for now.
  @RESPATH@/defaults/pref/channel-prefs.js
  
@@ -1765,8 +1714,3 @@ diff --git a/browser/installer/package-manifest.in b/browser/installer/package-m
  ; Services (gre) prefs
  @RESPATH@/defaults/pref/services-sync.js
  
- ; [Layout Engine Resources]
- ; Style Sheets, Graphics and other Resources used by the layout engine.
- @RESPATH@/res/EditorOverride.css
- @RESPATH@/res/contenteditable.css
- @RESPATH@/res/designmode.css
