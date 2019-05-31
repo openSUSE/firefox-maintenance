@@ -164,6 +164,7 @@ Patch15:        mozilla-bmo1005535.patch
 Patch18:        mozilla-s390-bigendian.patch
 Patch19:        mozilla-s390-context.patch
 Patch20:        mozilla-ppc-altivec_static_inline.patch
+Patch21:        mozilla-reduce-rust-debuginfo.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -287,6 +288,7 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 %patch19 -p1
 %endif
 %patch20 -p1
+%patch21 -p1
 # Firefox
 #%patch101 -p1
 %patch102 -p1
