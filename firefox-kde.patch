@@ -1,15 +1,11 @@
 # HG changeset patch
-# User msirringhaus@suse.de
-# Date 1558421146 -7200
-#      Tue May 21 08:45:46 2019 +0200
-# Node ID 08ac4fa7b99a9b649cf090ab4b31e99e71f30249
-# Parent  395ded0bcd5cbe0664f13947ad80c12b83a74929
-[mq]: firefox-kde.patch
+# Parent  18632e53d0b0c4c03f254ca2dbbeac8f48ec6f5c
 
-diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
---- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/base/content/browser-kde.xul	Tue May 21 17:38:24 2019 +0200
-@@ -0,0 +1,1280 @@
+diff --git a/browser/base/content/browser-kde.xul b/browser/base/content/browser-kde.xul
+new file mode 100644
+--- /dev/null
++++ b/browser/base/content/browser-kde.xul
+@@ -0,0 +1,1404 @@
 +#filter substitution
 +<?xml version="1.0"?>
 +# -*- Mode: HTML -*-
@@ -18,21 +14,36 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +# License, v. 2.0. If a copy of the MPL was not distributed with this
 +# file, You can obtain one at http://mozilla.org/MPL/2.0/.
 +
++<!-- The "global.css" stylesheet is imported first to allow other stylesheets to
++     override rules using selectors with the same specificity. This applies to
++     both "content" and "skin" packages, which bug 1385444 will unify later. -->
++<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
++
++<!-- While these stylesheets are defined in Toolkit, they are only used in the
++     main browser window, so we can load them here. Bug 1474241 is on file to
++     consider moving these widgets to the "browser" folder. -->
++<?xml-stylesheet href="chrome://global/content/tabprompts.css" type="text/css"?>
++<?xml-stylesheet href="chrome://global/skin/tabprompts.css" type="text/css"?>
++
 +<?xml-stylesheet href="chrome://browser/content/browser.css" type="text/css"?>
-+<?xml-stylesheet href="chrome://browser/content/downloads/downloads.css"?>
++<?xml-stylesheet href="chrome://browser/content/tabbrowser.css" type="text/css"?>
++<?xml-stylesheet href="chrome://browser/content/downloads/downloads.css" type="text/css"?>
 +<?xml-stylesheet href="chrome://browser/content/places/places.css" type="text/css"?>
 +<?xml-stylesheet href="chrome://browser/content/usercontext/usercontext.css" type="text/css"?>
++<?xml-stylesheet href="chrome://browser/skin/" type="text/css"?>
 +<?xml-stylesheet href="chrome://browser/skin/controlcenter/panel.css" type="text/css"?>
 +<?xml-stylesheet href="chrome://browser/skin/customizableui/panelUI.css" type="text/css"?>
-+<?xml-stylesheet href="chrome://browser/skin/downloads/downloads.css"?>
-+<?xml-stylesheet href="chrome://browser/skin/" type="text/css"?>
-+<?xml-stylesheet href="chrome://browser/content/tabbrowser.css" type="text/css"?>
-+
-+<?xul-overlay href="chrome://browser/content/places/placesOverlay.xul"?>
++<?xml-stylesheet href="chrome://browser/skin/downloads/downloads.css" type="text/css"?>
++<?xml-stylesheet href="chrome://browser/skin/searchbar.css" type="text/css"?>
++<?xml-stylesheet href="chrome://browser/skin/places/tree-icons.css" type="text/css"?>
++<?xml-stylesheet href="chrome://browser/skin/places/editBookmark.css" type="text/css"?>
++<?xml-stylesheet href="chrome://browser/skin/compacttheme.css" type="text/css" alternate="yes" title="Light/Dark"?>
 +
 +# All DTD information is stored in a separate file so that it can be shared by
 +# hiddenWindow.xul.
++<!DOCTYPE window [
 +#include browser-doctype.inc
++]>
 +
 +<window id="main-window"
 +        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -40,7 +51,6 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +        xmlns:html="http://www.w3.org/1999/xhtml"
 +        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 +        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-+        onload="gBrowserInit.onLoad()" onunload="gBrowserInit.onUnload()" onclose="return WindowIsClosing();"
 +        title="&mainWindow.title;"
 +        title_normal="&mainWindow.title;"
 +#ifdef XP_MACOSX
@@ -55,14 +65,12 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +        titlemodifier_normal="&mainWindow.titlemodifier;"
 +        titlemodifier_privatebrowsing="&mainWindow.titlemodifier; &mainWindow.titlePrivateBrowsingSuffix;"
 +#endif
-+#ifdef CAN_DRAW_IN_TITLEBAR
 +#ifdef XP_WIN
 +        chromemargin="0,2,2,2"
 +#else
 +        chromemargin="0,-1,-1,-1"
 +#endif
 +        tabsintitlebar="true"
-+#endif
 +        titlemenuseparator="&mainWindow.titlemodifiermenuseparator;"
 +        windowtype="navigator:browser"
 +        macanimationtype="document"
@@ -70,23 +78,56 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +        fullscreenbutton="true"
 +        sizemode="normal"
 +        retargetdocumentfocus="urlbar"
-+        persist="screenX screenY width height sizemode">
++        persist="screenX screenY width height sizemode"
++#ifdef BROWSER_XHTML
++        mozpersist=""
++#endif
++        >
 +
-+# All JS files which are not content (only) dependent that browser.xul
-+# wishes to include *must* go into the global-scripts.inc file
-+# so that they can be shared by macBrowserOverlay.xul.
++# All JS files which are needed by browser.xul and other top level windows to
++# support MacOS specific features *must* go into the global-scripts.inc file so
++# that they can be shared with macWindow.inc.xul.
 +#include global-scripts.inc
 +
 +<script type="application/javascript">
 +  Services.scriptloader.loadSubScript("chrome://global/content/contentAreaUtils.js", this);
++  Services.scriptloader.loadSubScript("chrome://browser/content/browser-captivePortal.js", this);
++  Services.scriptloader.loadSubScript("chrome://browser/content/browser-compacttheme.js", this);
++  Services.scriptloader.loadSubScript("chrome://browser/content/browser-contentblocking.js", this);
++#ifdef MOZ_DATA_REPORTING
++  Services.scriptloader.loadSubScript("chrome://browser/content/browser-data-submission-info-bar.js", this);
++#endif
++#ifndef MOZILLA_OFFICIAL
++  Services.scriptloader.loadSubScript("chrome://browser/content/browser-development-helpers.js", this);
++#endif
++  Services.scriptloader.loadSubScript("chrome://browser/content/browser-media.js", this);
++  Services.scriptloader.loadSubScript("chrome://browser/content/browser-pageActions.js", this);
++  Services.scriptloader.loadSubScript("chrome://browser/content/browser-plugins.js", this);
++  Services.scriptloader.loadSubScript("chrome://browser/content/browser-sidebar.js", this);
++  Services.scriptloader.loadSubScript("chrome://browser/content/browser-tabsintitlebar.js", this);
 +  Services.scriptloader.loadSubScript("chrome://browser/content/tabbrowser.js", this);
++  Services.scriptloader.loadSubScript("chrome://browser/content/search/autocomplete-popup.js", this);
++  Services.scriptloader.loadSubScript("chrome://browser/content/search/searchbar.js", this);
++
++  window.onload = gBrowserInit.onLoad.bind(gBrowserInit);
++  window.onunload = gBrowserInit.onUnload.bind(gBrowserInit);
++  window.onclose = WindowIsClosing;
++
++  window.addEventListener("MozBeforeInitialXULLayout",
++    gBrowserInit.onBeforeInitialXULLayout.bind(gBrowserInit), { once: true });
++
++  // The listener of DOMContentLoaded must be set on window, rather than
++  // document, because the window can go away before the event is fired.
++  // In that case, we don't want to initialize anything, otherwise we
++  // may be leaking things because they will never be destroyed after.
++  window.addEventListener("DOMContentLoaded",
++    gBrowserInit.onDOMContentLoaded.bind(gBrowserInit), { once: true });
 +</script>
 +
-+# All sets except for popupsets (commands, keys, stringbundles and broadcasters) *must* go into the
-+# browser-sets.inc file for sharing with hiddenWindow.xul.
-+#define FULL_BROWSER_WINDOW
++# All sets except for popupsets (commands, keys, and stringbundles)
++# *must* go into the browser-sets.inc file so that they can be shared with other
++# top level windows in macWindow.inc.xul.
 +#include browser-sets.inc
-+#undef FULL_BROWSER_WINDOW
 +
 +  <popupset id="mainPopupSet">
 +    <menupopup id="tabContextMenu"
@@ -94,47 +135,90 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +               onpopuphidden="if (event.target == this) TabContextMenu.contextTab = null;">
 +      <menuitem id="context_reloadTab" label="&reloadTab.label;" accesskey="&reloadTab.accesskey;"
 +                oncommand="gBrowser.reloadTab(TabContextMenu.contextTab);"/>
++      <menuitem id="context_reloadSelectedTabs" label="&reloadTabs.label;" hidden="true"
++                accesskey="&reloadTabs.accesskey;"
++                oncommand="gBrowser.reloadMultiSelectedTabs();"/>
 +      <menuitem id="context_toggleMuteTab" oncommand="TabContextMenu.contextTab.toggleMuteAudio();"/>
-+      <menuseparator/>
++      <menuitem id="context_toggleMuteSelectedTabs" hidden="true"
++                oncommand="gBrowser.toggleMuteAudioOnMultiSelectedTabs(TabContextMenu.contextTab);"/>
 +      <menuitem id="context_pinTab" label="&pinTab.label;"
 +                accesskey="&pinTab.accesskey;"
 +                oncommand="gBrowser.pinTab(TabContextMenu.contextTab);"/>
 +      <menuitem id="context_unpinTab" label="&unpinTab.label;" hidden="true"
 +                accesskey="&unpinTab.accesskey;"
 +                oncommand="gBrowser.unpinTab(TabContextMenu.contextTab);"/>
++      <menuitem id="context_pinSelectedTabs" label="&pinSelectedTabs.label;" hidden="true"
++                accesskey="&pinSelectedTabs.accesskey;"
++                oncommand="gBrowser.pinMultiSelectedTabs();"/>
++      <menuitem id="context_unpinSelectedTabs" label="&unpinSelectedTabs.label;" hidden="true"
++                accesskey="&unpinSelectedTabs.accesskey;"
++                oncommand="gBrowser.unpinMultiSelectedTabs();"/>
 +      <menuitem id="context_duplicateTab" label="&duplicateTab.label;"
 +                accesskey="&duplicateTab.accesskey;"
 +                oncommand="duplicateTabIn(TabContextMenu.contextTab, 'tab');"/>
-+      <menuitem id="context_openTabInWindow" label="&moveToNewWindow.label;"
-+                accesskey="&moveToNewWindow.accesskey;"
-+                tbattr="tabbrowser-multiple"
-+                oncommand="gBrowser.replaceTabWithWindow(TabContextMenu.contextTab);"/>
-+      <menuseparator id="context_sendTabToDevice_separator" class="sync-ui-item"/>
-+      <menu id="context_sendTabToDevice" label="&sendTabToDevice.label;"
-+            class="sync-ui-item"
-+            accesskey="&sendTabToDevice.accesskey;">
++      <menuitem id="context_duplicateTabs" label="&duplicateTabs.label;"
++                accesskey="&duplicateTabs.accesskey;"
++                oncommand="TabContextMenu.duplicateSelectedTabs();"/>
++      <menuseparator/>
++      <menuitem id="context_selectAllTabs" label="&selectAllTabs.label;" accesskey="&selectAllTabs.accesskey;"
++                oncommand="gBrowser.selectAllTabs();"/>
++      <menuitem id="context_bookmarkSelectedTabs"
++                hidden="true"
++                label="&bookmarkSelectedTabs.label;"
++                accesskey="&bookmarkSelectedTabs.accesskey;"
++                oncommand="PlacesCommandHook.bookmarkPages(PlacesCommandHook.uniqueSelectedPages);"/>
++      <menuitem id="context_bookmarkTab"
++                label="&bookmarkTab.label;"
++                accesskey="&bookmarkTab.accesskey;"
++                oncommand="PlacesCommandHook.bookmarkPages(PlacesCommandHook.getUniquePages([TabContextMenu.contextTab]));"/>
++      <menu id="context_reopenInContainer"
++            label="&reopenInContainer.label;"
++            accesskey="&reopenInContainer.accesskey;"
++            hidden="true">
++        <menupopup oncommand="TabContextMenu.reopenInContainer(event);"
++                   onpopupshowing="TabContextMenu.createReopenInContainerMenu(event);"/>
++      </menu>
++      <menu id="context_moveTabOptions"
++            multiselectcontextlabel="&moveSelectedTabOptions.label;"
++            multiselectcontextaccesskey="&moveSelectedTabOptions.accesskey;"
++            nonmultiselectcontextlabel="&moveTabOptions.label;"
++            nonmultiselectcontextaccesskey="&moveTabOptions.accesskey;">
++        <menupopup id="moveTabOptionsMenu">
++          <menuitem id="context_moveToStart"
++                    label="&moveToStart.label;"
++                    accesskey="&moveToStart.accesskey;"
++                    tbattr="tabbrowser-multiple"
++                    oncommand="gBrowser.moveTabsToStart(TabContextMenu.contextTab);"/>
++          <menuitem id="context_moveToEnd"
++                    label="&moveToEnd.label;"
++                    accesskey="&moveToEnd.accesskey;"
++                    tbattr="tabbrowser-multiple"
++                    oncommand="gBrowser.moveTabsToEnd(TabContextMenu.contextTab);"/>
++          <menuitem id="context_openTabInWindow" label="&moveToNewWindow.label;"
++                    accesskey="&moveToNewWindow.accesskey;"
++                    tbattr="tabbrowser-multiple"
++                    oncommand="gBrowser.replaceTabsWithWindow(TabContextMenu.contextTab);"/>
++        </menupopup>
++      </menu>
++      <menu id="context_sendTabToDevice"
++            class="sync-ui-item">
 +        <menupopup id="context_sendTabToDevicePopupMenu"
-+                   onpopupshowing="gSync.populateSendTabToDevicesMenu(event.target, TabContextMenu.contextTab.linkedBrowser.currentURI.spec, TabContextMenu.contextTab.linkedBrowser.contentTitle);"/>
++                   onpopupshowing="gSync.populateSendTabToDevicesMenu(event.target, TabContextMenu.contextTab.linkedBrowser.currentURI.spec, TabContextMenu.contextTab.linkedBrowser.contentTitle, TabContextMenu.contextTab.multiselected);"/>
 +      </menu>
 +      <menuseparator/>
-+      <menuitem id="context_reloadAllTabs" label="&reloadAllTabs.label;" accesskey="&reloadAllTabs.accesskey;"
-+                tbattr="tabbrowser-multiple-visible"
-+                oncommand="gBrowser.reloadAllTabs();"/>
-+      <menuitem id="context_bookmarkAllTabs"
-+                label="&bookmarkAllTabs.label;"
-+                accesskey="&bookmarkAllTabs.accesskey;"
-+                command="Browser:BookmarkAllTabs"/>
 +      <menuitem id="context_closeTabsToTheEnd" label="&closeTabsToTheEnd.label;" accesskey="&closeTabsToTheEnd.accesskey;"
 +                oncommand="gBrowser.removeTabsToTheEndFrom(TabContextMenu.contextTab, {animate: true});"/>
 +      <menuitem id="context_closeOtherTabs" label="&closeOtherTabs.label;" accesskey="&closeOtherTabs.accesskey;"
 +                oncommand="gBrowser.removeAllTabsBut(TabContextMenu.contextTab);"/>
-+      <menuseparator/>
 +      <menuitem id="context_undoCloseTab"
 +                label="&undoCloseTab.label;"
 +                accesskey="&undoCloseTab.accesskey;"
 +                observes="History:UndoCloseTab"/>
 +      <menuitem id="context_closeTab" label="&closeTab.label;" accesskey="&closeTab.accesskey;"
 +                oncommand="gBrowser.removeTab(TabContextMenu.contextTab, { animate: true });"/>
++      <menuitem id="context_closeSelectedTabs" label="&closeTabs.label;"
++                hidden="true" accesskey="&closeTabs.accesskey;"
++                oncommand="gBrowser.removeMultiSelectedTabs();"/>
 +    </menupopup>
 +
 +    <!-- bug 415444/582485: event.stopPropagation is here for the cloned version
@@ -148,7 +232,8 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +
 +    <!-- for search and content formfill/pw manager -->
 +
-+    <panel type="autocomplete-richlistbox"
++    <panel is="autocomplete-richlistbox-popup"
++           type="autocomplete-richlistbox"
 +           id="PopupAutoComplete"
 +           role="group"
 +           noautofocus="true"
@@ -158,7 +243,8 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +           nomaxresults="true" />
 +
 +    <!-- for search with one-off buttons -->
-+    <panel type="autocomplete-richlistbox"
++    <panel is="search-autocomplete-richlistbox-popup"
++           type="autocomplete-richlistbox"
 +           id="PopupSearchAutoComplete"
 +           role="group"
 +           noautofocus="true"
@@ -174,8 +260,8 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +           level="parent"
 +           overflowpadding="15" />
 +
-+   <!-- for date/time picker. consumeoutsideclicks is set to never, so that
-+        clicks on the anchored input box are never consumed. -->
++    <!-- for date/time picker. consumeoutsideclicks is set to never, so that
++         clicks on the anchored input box are never consumed. -->
 +    <panel id="DateTimePickerPanel"
 +           type="arrow"
 +           hidden="true"
@@ -212,19 +298,25 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +           ignorekeys="true"
 +           hidden="true"
 +           tabspecific="true"
-+           onpopupshown="StarUI.panelShown(event);"
 +           aria-labelledby="editBookmarkPanelTitle">
-+      <row id="editBookmarkPanelHeader" align="center" hidden="true">
-+        <vbox align="center">
-+          <image id="editBookmarkPanelStarIcon"/>
-+        </vbox>
-+        <vbox>
-+          <label id="editBookmarkPanelTitle"/>
-+          <description id="editBookmarkPanelDescription"/>
-+        </vbox>
-+      </row>
-+      <vbox id="editBookmarkPanelContent" flex="1" hidden="true"/>
-+      <hbox id="editBookmarkPanelBottomButtons" pack="end">
++      <box class="panel-header">
++        <label id="editBookmarkPanelTitle"/>
++      </box>
++      <html:div id="editBookmarkPanelFaviconContainer">
++        <html:img id="editBookmarkPanelFavicon"/>
++      </html:div>
++      <box id="editBookmarkPanelImage"/>
++#include ../../components/places/content/editBookmarkPanel.inc.xul
++      <vbox id="editBookmarkPanelBottomContent"
++            flex="1">
++        <checkbox id="editBookmarkPanel_showForNewBookmarks"
++                  label="&editBookmark.showForNewBookmarks.label;"
++                  accesskey="&editBookmark.showForNewBookmarks.accesskey;"
++                  oncommand="StarUI.onShowForNewBookmarksCheckboxCommand();"/>
++      </vbox>
++      <hbox id="editBookmarkPanelBottomButtons"
++            class="panel-footer"
++            style="min-width: &editBookmark.panel.width;;">
 +#ifdef XP_UNIX
 +        <button id="editBookmarkPanelDoneButton"
 +                class="editBookmarkPanelBottomButton"
@@ -233,13 +325,11 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                oncommand="StarUI.panel.hidePopup();"/>
 +        <button id="editBookmarkPanelRemoveButton"
 +                class="editBookmarkPanelBottomButton"
-+                oncommand="StarUI.removeBookmarkButtonCommand();"
-+                accesskey="&editBookmark.removeBookmark.accessKey;"/>
++                oncommand="StarUI.removeBookmarkButtonCommand();"/>
 +#else
 +        <button id="editBookmarkPanelRemoveButton"
 +                class="editBookmarkPanelBottomButton"
-+                oncommand="StarUI.removeBookmarkButtonCommand();"
-+                accesskey="&editBookmark.removeBookmark.accessKey;"/>
++                oncommand="StarUI.removeBookmarkButtonCommand();"/>
 +        <button id="editBookmarkPanelDoneButton"
 +                class="editBookmarkPanelBottomButton"
 +                label="&editBookmark.done.label;"
@@ -294,27 +384,22 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +           orient="vertical"
 +           position="bottomcenter topleft">
 +      <toolbarbutton id="sidebar-switcher-bookmarks"
++                     type="checkbox"
++                     label="&bookmarksButton.label;"
 +                     class="subviewbutton subviewbutton-iconic"
 +                     key="viewBookmarksSidebarKb"
-+                     observes="viewBookmarksSidebar"
-+                     oncommand="SidebarUI.show('viewBookmarksSidebar');">
-+        <observes element="viewBookmarksSidebar" attribute="checked"/>
-+      </toolbarbutton>
++                     oncommand="SidebarUI.show('viewBookmarksSidebar');"/>
 +      <toolbarbutton id="sidebar-switcher-history"
++                     type="checkbox"
 +                     label="&historyButton.label;"
 +                     class="subviewbutton subviewbutton-iconic"
 +                     key="key_gotoHistory"
-+                     observes="viewHistorySidebar"
-+                     oncommand="SidebarUI.show('viewHistorySidebar');">
-+        <observes element="viewHistorySidebar" attribute="checked"/>
-+      </toolbarbutton>
++                     oncommand="SidebarUI.show('viewHistorySidebar');"/>
 +      <toolbarbutton id="sidebar-switcher-tabs"
++                     type="checkbox"
 +                     label="&syncedTabs.sidebar.label;"
 +                     class="subviewbutton subviewbutton-iconic sync-ui-item"
-+                     observes="viewTabsSidebar"
-+                     oncommand="SidebarUI.show('viewTabsSidebar');">
-+        <observes element="viewTabsSidebar" attribute="checked"/>
-+      </toolbarbutton>
++                     oncommand="SidebarUI.show('viewTabsSidebar');"/>
 +      <toolbarseparator/>
 +      <!-- Extension toolbarbuttons go here. -->
 +      <toolbarseparator id="sidebar-extensions-separator"/>
@@ -328,31 +413,60 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +    </panel>
 +
 +    <menupopup id="toolbar-context-menu"
-+               onpopupshowing="onViewToolbarsPopupShowing(event, document.getElementById('viewToolbarsMenuSeparator'));">
++               onpopupshowing="onViewToolbarsPopupShowing(event, document.getElementById('viewToolbarsMenuSeparator')); ToolbarContextMenu.updateDownloadsAutoHide(this); ToolbarContextMenu.updateExtension(this)">
++      <menuitem oncommand="ToolbarContextMenu.openAboutAddonsForContextAction(this.parentElement)"
++                accesskey="&customizeMenu.manageExtension.accesskey;"
++                label="&customizeMenu.manageExtension.label;"
++                contexttype="toolbaritem"
++                class="customize-context-manageExtension"/>
++      <menuitem oncommand="ToolbarContextMenu.removeExtensionForContextAction(this.parentElement)"
++                accesskey="&customizeMenu.removeExtension.accesskey;"
++                label="&customizeMenu.removeExtension.label;"
++                contexttype="toolbaritem"
++                class="customize-context-removeExtension"/>
++      <menuseparator/>
 +      <menuitem oncommand="gCustomizeMode.addToPanel(document.popupNode)"
 +                accesskey="&customizeMenu.pinToOverflowMenu.accesskey;"
 +                label="&customizeMenu.pinToOverflowMenu.label;"
 +                contexttype="toolbaritem"
 +                class="customize-context-moveToPanel"/>
++      <menuitem id="toolbar-context-autohide-downloads-button"
++                oncommand="ToolbarContextMenu.onDownloadsAutoHideChange(event);"
++                type="checkbox"
++                accesskey="&customizeMenu.autoHideDownloadsButton.accesskey;"
++                label="&customizeMenu.autoHideDownloadsButton.label;"
++                contexttype="toolbaritem"/>
 +      <menuitem oncommand="gCustomizeMode.removeFromArea(document.popupNode)"
 +                accesskey="&customizeMenu.removeFromToolbar.accesskey;"
 +                label="&customizeMenu.removeFromToolbar.label;"
 +                contexttype="toolbaritem"
 +                class="customize-context-removeFromToolbar"/>
-+      <menuitem id="toolbar-context-reloadAllTabs"
-+                class="toolbaritem-tabsmenu"
++      <menuitem id="toolbar-context-reloadSelectedTab"
 +                contexttype="tabbar"
-+                oncommand="gBrowser.reloadAllTabs();"
-+                label="&toolbarContextMenu.reloadAllTabs.label;"
-+                accesskey="&toolbarContextMenu.reloadAllTabs.accesskey;"/>
-+      <menuitem id="toolbar-context-bookmarkAllTabs"
-+                class="toolbaritem-tabsmenu"
++                oncommand="gBrowser.reloadMultiSelectedTabs();"
++                label="&toolbarContextMenu.reloadSelectedTab.label;"
++                accesskey="&toolbarContextMenu.reloadSelectedTab.accesskey;"/>
++      <menuitem id="toolbar-context-reloadSelectedTabs"
 +                contexttype="tabbar"
-+                command="Browser:BookmarkAllTabs"
-+                label="&toolbarContextMenu.bookmarkAllTabs.label;"
-+                accesskey="&toolbarContextMenu.bookmarkAllTabs.accesskey;"/>
++                oncommand="gBrowser.reloadMultiSelectedTabs();"
++                label="&toolbarContextMenu.reloadSelectedTabs.label;"
++                accesskey="&toolbarContextMenu.reloadSelectedTabs.accesskey;"/>
++      <menuitem id="toolbar-context-bookmarkSelectedTab"
++                contexttype="tabbar"
++                oncommand="PlacesCommandHook.bookmarkPages(PlacesCommandHook.uniqueSelectedPages);"
++                label="&toolbarContextMenu.bookmarkSelectedTab.label;"
++                accesskey="&toolbarContextMenu.bookmarkSelectedTab.accesskey;"/>
++      <menuitem id="toolbar-context-bookmarkSelectedTabs"
++                contexttype="tabbar"
++                oncommand="PlacesCommandHook.bookmarkPages(PlacesCommandHook.uniqueSelectedPages);"
++                label="&toolbarContextMenu.bookmarkSelectedTabs.label;"
++                accesskey="&toolbarContextMenu.bookmarkSelectedTabs.accesskey;"/>
++      <menuitem id="toolbar-context-selectAllTabs"
++                contexttype="tabbar"
++                oncommand="gBrowser.selectAllTabs();"
++                label="&toolbarContextMenu.selectAllTabs.label;"
++                accesskey="&toolbarContextMenu.selectAllTabs.accesskey;"/>
 +      <menuitem id="toolbar-context-undoCloseTab"
-+                class="toolbaritem-tabsmenu"
 +                contexttype="tabbar"
 +                label="&toolbarContextMenu.undoCloseTab.label;"
 +                accesskey="&toolbarContextMenu.undoCloseTab.accesskey;"
@@ -375,10 +489,22 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +    <menupopup id="blockedPopupOptions"
 +               onpopupshowing="gPopupBlockerObserver.fillPopupList(event);"
 +               onpopuphiding="gPopupBlockerObserver.onPopupHiding(event);">
-+      <menuitem observes="blockedPopupAllowSite"/>
-+      <menuitem observes="blockedPopupEditSettings"/>
-+      <menuitem observes="blockedPopupDontShowMessage"/>
-+      <menuseparator observes="blockedPopupsSeparator"/>
++      <menuitem id="blockedPopupAllowSite"
++                accesskey="&allowPopups.accesskey;"
++                oncommand="gPopupBlockerObserver.toggleAllowPopupsForSite(event);"/>
++      <menuitem
++#ifdef XP_WIN
++                label="&editPopupSettings.label;"
++#else
++                label="&editPopupSettingsUnix.label;"
++#endif
++                accesskey="&editPopupSettings.accesskey;"
++                oncommand="gPopupBlockerObserver.editPopupSettings();"/>
++      <menuitem id="blockedPopupDontShowMessage"
++                accesskey="&dontShowMessage.accesskey;"
++                type="checkbox"
++                oncommand="gPopupBlockerObserver.dontShowMessage();"/>
++      <menuseparator id="blockedPopupsSeparator"/>
 +    </menupopup>
 +
 +    <menupopup id="autohide-context"
@@ -407,20 +533,11 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +#include browser-context.inc
 +    </menupopup>
 +
-+    <menupopup id="placesContext"/>
++#include ../../components/places/content/placesContextMenu.inc.xul
 +
 +    <panel id="ctrlTab-panel" hidden="true" norestorefocus="true" level="top">
-+      <hbox>
-+        <button class="ctrlTab-preview" flex="1"/>
-+        <button class="ctrlTab-preview" flex="1"/>
-+        <button class="ctrlTab-preview" flex="1"/>
-+        <button class="ctrlTab-preview" flex="1"/>
-+        <button class="ctrlTab-preview" flex="1"/>
-+        <button class="ctrlTab-preview" flex="1"/>
-+      </hbox>
-+      <hbox pack="center">
-+        <button id="ctrlTab-showAll" class="ctrlTab-preview" noicon="true"/>
-+      </hbox>
++      <hbox id="ctrlTab-previews"/>
++      <hbox id="ctrlTab-showAll-container" pack="center"/>
 +    </panel>
 +
 +    <panel id="pageActionPanel"
@@ -433,10 +550,14 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +           position="bottomcenter topright"
 +           tabspecific="true"
 +           noautofocus="true"
++           pinTab-title="&pinTab.label;"
++           unpinTab-title="&unpinTab.label;"
++           pocket-title="&saveToPocketCmd.label;"
 +           copyURL-title="&pageAction.copyLink.label;"
 +           emailLink-title="&emailPageCmd.label;"
-+           sendToDevice-title="&pageAction.sendTabToDevice.label;"
-+           sendToDevice-notReadyTitle="&sendToDevice.syncNotReady.label;">
++           sendToDevice-notReadyTitle="&sendToDevice.syncNotReady.label;"
++           shareURL-title="&pageAction.shareUrl.label;"
++           shareMore-label="&pageAction.shareMore.label;">
 +      <panelmultiview id="pageActionPanelMultiView"
 +                      mainViewId="pageActionPanelMainView"
 +                      viewCacheId="appMenu-viewCache">
@@ -447,21 +568,22 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +        </panelview>
 +      </panelmultiview>
 +    </panel>
-+    <panel id="pageActionFeedback"
++
++    <panel id="confirmation-hint"
 +           role="alert"
 +           type="arrow"
 +           hidden="true"
 +           flip="slide"
 +           position="bottomcenter topright"
 +           tabspecific="true"
-+           noautofocus="true"
-+           copyURLFeedback="&copyURLFeedback.label;"
-+           sendToDeviceFeedback="&sendToDeviceFeedback.label;"
-+           sendToDeviceOfflineFeedback="&sendToDeviceOfflineFeedback.label;">
-+      <hbox id="pageActionFeedbackAnimatableBox">
-+        <image id="pageActionFeedbackAnimatableImage"/>
++           noautofocus="true">
++      <hbox id="confirmation-hint-checkmark-animation-container">
++       <image id="confirmation-hint-checkmark-image"/>
 +      </hbox>
-+      <label id="pageActionFeedbackMessage"/>
++      <vbox id="confirmation-hint-message-container">
++       <label id="confirmation-hint-message"/>
++       <label id="confirmation-hint-description"/>
++      </vbox>
 +    </panel>
 +
 +    <menupopup id="pageActionContextMenu"
@@ -473,10 +595,10 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                label="&pageAction.removeFromUrlbar.label;"
 +                oncommand="BrowserPageActions.togglePinningForContextAction();"/>
 +      <menuitem class="pageActionContextMenuItem extensionUnpinned"
-+                label="&pageAction.allowInUrlbar.label;"
++                label="&pageAction.addToUrlbar.label;"
 +                oncommand="BrowserPageActions.togglePinningForContextAction();"/>
 +      <menuitem class="pageActionContextMenuItem extensionPinned"
-+                label="&pageAction.disallowInUrlbar.label;"
++                label="&pageAction.removeFromUrlbar.label;"
 +                oncommand="BrowserPageActions.togglePinningForContextAction();"/>
 +      <menuseparator class="pageActionContextMenuItem extensionPinned extensionUnpinned"/>
 +      <menuitem class="pageActionContextMenuItem extensionPinned extensionUnpinned"
@@ -484,26 +606,25 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                oncommand="BrowserPageActions.openAboutAddonsForContextAction();"/>
 +    </menupopup>
 +
-+    <!-- Bookmarks and history tooltip -->
-+    <tooltip id="bhTooltip"/>
++#include ../../components/places/content/bookmarksHistoryTooltip.inc.xul
 +
 +    <tooltip id="tabbrowser-tab-tooltip" onpopupshowing="gBrowser.createTooltip(event);"/>
 +
 +    <tooltip id="back-button-tooltip">
-+      <label class="tooltip-label" value="&backButton.tooltip;"/>
++      <description class="tooltip-label" value="&backButton.tooltip;"/>
 +#ifdef XP_MACOSX
-+      <label class="tooltip-label" value="&backForwardButtonMenuMac.tooltip;"/>
++      <description class="tooltip-label" value="&backForwardButtonMenuMac.tooltip;"/>
 +#else
-+      <label class="tooltip-label" value="&backForwardButtonMenu.tooltip;"/>
++      <description class="tooltip-label" value="&backForwardButtonMenu.tooltip;"/>
 +#endif
 +    </tooltip>
 +
 +    <tooltip id="forward-button-tooltip">
-+      <label class="tooltip-label" value="&forwardButton.tooltip;"/>
++      <description class="tooltip-label" value="&forwardButton.tooltip;"/>
 +#ifdef XP_MACOSX
-+      <label class="tooltip-label" value="&backForwardButtonMenuMac.tooltip;"/>
++      <description class="tooltip-label" value="&backForwardButtonMenuMac.tooltip;"/>
 +#else
-+      <label class="tooltip-label" value="&backForwardButtonMenu.tooltip;"/>
++      <description class="tooltip-label" value="&backForwardButtonMenu.tooltip;"/>
 +#endif
 +    </tooltip>
 +
@@ -512,19 +633,11 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +#include ../../components/customizableui/content/panelUI.inc.xul
 +#include ../../components/controlcenter/content/panel.inc.xul
 +#include ../../components/downloads/content/downloadsPanel.inc.xul
++#include browser-allTabsMenu.inc.xul
 +
 +    <hbox id="downloads-animation-container" mousethrough="always">
 +      <vbox id="downloads-notification-anchor" hidden="true">
 +        <vbox id="downloads-indicator-notification"/>
-+      </vbox>
-+    </hbox>
-+
-+    <hbox id="bookmarked-notification-container" mousethrough="always">
-+      <vbox id="bookmarked-notification-anchor">
-+        <vbox id="bookmarked-notification"/>
-+      </vbox>
-+      <vbox id="bookmarked-notification-dropmarker-anchor">
-+        <image id="bookmarked-notification-dropmarker-icon"/>
 +      </vbox>
 +    </hbox>
 +
@@ -590,141 +703,111 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                accesskey="&syncSyncNowItem.accesskey;"
 +                id="syncedTabsRefreshFilter"/>
 +    </menupopup>
++
++    <hbox id="statuspanel" inactive="true" layer="true">
++      <hbox id="statuspanel-inner">
++        <label id="statuspanel-label"
++               role="status"
++               aria-live="off"
++               flex="1"
++               crop="end"/>
++      </hbox>
++    </hbox>
 +  </popupset>
 +  <box id="appMenu-viewCache" hidden="true"/>
 +
-+#ifdef CAN_DRAW_IN_TITLEBAR
-+<vbox id="titlebar">
-+  <hbox id="titlebar-content">
-+    <spacer id="titlebar-spacer" flex="1"/>
-+    <hbox id="titlebar-buttonbox-container">
-+      <hbox id="titlebar-buttonbox" class="titlebar-color">
-+        <toolbarbutton class="titlebar-button" id="titlebar-min" oncommand="window.minimize();"/>
-+        <toolbarbutton class="titlebar-button" id="titlebar-max" oncommand="onTitlebarMaxClick();"/>
-+        <toolbarbutton class="titlebar-button" id="titlebar-close" command="cmd_closeWindow"/>
-+      </hbox>
-+    </hbox>
-+#ifdef XP_MACOSX
-+    <!-- OS X does not natively support RTL for its titlebar items, so we prevent this secondary
-+         buttonbox from reversing order in RTL by forcing an LTR direction. -->
-+    <hbox id="titlebar-secondary-buttonbox" dir="ltr">
-+      <button class="accessibility-indicator" tooltiptext="&accessibilityIndicator.tooltip;" aria-live="polite"/>
-+      <hbox class="private-browsing-indicator"/>
-+      <hbox id="titlebar-fullscreen-button"/>
-+    </hbox>
-+#endif
-+  </hbox>
-+</vbox>
-+#endif
-+
 +  <toolbox id="navigator-toolbox">
-+    <!-- Menu -->
-+    <toolbar type="menubar" id="toolbar-menubar"
-+             class="chromeclass-menubar titlebar-color"
-+             customizable="true"
-+             mode="icons"
++
++    <vbox id="titlebar">
++      <!-- Menu -->
++      <toolbar type="menubar" id="toolbar-menubar"
++               class="browser-toolbar chromeclass-menubar titlebar-color"
++               customizable="true"
++               mode="icons"
 +#ifdef MENUBAR_CAN_AUTOHIDE
-+             toolbarname="&menubarCmd.label;"
-+             accesskey="&menubarCmd.accesskey;"
-+             autohide="true"
++               toolbarname="&menubarCmd.label;"
++               accesskey="&menubarCmd.accesskey;"
++               autohide="true"
 +#endif
-+             context="toolbar-context-menu">
-+      <toolbaritem id="menubar-items" align="center">
-+# The entire main menubar is placed into browser-menubar.inc, so that it can be shared by
-+# hiddenWindow.xul.
++               context="toolbar-context-menu">
++        <toolbaritem id="menubar-items" align="center">
++# The entire main menubar is placed into browser-menubar.inc, so that it can be
++# shared with other top level windows in macWindow.inc.xul.
 +#include browser-menubar.inc
-+      </toolbaritem>
++        </toolbaritem>
++        <spacer flex="1" skipintoolbarset="true" ordinal="1000"/>
++#include titlebar-items.inc.xul
++      </toolbar>
 +
-+#ifdef CAN_DRAW_IN_TITLEBAR
++      <toolbar id="TabsToolbar"
++               class="browser-toolbar titlebar-color"
++               fullscreentoolbar="true"
++               customizable="true"
++               customizationtarget="TabsToolbar-customization-target"
++               mode="icons"
++               aria-label="&tabsToolbar.label;"
++               context="toolbar-context-menu"
++               flex="1">
++
++        <hbox class="titlebar-spacer" type="pre-tabs"/>
++
++        <hbox flex="1" align="end" class="toolbar-items">
++          <hbox id="TabsToolbar-customization-target" flex="1">
++            <tabs id="tabbrowser-tabs"
++                  flex="1"
++                  setfocus="false"
++                  tooltip="tabbrowser-tab-tooltip"
++                  stopwatchid="FX_TAB_CLICK_MS">
++              <tab class="tabbrowser-tab" selected="true" visuallyselected="true" fadein="true"/>
++            </tabs>
++
++            <toolbarbutton id="new-tab-button"
++                           class="toolbarbutton-1 chromeclass-toolbar-additional"
++                           label="&tabCmd.label;"
++                           command="cmd_newNavigatorTab"
++                           onclick="checkForMiddleClick(this, event);"
++                           tooltip="dynamic-shortcut-tooltip"
++                           ondrop="newTabButtonObserver.onDrop(event)"
++                           ondragover="newTabButtonObserver.onDragOver(event)"
++                           ondragenter="newTabButtonObserver.onDragOver(event)"
++                           ondragexit="newTabButtonObserver.onDragExit(event)"
++                           cui-areatype="toolbar"
++                           removable="true"/>
++
++            <toolbarbutton id="alltabs-button"
++                           class="toolbarbutton-1 chromeclass-toolbar-additional tabs-alltabs-button badged-button"
++                           oncommand="gTabsPanel.showAllTabsPanel();"
++                           label="&listAllTabs.label;"
++                           tooltiptext="&listAllTabs.label;"
++                           removable="false"/>
++          </hbox>
++        </hbox>
++
++        <hbox class="titlebar-spacer" type="post-tabs"/>
++
 +#ifndef XP_MACOSX
-+      <hbox class="titlebar-placeholder" type="caption-buttons" ordinal="1000"
-+            skipintoolbarset="true"/>
-+#endif
-+#endif
-+    </toolbar>
-+
-+    <toolbar id="TabsToolbar"
-+             class="titlebar-color"
-+             fullscreentoolbar="true"
-+             customizable="true"
-+             mode="icons"
-+             aria-label="&tabsToolbar.label;"
-+             context="toolbar-context-menu"
-+             collapsed="true">
-+
-+#ifdef CAN_DRAW_IN_TITLEBAR
-+      <hbox class="titlebar-placeholder" type="pre-tabs"
-+            skipintoolbarset="true"/>
++        <button class="accessibility-indicator" tooltiptext="&accessibilityIndicator.tooltip;"
++                aria-live="polite"/>
++        <hbox class="private-browsing-indicator"/>
 +#endif
 +
-+      <tabs id="tabbrowser-tabs"
-+            flex="1"
-+            setfocus="false"
-+            tooltip="tabbrowser-tab-tooltip"
-+            stopwatchid="FX_TAB_CLICK_MS">
-+        <tab class="tabbrowser-tab" selected="true" visuallyselected="true" fadein="true"/>
-+      </tabs>
-+
-+      <toolbarbutton id="new-tab-button"
-+                     class="toolbarbutton-1 chromeclass-toolbar-additional"
-+                     label="&tabCmd.label;"
-+                     command="cmd_newNavigatorTab"
-+                     onclick="checkForMiddleClick(this, event);"
-+                     tooltip="dynamic-shortcut-tooltip"
-+                     ondrop="newTabButtonObserver.onDrop(event)"
-+                     ondragover="newTabButtonObserver.onDragOver(event)"
-+                     ondragenter="newTabButtonObserver.onDragOver(event)"
-+                     ondragexit="newTabButtonObserver.onDragExit(event)"
-+                     cui-areatype="toolbar"
-+                     removable="true"/>
-+
-+      <toolbarbutton id="alltabs-button"
-+                     class="toolbarbutton-1 chromeclass-toolbar-additional tabs-alltabs-button"
-+                     type="menu"
-+                     label="&listAllTabs.label;"
-+                     tooltiptext="&listAllTabs.label;"
-+                     removable="false">
-+        <menupopup id="alltabs-popup"
-+                   position="after_end">
-+          <menuitem id="alltabs_undoCloseTab"
-+                    key="key_undoCloseTab"
-+                    label="&undoCloseTab.label;"
-+                    observes="History:UndoCloseTab"/>
-+          <menuseparator id="alltabs-popup-separator-1"/>
-+          <menu id="alltabs_containersTab"
-+                label="&newUserContext.label;">
-+            <menupopup id="alltabs_containersMenuTab" />
-+          </menu>
-+          <menuseparator id="alltabs-popup-separator-2"/>
-+        </menupopup>
-+      </toolbarbutton>
-+
-+#ifdef CAN_DRAW_IN_TITLEBAR
-+      <hbox class="titlebar-placeholder" type="post-tabs"
-+            ordinal="1000"
-+            skipintoolbarset="true"/>
-+#endif
-+
-+      <button class="accessibility-indicator" tooltiptext="&accessibilityIndicator.tooltip;"
-+              ordinal="1000"
-+              aria-live="polite" skipintoolbarset="true"/>
-+      <hbox class="private-browsing-indicator" skipintoolbarset="true"
-+            ordinal="1000"/>
-+#ifdef CAN_DRAW_IN_TITLEBAR
-+      <hbox class="titlebar-placeholder" type="caption-buttons"
-+#ifndef XP_MACOSX
-+            ordinal="1000"
-+#endif
-+            skipintoolbarset="true"/>
++#include titlebar-items.inc.xul
 +
 +#ifdef XP_MACOSX
-+      <hbox class="titlebar-placeholder" type="fullscreen-button"
-+            skipintoolbarset="true"/>
++        <!-- OS X does not natively support RTL for its titlebar items, so we prevent this secondary
++             buttonbox from reversing order in RTL by forcing an LTR direction. -->
++        <hbox id="titlebar-secondary-buttonbox" dir="ltr">
++          <button class="accessibility-indicator" tooltiptext="&accessibilityIndicator.tooltip;" aria-live="polite"/>
++          <hbox class="private-browsing-indicator"/>
++          <hbox id="titlebar-fullscreen-button"/>
++        </hbox>
 +#endif
-+#endif
-+    </toolbar>
++      </toolbar>
++
++    </vbox>
 +
 +    <toolbar id="nav-bar"
++             class="browser-toolbar"
 +             aria-label="&navbarCmd.label;"
 +             fullscreentoolbar="true" mode="icons" customizable="true"
 +             customizationtarget="nav-bar-customization-target"
@@ -734,6 +817,7 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +             overflowpanel="widget-overflow"
 +             context="toolbar-context-menu">
 +
++      <toolbartabstop/>
 +      <hbox id="nav-bar-customization-target" flex="1">
 +        <toolbarbutton id="back-button" class="toolbarbutton-1 chromeclass-toolbar-additional"
 +                       label="&backCmd.label;"
@@ -780,23 +864,24 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                       ondrop="homeButtonObserver.onDrop(event)"
 +                       ondragexit="homeButtonObserver.onDragExit(event)"
 +                       key="goHome"
-+                       onclick="BrowserGoHome(event);"
++                       onclick="BrowserHome(event);"
 +                       cui-areatype="toolbar"
-+                       aboutHomeOverrideTooltip="&abouthome.pageTitle;"/>
++                       tooltiptext="&homeButton.defaultPage.tooltip;"/>
 +        <toolbarspring cui-areatype="toolbar" class="chromeclass-toolbar-additional"/>
 +        <toolbaritem id="urlbar-container" flex="400" persist="width"
 +                     removable="false"
 +                     class="chromeclass-location" overflows="false">
++            <toolbartabstop/>
 +            <textbox id="urlbar" flex="1"
 +                     placeholder="&urlbar.placeholder2;"
 +                     defaultPlaceholder="&urlbar.placeholder2;"
 +                     focused="true"
 +                     type="autocomplete"
++                     quantumbar="false"
 +                     autocompletesearch="unifiedcomplete"
 +                     autocompletesearchparam="enable-actions"
 +                     autocompletepopup="PopupAutoCompleteRichResult"
 +                     completeselectedindex="true"
-+                     shrinkdelay="250"
 +                     tabscrolling="true"
 +                     newlines="stripsurroundingwhitespace"
 +                     ontextentered="this.handleCommand(param);"
@@ -814,7 +899,12 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                       consumeanchor="identity-box"
 +                       onclick="PageProxyClickHandler(event);"/>
 +                <image id="sharing-icon" mousethrough="always"/>
-+                <image id="tracking-protection-icon"/>
++                <box id="tracking-protection-icon-box" animationsenabled="true">
++                  <image id="tracking-protection-icon"/>
++                  <box id="tracking-protection-icon-animatable-box" flex="1">
++                    <image id="tracking-protection-icon-animatable-image" flex="1"/>
++                  </box>
++                </box>
 +                <box id="blocked-permissions-container" align="center">
 +                  <image data-permission-id="geo" class="blocked-permission-icon geo-icon" role="button"
 +                         tooltiptext="&urlbar.geolocationBlocked.tooltip;"/>
@@ -830,6 +920,8 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                         tooltiptext="&urlbar.persistentStorageBlocked.tooltip;"/>
 +                  <image data-permission-id="popup" class="blocked-permission-icon popup-icon" role="button"
 +                         tooltiptext="&urlbar.popupBlocked.tooltip;"/>
++                  <image data-permission-id="autoplay-media" class="blocked-permission-icon autoplay-media-icon" role="button"
++                         tooltiptext="&urlbar.autoplayMediaBlocked.tooltip;"/>
 +                  <image data-permission-id="canvas" class="blocked-permission-icon canvas-icon" role="button"
 +                         tooltiptext="&urlbar.canvasBlocked.tooltip;"/>
 +                  <image data-permission-id="plugin:flash" class="blocked-permission-icon plugin-icon" role="button"
@@ -846,6 +938,8 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                         tooltiptext="&urlbar.defaultNotificationAnchor.tooltip;"/>
 +                  <image id="geo-notification-icon" class="notification-anchor-icon geo-icon" role="button"
 +                         tooltiptext="&urlbar.geolocationNotificationAnchor.tooltip;"/>
++                  <image id="autoplay-media-notification-icon" class="notification-anchor-icon autoplay-media-icon" role="button"
++                         tooltiptext="&urlbar.autoplayNotificationAnchor.tooltip;"/>
 +                  <image id="addons-notification-icon" class="notification-anchor-icon install-icon" role="button"
 +                         tooltiptext="&urlbar.addonsNotificationAnchor.tooltip;"/>
 +                  <image id="canvas-notification-icon" class="notification-anchor-icon" role="button"
@@ -880,7 +974,9 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                  <image id="midi-notification-icon" class="notification-anchor-icon midi-icon" role="button"
 +                         tooltiptext="&urlbar.midiNotificationAnchor.tooltip;"/>
 +                  <image id="webauthn-notification-icon" class="notification-anchor-icon" role="button"
-+                         tooltiptext="&urlbar.defaultNotificationAnchor.tooltip;"/>
++                         tooltiptext="&urlbar.webAuthnAnchor.tooltip;"/>
++                  <image id="storage-access-notification-icon" class="notification-anchor-icon storage-access-icon" role="button"
++                         tooltiptext="&urlbar.storageAccessAnchor.tooltip;"/>
 +                </box>
 +                <image id="connection-icon"/>
 +                <image id="extension-icon"/>
@@ -896,6 +992,15 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                <label id="extension" class="urlbar-display urlbar-display-extension" value="&urlbar.extension.label;"/>
 +              </box>
 +              <hbox id="page-action-buttons" context="pageActionContextMenu">
++                <toolbartabstop/>
++                <hbox id="contextual-feature-recommendation" role="button" hidden="true">
++                  <hbox id="cfr-label-container">
++                    <label id="cfr-label"/>
++                  </hbox>
++                  <image id="cfr-button"
++                         class="urlbar-icon urlbar-page-action"
++                         role="presentation"/>
++                </hbox>
 +                <hbox id="userContext-icons" hidden="true">
 +                  <label id="userContext-label"/>
 +                  <image id="userContext-indicator"/>
@@ -915,23 +1020,37 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                       class="urlbar-icon urlbar-page-action"
 +                       role="button"
 +                       tooltiptext="&pageActionButton.tooltip;"
-+                       onmousedown="BrowserPageActions.mainButtonClicked(event);"/>
++                       onmousedown="BrowserPageActions.mainButtonClicked(event);"
++                       onkeypress="BrowserPageActions.mainButtonClicked(event);"/>
++                <hbox id="pocket-button-box"
++                      hidden="true"
++                      class="urlbar-icon-wrapper urlbar-page-action"
++                      onclick="BrowserPageActions.doCommandForAction(PageActions.actionForID('pocket'), event, this);">
++                  <image id="pocket-button"
++                         class="urlbar-icon"
++                         tooltiptext="&pocketButton.tooltiptext;"
++                         role="button"/>
++                  <hbox id="pocket-button-animatable-box">
++                    <image id="pocket-button-animatable-image"
++                           tooltiptext="&pocketButton.tooltiptext;"
++                           role="presentation"/>
++                  </hbox>
++                </hbox>
 +                <hbox id="star-button-box"
 +                      hidden="true"
 +                      class="urlbar-icon-wrapper urlbar-page-action"
 +                      onclick="BrowserPageActions.doCommandForAction(PageActions.actionForID('bookmark'), event, this);">
 +                  <image id="star-button"
 +                         class="urlbar-icon"
-+                         role="button"
-+                         observes="bookmarkThisPageBroadcaster"/>
++                         role="button"/>
 +                  <hbox id="star-button-animatable-box">
 +                    <image id="star-button-animatable-image"
-+                           role="presentation"
-+                           observes="bookmarkThisPageBroadcaster"/>
++                           role="presentation"/>
 +                  </hbox>
 +                </hbox>
 +              </hbox>
 +            </textbox>
++            <toolbartabstop/>
 +        </toolbaritem>
 +
 +        <toolbarspring cui-areatype="toolbar" class="chromeclass-toolbar-additional"/>
@@ -943,6 +1062,7 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                       class="toolbarbutton-1 chromeclass-toolbar-additional badged-button"
 +                       key="key_openDownloads"
 +                       onmousedown="DownloadsIndicatorView.onCommand(event);"
++                       onkeypress="DownloadsIndicatorView.onCommand(event);"
 +                       ondrop="DownloadsIndicatorView.onDrop(event);"
 +                       ondragover="DownloadsIndicatorView.onDragOver(event);"
 +                       ondragenter="DownloadsIndicatorView.onDragOver(event);"
@@ -969,11 +1089,25 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +        <toolbarbutton id="library-button" class="toolbarbutton-1 chromeclass-toolbar-additional subviewbutton-nav"
 +                       removable="true"
 +                       onmousedown="PanelUI.showSubView('appMenu-libraryView', this, event);"
++                       onkeypress="PanelUI.showSubView('appMenu-libraryView', this, event);"
 +                       closemenu="none"
 +                       cui-areatype="toolbar"
 +                       tooltiptext="&libraryButton.tooltip;"
 +                       label="&places.library.title;"/>
 +
++        <toolbarbutton id="fxa-toolbar-menu-button" class="toolbarbutton-1 badged-button chromeclass-toolbar-additional subviewbutton-nav"
++                       onmousedown="gSync.toggleAccountPanel('PanelUI-fxa', event)"
++                       onkeypress="gSync.toggleAccountPanel('PanelUI-fxa', event)"
++                       consumeanchor="fxa-toolbar-menu-button"
++                       closemenu="none"
++                       label="&fxa.menu.firefoxAccount;"
++                       tooltiptext="&fxa.menu.firefoxAccount;"
++                       cui-areatype="toolbar"
++                       removable="true">
++                       <vbox>
++                        <image id="fxa-avatar-image"/>
++                       </vbox>
++        </toolbarbutton>
 +      </hbox>
 +
 +      <toolbarbutton id="nav-bar-overflow-button"
@@ -1013,15 +1147,20 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                       tooltiptext="&fullScreenClose.tooltip;"
 +                       oncommand="BrowserTryToCloseWindow();"/>
 +      </hbox>
++
++      <box id="library-animatable-box" class="toolbarbutton-animatable-box">
++        <image class="toolbarbutton-animatable-image"/>
++      </box>
 +    </toolbar>
 +
 +    <toolbar id="PersonalToolbar"
 +             mode="icons"
-+             class="chromeclass-directories"
++             class="browser-toolbar chromeclass-directories"
 +             context="toolbar-context-menu"
 +             toolbarname="&personalbarCmd.label;" accesskey="&personalbarCmd.accesskey;"
 +             collapsed="true"
 +             customizable="true">
++      <toolbartabstop skipintoolbarset="true"/>
 +      <toolbaritem id="personal-bookmarks"
 +                   title="&bookmarksToolbarItem.label;"
 +                   cui-areatype="toolbar"
@@ -1108,13 +1247,12 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                     ondragleave="PlacesMenuDNDHandler.onDragLeave(event);"
 +                     ondrop="PlacesMenuDNDHandler.onDrop(event);"
 +                     oncommand="BookmarkingUI.onCommand(event);">
-+        <observes element="bookmarkThisPageBroadcaster" attribute="starred"/>
-+        <observes element="bookmarkThisPageBroadcaster" attribute="buttontooltiptext"/>
 +        <menupopup id="BMB_bookmarksPopup"
 +                   class="cui-widget-panel cui-widget-panelview cui-widget-panelWithFooter PanelUI-subView"
 +                   placespopup="true"
 +                   context="placesContext"
 +                   openInTabs="children"
++                   side="top"
 +                   onmouseup="BookmarksEventHandler.onMouseUp(event);"
 +                   oncommand="BookmarksEventHandler.onCommand(event);"
 +                   onclick="BookmarksEventHandler.onClick(event, this.parentNode._placesView);"
@@ -1141,7 +1279,7 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                       placespopup="true"
 +                       context="placesContext"
 +                       onpopupshowing="if (!this.parentNode._placesView)
-+                                         new PlacesMenu(event, 'place:folder=TOOLBAR',
++                                         new PlacesMenu(event, `place:parent=${PlacesUtils.bookmarks.toolbarGuid}`,
 +                                                        PlacesUIUtils.getViewForNode(this.parentNode.parentNode).options);">
 +              <menuitem id="BMB_viewBookmarksToolbar"
 +                        class="menuitem-iconic subviewbutton"
@@ -1160,7 +1298,7 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                       placespopup="true"
 +                       context="placesContext"
 +                       onpopupshowing="if (!this.parentNode._placesView)
-+                                         new PlacesMenu(event, 'place:folder=UNFILED_BOOKMARKS',
++                                         new PlacesMenu(event, `place:parent=${PlacesUtils.bookmarks.unfiledGuid}`,
 +                                                        PlacesUIUtils.getViewForNode(this.parentNode.parentNode).options);"/>
 +          </menu>
 +          <menu id="BMB_mobileBookmarks"
@@ -1172,7 +1310,7 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                       placespopup="true"
 +                       context="placesContext"
 +                       onpopupshowing="if (!this.parentNode._placesView)
-+                                         new PlacesMenu(event, 'place:folder=MOBILE_BOOKMARKS',
++                                         new PlacesMenu(event, `place:parent=${PlacesUtils.bookmarks.mobileGuid}`,
 +                                                        PlacesUIUtils.getViewForNode(this.parentNode.parentNode).options);"/>
 +          </menu>
 +
@@ -1192,12 +1330,11 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +                   align="center"
 +                   flex="100"
 +                   persist="width">
++        <toolbartabstop/>
 +        <searchbar id="searchbar" flex="1"/>
++        <toolbartabstop/>
 +      </toolbaritem>
 +    </toolbarpalette>
-+    <box id="library-animatable-box" class="toolbarbutton-animatable-box">
-+      <image class="toolbarbutton-animatable-image"/>
-+    </box>
 +  </toolbox>
 +
 +  <hbox id="fullscr-toggler" hidden="true"/>
@@ -1209,7 +1346,7 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +        <sidebarheader id="sidebar-header" align="center">
 +          <toolbarbutton id="sidebar-switcher-target" flex="1" class="tabbable">
 +            <image id="sidebar-icon" consumeanchor="sidebar-switcher-target"/>
-+            <label id="sidebar-title" persist="value" crop="end" flex="1" control="sidebar"/>
++            <label id="sidebar-title" crop="end" flex="1" control="sidebar"/>
 +            <image id="sidebar-switcher-arrow"/>
 +          </toolbarbutton>
 +          <image id="sidebar-throbber"/>
@@ -1226,28 +1363,11 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +
 +      <splitter id="sidebar-splitter" class="chromeclass-extrachrome sidebar-splitter" hidden="true"/>
 +      <vbox id="appcontent" flex="1">
-+        <notificationbox id="high-priority-global-notificationbox" notificationside="top"/>
++        <!-- gHighPriorityNotificationBox will be added here lazily. -->
 +        <tabbox id="tabbrowser-tabbox"
-+                    flex="1" eventnode="document" tabcontainer="tabbrowser-tabs"
-+                    onselect="if (event.target.localName == 'tabpanels') gBrowser.updateCurrentBrowser();">
-+          <tabpanels flex="1" class="plain" selectedIndex="0" id="tabbrowser-tabpanels">
-+            <notificationbox flex="1" notificationside="top">
-+              <hbox flex="1" class="browserSidebarContainer">
-+                <vbox flex="1" class="browserContainer">
-+                  <stack flex="1" class="browserStack">
-+                    <browser id="tabbrowser-initialBrowser" type="content"
-+                             message="true" messagemanagergroup="browsers"
-+                             primary="true" blank="true"
-+                             tooltip="aHTMLTooltip"
-+                             contextmenu="contentAreaContextMenu"
-+                             autocompletepopup="PopupAutoComplete"
-+                             selectmenulist="ContentSelectDropdown"
-+                             datetimepicker="DateTimePickerPanel"/>
-+                  </stack>
-+                </vbox>
-+              </hbox>
-+            </notificationbox>
-+          </tabpanels>
++                flex="1" tabcontainer="tabbrowser-tabs">
++          <tabpanels id="tabbrowser-tabpanels"
++                     flex="1" class="plain" selectedIndex="0"/>
 +        </tabbox>
 +      </vbox>
 +      <vbox id="browser-border-end" hidden="true" layer="true"/>
@@ -1286,56 +1406,41 @@ diff -r 395ded0bcd5c browser/base/content/browser-kde.xul
 +  </html:div>
 +
 +  <vbox id="browser-bottombox" layer="true">
-+    <notificationbox id="global-notificationbox" notificationside="bottom"/>
++    <!-- gNotificationBox will be added here lazily. -->
 +  </vbox>
 +
 +</window>
-diff -r 395ded0bcd5c browser/base/jar.mn
---- a/browser/base/jar.mn	Tue May 21 08:45:43 2019 +0200
-+++ b/browser/base/jar.mn	Tue May 21 17:38:24 2019 +0200
-@@ -47,6 +47,8 @@
+diff --git a/browser/base/jar.mn b/browser/base/jar.mn
+--- a/browser/base/jar.mn
++++ b/browser/base/jar.mn
+@@ -28,16 +28,18 @@ browser.jar:
+         content/browser/aboutTabCrashed.js            (content/aboutTabCrashed.js)
+         content/browser/aboutTabCrashed.xhtml         (content/aboutTabCrashed.xhtml)
  *       content/browser/browser.css                   (content/browser.css)
          content/browser/browser.js                    (content/browser.js)
+ #ifdef MOZ_BROWSER_XHTML
+ *       content/browser/browser.xhtml                 (content/browser.xhtml)
+ #endif
  *       content/browser/browser.xul                   (content/browser.xul)
 +*       content/browser/browser-kde.xul               (content/browser-kde.xul)
 +%       override chrome://browser/content/browser.xul chrome://browser/content/browser-kde.xul desktop=kde
          content/browser/browser-addons.js             (content/browser-addons.js)
+         content/browser/browser-allTabsMenu.js        (content/browser-allTabsMenu.js)
          content/browser/browser-captivePortal.js      (content/browser-captivePortal.js)
          content/browser/browser-ctrlTab.js            (content/browser-ctrlTab.js)
-diff -r 395ded0bcd5c browser/components/build/nsModule.cpp
---- a/browser/components/build/nsModule.cpp	Tue May 21 08:45:43 2019 +0200
-+++ b/browser/components/build/nsModule.cpp	Tue May 21 17:38:24 2019 +0200
-@@ -13,7 +13,7 @@
- #elif defined(XP_MACOSX)
- #include "nsMacShellService.h"
- #elif defined(MOZ_WIDGET_GTK)
--#include "nsGNOMEShellService.h"
-+#include "nsUnixShellService.h"
- #endif
+         content/browser/browser-customization.js      (content/browser-customization.js)
+         content/browser/browser-data-submission-info-bar.js (content/browser-data-submission-info-bar.js)
+         content/browser/browser-compacttheme.js       (content/browser-compacttheme.js)
+         content/browser/browser-contentblocking.js    (content/browser-contentblocking.js)
+diff --git a/browser/components/preferences/in-content/main.js b/browser/components/preferences/in-content/main.js
+--- a/browser/components/preferences/in-content/main.js
++++ b/browser/components/preferences/in-content/main.js
+@@ -288,16 +288,23 @@ var gMainPane = {
+           this._backoffIndex++ : backoffTimes.length - 1]);
+       };
  
- #if defined(XP_WIN)
-@@ -37,8 +37,6 @@
- NS_GENERIC_FACTORY_CONSTRUCTOR(nsWindowsShellService)
- #elif defined(XP_MACOSX)
- NS_GENERIC_FACTORY_CONSTRUCTOR(nsMacShellService)
--#elif defined(MOZ_WIDGET_GTK)
--NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsGNOMEShellService, Init)
- #endif
- 
- #if defined(XP_WIN)
-@@ -70,7 +68,7 @@
- #if defined(XP_WIN)
-     { &kNS_SHELLSERVICE_CID, false, nullptr, nsWindowsShellServiceConstructor },
- #elif defined(MOZ_WIDGET_GTK)
--    { &kNS_SHELLSERVICE_CID, false, nullptr, nsGNOMEShellServiceConstructor },
-+    { &kNS_SHELLSERVICE_CID, false, nullptr, nsUnixShellServiceConstructor },
- #endif
-     { &kNS_FEEDSNIFFER_CID, false, nullptr, nsFeedSnifferConstructor },
-     { &kNS_BROWSER_ABOUT_REDIRECTOR_CID, false, nullptr, AboutRedirector::Create },
-diff -r 395ded0bcd5c browser/components/preferences/in-content/main.js
---- a/browser/components/preferences/in-content/main.js	Tue May 21 08:45:43 2019 +0200
-+++ b/browser/components/preferences/in-content/main.js	Tue May 21 17:38:24 2019 +0200
-@@ -338,6 +338,13 @@
+       window.setTimeout(() => {
+         window.requestIdleCallback(pollForDefaultBrowser);
        }, backoffTimes[this._backoffIndex]);
      }
  
@@ -1349,7 +1454,17 @@ diff -r 395ded0bcd5c browser/components/preferences/in-content/main.js
      this.initBrowserContainers();
      this.buildContentProcessCountMenuList();
  
-@@ -1065,6 +1072,17 @@
+     let performanceSettingsLink = document.getElementById("performanceSettingsLearnMore");
+     let performanceSettingsUrl = Services.urlFormatter.formatURLPref("app.support.baseURL") + "performance";
+     performanceSettingsLink.setAttribute("href", performanceSettingsUrl);
+ 
+     this.updateDefaultPerformanceSettingsPref();
+@@ -1025,16 +1032,27 @@ var gMainPane = {
+       // Reset exponential backoff delay time in order to do visual update in pollForDefaultBrowser.
+       this._backoffIndex = 0;
+ 
+       let shellSvc = getShellService();
+       if (!shellSvc)
          return;
        try {
          shellSvc.setDefaultBrowser(true, false);
@@ -1367,22 +1482,38 @@ diff -r 395ded0bcd5c browser/components/preferences/in-content/main.js
        } catch (ex) {
          Cu.reportError(ex);
          return;
-diff -r 395ded0bcd5c browser/components/shell/moz.build
---- a/browser/components/shell/moz.build	Tue May 21 08:45:43 2019 +0200
-+++ b/browser/components/shell/moz.build	Tue May 21 17:38:24 2019 +0200
-@@ -44,6 +44,8 @@
+       }
+ 
+       let selectedIndex = shellSvc.isDefaultBrowser(false, true) ? 1 : 0;
+       document.getElementById("setDefaultPane").selectedIndex = selectedIndex;
+     }
+diff --git a/browser/components/shell/moz.build b/browser/components/shell/moz.build
+--- a/browser/components/shell/moz.build
++++ b/browser/components/shell/moz.build
+@@ -29,16 +29,18 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'coco
+     ]
  elif 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
+     XPIDL_SOURCES += [
+         'nsIGNOMEShellService.idl',
+     ]
+ 
      SOURCES += [
          'nsGNOMEShellService.cpp',
 +        'nsKDEShellService.cpp',
 +        'nsUnixShellService.cpp',
      ]
- 
- if SOURCES:
-diff -r 395ded0bcd5c browser/components/shell/nsKDEShellService.cpp
---- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/shell/nsKDEShellService.cpp	Tue May 21 17:38:24 2019 +0200
-@@ -0,0 +1,204 @@
+ elif CONFIG['OS_ARCH'] == 'WINNT':
+     SOURCES += [
+         'nsWindowsShellService.cpp',
+     ]
+     LOCAL_INCLUDES += [
+         '../../../other-licenses/nsis/Contrib/CityHash/cityhash',
+     ]
+diff --git a/browser/components/shell/nsKDEShellService.cpp b/browser/components/shell/nsKDEShellService.cpp
+new file mode 100644
+--- /dev/null
++++ b/browser/components/shell/nsKDEShellService.cpp
+@@ -0,0 +1,150 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* This Source Code Form is subject to the terms of the Mozilla Public
 + * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -1416,13 +1547,10 @@ diff -r 395ded0bcd5c browser/components/shell/nsKDEShellService.cpp
 +NS_IMPL_ISUPPORTS(nsKDEShellService, nsIGNOMEShellService, nsIShellService)
 +
 +NS_IMETHODIMP
-+nsKDEShellService::IsDefaultBrowser(bool aStartupCheck,
-+                                    bool aForAllTypes,
++nsKDEShellService::IsDefaultBrowser(bool aForAllTypes,
 +                                    bool* aIsDefaultBrowser)
 +{
 +    *aIsDefaultBrowser = false;
-+    if (aStartupCheck)
-+        mCheckedThisSession = true;
 +
 +    nsCOMPtr<nsIMutableArray> command = do_CreateInstance( NS_ARRAY_CONTRACTID );
 +    if (!command)
@@ -1470,7 +1598,7 @@ diff -r 395ded0bcd5c browser/components/shell/nsKDEShellService.cpp
 +}
 +
 +NS_IMETHODIMP
-+nsKDEShellService::SetDesktopBackground(nsIDOMElement* aElement,
++nsKDEShellService::SetDesktopBackground(dom::Element* aElement,
 +                                        int32_t aPosition,
 +                                        const nsACString& aImageName)
 +{
@@ -1536,61 +1664,11 @@ diff -r 395ded0bcd5c browser/components/shell/nsKDEShellService.cpp
 +    return nsKDEUtils::command( command ) ? NS_OK : NS_ERROR_FAILURE;
 +}
 +
-+NS_IMETHODIMP
-+nsKDEShellService::GetDefaultFeedReader(nsIFile** _retval)
-+{
-+    *_retval = nullptr;
-+
-+    nsCOMPtr<nsIMutableArray> command = do_CreateInstance( NS_ARRAY_CONTRACTID );
-+    if( !command )
-+        return NS_ERROR_FAILURE;
-+
-+    nsCOMPtr<nsISupportsCString> str = do_CreateInstance( NS_SUPPORTS_CSTRING_CONTRACTID );
-+    if( !str )
-+        return NS_ERROR_FAILURE;
-+
-+    str->SetData( NS_LITERAL_CSTRING( "GETDEFAULTFEEDREADER" ));
-+    command->AppendElement( str );
-+
-+    nsCOMPtr<nsIArray> output;
-+    if( !nsKDEUtils::command( command, getter_AddRefs( output ) ) )
-+        return NS_ERROR_FAILURE;
-+
-+    PRUint32 length;
-+    output->GetLength( &length );
-+    if( length != 1 )
-+        return NS_ERROR_FAILURE;
-+
-+    nsCOMPtr<nsISupportsCString> resstr = do_QueryElementAt( output, 0 );
-+    if( !resstr )
-+        return NS_ERROR_FAILURE;
-+
-+    nsAutoCString path;
-+    resstr->GetData( path );
-+    if (path.IsEmpty())
-+        return NS_ERROR_FAILURE;
-+
-+    nsresult rv;
-+    nsCOMPtr<nsIFile> defaultReader =
-+        do_CreateInstance("@mozilla.org/file/local;1", &rv);
-+    NS_ENSURE_SUCCESS(rv, rv);
-+
-+    rv = defaultReader->InitWithNativePath(path);
-+    NS_ENSURE_SUCCESS(rv, rv);
-+
-+    bool exists;
-+    rv = defaultReader->Exists(&exists);
-+    NS_ENSURE_SUCCESS(rv, rv);
-+    if (!exists)
-+        return NS_ERROR_FAILURE;
-+
-+    NS_ADDREF(*_retval = defaultReader);
-+    return NS_OK;
-+}
-diff -r 395ded0bcd5c browser/components/shell/nsKDEShellService.h
---- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/shell/nsKDEShellService.h	Tue May 21 17:38:24 2019 +0200
-@@ -0,0 +1,30 @@
+diff --git a/browser/components/shell/nsKDEShellService.h b/browser/components/shell/nsKDEShellService.h
+new file mode 100644
+--- /dev/null
++++ b/browser/components/shell/nsKDEShellService.h
+@@ -0,0 +1,32 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* This Source Code Form is subject to the terms of the Mozilla Public
 + * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -1600,17 +1678,19 @@ diff -r 395ded0bcd5c browser/components/shell/nsKDEShellService.h
 +#define nskdeshellservice_h____
 +
 +#include "nsIGNOMEShellService.h"
++#include "nsToolkitShellService.h"
 +#include "nsString.h"
 +#include "mozilla/Attributes.h"
 +
-+class nsKDEShellService final : public nsIGNOMEShellService
++class nsKDEShellService final : public nsIGNOMEShellService,
++                                public nsToolkitShellService
 +{
 +public:
 +  nsKDEShellService() : mCheckedThisSession(false) { }
 +
 +  NS_DECL_ISUPPORTS
-+  NS_DECL_NSIGNOMESHELLSERVICE
 +  NS_DECL_NSISHELLSERVICE
++  NS_DECL_NSIGNOMESHELLSERVICE
 +
 +  nsresult Init();
 +
@@ -1621,9 +1701,10 @@ diff -r 395ded0bcd5c browser/components/shell/nsKDEShellService.h
 +};
 +
 +#endif // nskdeshellservice_h____
-diff -r 395ded0bcd5c browser/components/shell/nsUnixShellService.cpp
---- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/shell/nsUnixShellService.cpp	Tue May 21 17:38:24 2019 +0200
+diff --git a/browser/components/shell/nsUnixShellService.cpp b/browser/components/shell/nsUnixShellService.cpp
+new file mode 100644
+--- /dev/null
++++ b/browser/components/shell/nsUnixShellService.cpp
 @@ -0,0 +1,22 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* This Source Code Form is subject to the terms of the Mozilla Public
@@ -1647,9 +1728,10 @@ diff -r 395ded0bcd5c browser/components/shell/nsUnixShellService.cpp
 +        return nsKDEShellServiceConstructor( aOuter, aIID, aResult );
 +    return nsGNOMEShellServiceConstructor( aOuter, aIID, aResult );
 +}
-diff -r 395ded0bcd5c browser/components/shell/nsUnixShellService.h
---- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/shell/nsUnixShellService.h	Tue May 21 17:38:24 2019 +0200
+diff --git a/browser/components/shell/nsUnixShellService.h b/browser/components/shell/nsUnixShellService.h
+new file mode 100644
+--- /dev/null
++++ b/browser/components/shell/nsUnixShellService.h
 @@ -0,0 +1,15 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* This Source Code Form is subject to the terms of the Mozilla Public
@@ -1666,15 +1748,25 @@ diff -r 395ded0bcd5c browser/components/shell/nsUnixShellService.h
 +nsUnixShellServiceConstructor(nsISupports *aOuter, REFNSIID aIID, void **aResult);
 +
 +#endif // nsunixshellservice_h____
-diff -r 395ded0bcd5c browser/installer/package-manifest.in
---- a/browser/installer/package-manifest.in	Tue May 21 08:45:43 2019 +0200
-+++ b/browser/installer/package-manifest.in	Tue May 21 17:38:24 2019 +0200
-@@ -651,6 +651,8 @@
+diff --git a/browser/installer/package-manifest.in b/browser/installer/package-manifest.in
+--- a/browser/installer/package-manifest.in
++++ b/browser/installer/package-manifest.in
+@@ -286,16 +286,18 @@
+ @RESPATH@/browser/defaults/settings/pinning
+ @RESPATH@/browser/defaults/settings/main
+ 
+ ; Warning: changing the path to channel-prefs.js can cause bugs (Bug 756325)
+ ; Technically this is an app pref file, but we are keeping it in the original
  ; gre location for now.
  @RESPATH@/defaults/pref/channel-prefs.js
  
-+@BINPATH@/defaults/pref/kde.js
++@RESPATH@/defaults/pref/kde.js
 +
- ; Remote control protocol prefs
- ; defined in ../../testing/marionette/prefs/marionette.js
- @RESPATH@/defaults/pref/marionette.js
+ ; Services (gre) prefs
+ @RESPATH@/defaults/pref/services-sync.js
+ 
+ ; [Layout Engine Resources]
+ ; Style Sheets, Graphics and other Resources used by the layout engine.
+ @RESPATH@/res/EditorOverride.css
+ @RESPATH@/res/contenteditable.css
+ @RESPATH@/res/designmode.css
