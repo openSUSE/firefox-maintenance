@@ -1,12 +1,16 @@
 # HG changeset patch
-# Parent  8fef89669379036485fb1ae22394090470d8275f
+# User msirringhaus@suse.de
+# Date 1559294891 -7200
+#      Fri May 31 11:28:11 2019 +0200
+# Node ID 8bf700c1a35dbf58b83d5146796460af40dff8b9
+# Parent  916a6c229215c584ec0dba0303a7ab9cc1cbd759
 Description: Add KDE integration to Firefox (toolkit parts)
 Author: Wolfgang Rosenauer <wolfgang@rosenauer.org>
 Author: Lubos Lunak <lunak@suse.com>
 Bug: https://bugzilla.mozilla.org/show_bug.cgi?id=140751
      https://bugzilla.novell.com/show_bug.cgi?id=170055
 
-diff -r 8fef89669379 modules/libpref/Preferences.cpp
+diff -r 916a6c229215 -r 8bf700c1a35d modules/libpref/Preferences.cpp
 --- a/modules/libpref/Preferences.cpp	Tue May 21 17:27:05 2019 +0200
 +++ b/modules/libpref/Preferences.cpp	Fri May 31 11:28:11 2019 +0200
 @@ -86,6 +86,7 @@
@@ -52,7 +56,7 @@ diff -r 8fef89669379 modules/libpref/Preferences.cpp
      }
    }
  
-diff -r 8fef89669379 modules/libpref/moz.build
+diff -r 916a6c229215 -r 8bf700c1a35d modules/libpref/moz.build
 --- a/modules/libpref/moz.build	Tue May 21 17:27:05 2019 +0200
 +++ b/modules/libpref/moz.build	Fri May 31 11:28:11 2019 +0200
 @@ -36,6 +36,10 @@
@@ -66,7 +70,7 @@ diff -r 8fef89669379 modules/libpref/moz.build
  XPCOM_MANIFESTS += [
      'components.conf',
  ]
-diff -r 8fef89669379 python/mozbuild/mozpack/chrome/flags.py
+diff -r 916a6c229215 -r 8bf700c1a35d python/mozbuild/mozpack/chrome/flags.py
 --- a/python/mozbuild/mozpack/chrome/flags.py	Tue May 21 17:27:05 2019 +0200
 +++ b/python/mozbuild/mozpack/chrome/flags.py	Fri May 31 11:28:11 2019 +0200
 @@ -228,6 +228,7 @@
@@ -77,7 +81,7 @@ diff -r 8fef89669379 python/mozbuild/mozpack/chrome/flags.py
      }
      RE = re.compile(r'([!<>=]+)')
  
-diff -r 8fef89669379 python/mozbuild/mozpack/chrome/manifest.py
+diff -r 916a6c229215 -r 8bf700c1a35d python/mozbuild/mozpack/chrome/manifest.py
 --- a/python/mozbuild/mozpack/chrome/manifest.py	Tue May 21 17:27:05 2019 +0200
 +++ b/python/mozbuild/mozpack/chrome/manifest.py	Fri May 31 11:28:11 2019 +0200
 @@ -44,6 +44,7 @@
@@ -88,7 +92,7 @@ diff -r 8fef89669379 python/mozbuild/mozpack/chrome/manifest.py
      ]
  
      def __init__(self, base, *flags):
-diff -r 8fef89669379 toolkit/components/downloads/moz.build
+diff -r 916a6c229215 -r 8bf700c1a35d toolkit/components/downloads/moz.build
 --- a/toolkit/components/downloads/moz.build	Tue May 21 17:27:05 2019 +0200
 +++ b/toolkit/components/downloads/moz.build	Fri May 31 11:28:11 2019 +0200
 @@ -46,5 +46,9 @@
@@ -101,7 +105,7 @@ diff -r 8fef89669379 toolkit/components/downloads/moz.build
 +
  with Files('**'):
      BUG_COMPONENT = ('Toolkit', 'Downloads API')
-diff -r 8fef89669379 toolkit/content/jar.mn
+diff -r 916a6c229215 -r 8bf700c1a35d toolkit/content/jar.mn
 --- a/toolkit/content/jar.mn	Tue May 21 17:27:05 2019 +0200
 +++ b/toolkit/content/jar.mn	Fri May 31 11:28:11 2019 +0200
 @@ -68,6 +68,8 @@
@@ -113,7 +117,7 @@ diff -r 8fef89669379 toolkit/content/jar.mn
     content/global/bindings/general.xml         (widgets/general.xml)
     content/global/bindings/popup.xml           (widgets/popup.xml)
     content/global/bindings/richlistbox.xml     (widgets/richlistbox.xml)
-diff -r 8fef89669379 toolkit/content/widgets/dialog-kde.xml
+diff -r 916a6c229215 -r 8bf700c1a35d toolkit/content/widgets/dialog-kde.xml
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/toolkit/content/widgets/dialog-kde.xml	Fri May 31 11:28:11 2019 +0200
 @@ -0,0 +1,507 @@
@@ -624,7 +628,7 @@ diff -r 8fef89669379 toolkit/content/widgets/dialog-kde.xml
 +  </binding>
 +
 +</bindings>
-diff -r 8fef89669379 toolkit/mozapps/downloads/HelperAppDlg.jsm
+diff -r 916a6c229215 -r 8bf700c1a35d toolkit/mozapps/downloads/HelperAppDlg.jsm
 --- a/toolkit/mozapps/downloads/HelperAppDlg.jsm	Tue May 21 17:27:05 2019 +0200
 +++ b/toolkit/mozapps/downloads/HelperAppDlg.jsm	Fri May 31 11:28:11 2019 +0200
 @@ -1047,20 +1047,50 @@
@@ -692,7 +696,7 @@ diff -r 8fef89669379 toolkit/mozapps/downloads/HelperAppDlg.jsm
      } else {
        var nsIFilePicker = Ci.nsIFilePicker;
        var fp = Cc["@mozilla.org/filepicker;1"]
-diff -r 8fef89669379 toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp
+diff -r 916a6c229215 -r 8bf700c1a35d toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp
 --- a/toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp	Tue May 21 17:27:05 2019 +0200
 +++ b/toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp	Fri May 31 11:28:11 2019 +0200
 @@ -19,6 +19,7 @@
@@ -755,7 +759,7 @@ diff -r 8fef89669379 toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp
  NS_IMPL_COMPONENT_FACTORY(nsUnixSystemProxySettings) {
    auto result = MakeRefPtr<nsUnixSystemProxySettings>();
    result->Init();
-diff -r 8fef89669379 toolkit/xre/moz.build
+diff -r 916a6c229215 -r 8bf700c1a35d toolkit/xre/moz.build
 --- a/toolkit/xre/moz.build	Tue May 21 17:27:05 2019 +0200
 +++ b/toolkit/xre/moz.build	Fri May 31 11:28:11 2019 +0200
 @@ -88,7 +88,9 @@
@@ -768,7 +772,7 @@ diff -r 8fef89669379 toolkit/xre/moz.build
          'nsNativeAppSupportUnix.cpp',
      ]
  else:
-diff -r 8fef89669379 toolkit/xre/nsKDEUtils.cpp
+diff -r 916a6c229215 -r 8bf700c1a35d toolkit/xre/nsKDEUtils.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/toolkit/xre/nsKDEUtils.cpp	Fri May 31 11:28:11 2019 +0200
 @@ -0,0 +1,344 @@
@@ -1116,7 +1120,7 @@ diff -r 8fef89669379 toolkit/xre/nsKDEUtils.cpp
 +    fputs( "\\E\n", commandFile ); // done as \E, so it cannot happen in normal data
 +    fflush( commandFile );
 +    }
-diff -r 8fef89669379 toolkit/xre/nsKDEUtils.h
+diff -r 916a6c229215 -r 8bf700c1a35d toolkit/xre/nsKDEUtils.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/toolkit/xre/nsKDEUtils.h	Fri May 31 11:28:11 2019 +0200
 @@ -0,0 +1,48 @@
@@ -1168,7 +1172,7 @@ diff -r 8fef89669379 toolkit/xre/nsKDEUtils.h
 +    };
 +
 +#endif // nsKDEUtils
-diff -r 8fef89669379 uriloader/exthandler/HandlerServiceParent.cpp
+diff -r 916a6c229215 -r 8bf700c1a35d uriloader/exthandler/HandlerServiceParent.cpp
 --- a/uriloader/exthandler/HandlerServiceParent.cpp	Tue May 21 17:27:05 2019 +0200
 +++ b/uriloader/exthandler/HandlerServiceParent.cpp	Fri May 31 11:28:11 2019 +0200
 @@ -6,7 +6,7 @@
@@ -1198,7 +1202,7 @@ diff -r 8fef89669379 uriloader/exthandler/HandlerServiceParent.cpp
    if (NS_WARN_IF(NS_FAILED(rv))) {
      *aHandlerExists = false;
    }
-diff -r 8fef89669379 uriloader/exthandler/moz.build
+diff -r 916a6c229215 -r 8bf700c1a35d uriloader/exthandler/moz.build
 --- a/uriloader/exthandler/moz.build	Tue May 21 17:27:05 2019 +0200
 +++ b/uriloader/exthandler/moz.build	Fri May 31 11:28:11 2019 +0200
 @@ -88,7 +88,9 @@
@@ -1219,7 +1223,7 @@ diff -r 8fef89669379 uriloader/exthandler/moz.build
  ]
  
  if CONFIG['MOZ_ENABLE_DBUS']:
-diff -r 8fef89669379 uriloader/exthandler/unix/nsCommonRegistry.cpp
+diff -r 916a6c229215 -r 8bf700c1a35d uriloader/exthandler/unix/nsCommonRegistry.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/uriloader/exthandler/unix/nsCommonRegistry.cpp	Fri May 31 11:28:11 2019 +0200
 @@ -0,0 +1,53 @@
@@ -1276,7 +1280,7 @@ diff -r 8fef89669379 uriloader/exthandler/unix/nsCommonRegistry.cpp
 +        return nsKDERegistry::GetFromType( aMIMEType );
 +    return nsGNOMERegistry::GetFromType( aMIMEType );
 +}
-diff -r 8fef89669379 uriloader/exthandler/unix/nsCommonRegistry.h
+diff -r 916a6c229215 -r 8bf700c1a35d uriloader/exthandler/unix/nsCommonRegistry.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/uriloader/exthandler/unix/nsCommonRegistry.h	Fri May 31 11:28:11 2019 +0200
 @@ -0,0 +1,28 @@
@@ -1308,7 +1312,7 @@ diff -r 8fef89669379 uriloader/exthandler/unix/nsCommonRegistry.h
 +};
 +
 +#endif
-diff -r 8fef89669379 uriloader/exthandler/unix/nsKDERegistry.cpp
+diff -r 916a6c229215 -r 8bf700c1a35d uriloader/exthandler/unix/nsKDERegistry.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/uriloader/exthandler/unix/nsKDERegistry.cpp	Fri May 31 11:28:11 2019 +0200
 @@ -0,0 +1,87 @@
@@ -1399,7 +1403,7 @@ diff -r 8fef89669379 uriloader/exthandler/unix/nsKDERegistry.cpp
 +        }
 +    return nullptr;
 +}
-diff -r 8fef89669379 uriloader/exthandler/unix/nsKDERegistry.h
+diff -r 916a6c229215 -r 8bf700c1a35d uriloader/exthandler/unix/nsKDERegistry.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/uriloader/exthandler/unix/nsKDERegistry.h	Fri May 31 11:28:11 2019 +0200
 @@ -0,0 +1,34 @@
@@ -1437,7 +1441,7 @@ diff -r 8fef89669379 uriloader/exthandler/unix/nsKDERegistry.h
 +};
 +
 +#endif //nsKDERegistry_h__
-diff -r 8fef89669379 uriloader/exthandler/unix/nsMIMEInfoUnix.cpp
+diff -r 916a6c229215 -r 8bf700c1a35d uriloader/exthandler/unix/nsMIMEInfoUnix.cpp
 --- a/uriloader/exthandler/unix/nsMIMEInfoUnix.cpp	Tue May 21 17:27:05 2019 +0200
 +++ b/uriloader/exthandler/unix/nsMIMEInfoUnix.cpp	Fri May 31 11:28:11 2019 +0200
 @@ -5,7 +5,7 @@
@@ -1506,7 +1510,7 @@ diff -r 8fef89669379 uriloader/exthandler/unix/nsMIMEInfoUnix.cpp
    nsCOMPtr<nsIGIOService> giovfs = do_GetService(NS_GIOSERVICE_CONTRACTID);
    if (!giovfs) {
      return NS_ERROR_FAILURE;
-diff -r 8fef89669379 uriloader/exthandler/unix/nsOSHelperAppService.cpp
+diff -r 916a6c229215 -r 8bf700c1a35d uriloader/exthandler/unix/nsOSHelperAppService.cpp
 --- a/uriloader/exthandler/unix/nsOSHelperAppService.cpp	Tue May 21 17:27:05 2019 +0200
 +++ b/uriloader/exthandler/unix/nsOSHelperAppService.cpp	Fri May 31 11:28:11 2019 +0200
 @@ -10,7 +10,7 @@
@@ -1554,7 +1558,7 @@ diff -r 8fef89669379 uriloader/exthandler/unix/nsOSHelperAppService.cpp
      if (gnomeInfo) {
        LOG(
            ("Got MIMEInfo from GNOME registry without extensions; setting them "
-diff -r 8fef89669379 widget/gtk/moz.build
+diff -r 916a6c229215 -r 8bf700c1a35d widget/gtk/moz.build
 --- a/widget/gtk/moz.build	Tue May 21 17:27:05 2019 +0200
 +++ b/widget/gtk/moz.build	Fri May 31 11:28:11 2019 +0200
 @@ -129,6 +129,7 @@
@@ -1565,7 +1569,7 @@ diff -r 8fef89669379 widget/gtk/moz.build
      '/widget',
      '/widget/headless',
  ]
-diff -r 8fef89669379 widget/gtk/nsFilePicker.cpp
+diff -r 916a6c229215 -r 8bf700c1a35d widget/gtk/nsFilePicker.cpp
 --- a/widget/gtk/nsFilePicker.cpp	Tue May 21 17:27:05 2019 +0200
 +++ b/widget/gtk/nsFilePicker.cpp	Fri May 31 11:28:11 2019 +0200
 @@ -9,6 +9,7 @@
@@ -1856,7 +1860,7 @@ diff -r 8fef89669379 widget/gtk/nsFilePicker.cpp
  // All below functions available as of GTK 3.20+
  void* nsFilePicker::GtkFileChooserNew(const gchar* title, GtkWindow* parent,
                                        GtkFileChooserAction action,
-diff -r 8fef89669379 widget/gtk/nsFilePicker.h
+diff -r 916a6c229215 -r 8bf700c1a35d widget/gtk/nsFilePicker.h
 --- a/widget/gtk/nsFilePicker.h	Tue May 21 17:27:05 2019 +0200
 +++ b/widget/gtk/nsFilePicker.h	Fri May 31 11:28:11 2019 +0200
 @@ -72,6 +72,12 @@
@@ -1872,7 +1876,7 @@ diff -r 8fef89669379 widget/gtk/nsFilePicker.h
    void* GtkFileChooserNew(const gchar* title, GtkWindow* parent,
                            GtkFileChooserAction action,
                            const gchar* accept_label);
-diff -r 8fef89669379 xpcom/components/ManifestParser.cpp
+diff -r 916a6c229215 -r 8bf700c1a35d xpcom/components/ManifestParser.cpp
 --- a/xpcom/components/ManifestParser.cpp	Tue May 21 17:27:05 2019 +0200
 +++ b/xpcom/components/ManifestParser.cpp	Fri May 31 11:28:11 2019 +0200
 @@ -38,6 +38,7 @@
@@ -1950,7 +1954,7 @@ diff -r 8fef89669379 xpcom/components/ManifestParser.cpp
  #ifdef MOZ_WIDGET_ANDROID
          stTablet == eBad ||
  #endif
-diff -r 8fef89669379 xpcom/components/moz.build
+diff -r 916a6c229215 -r 8bf700c1a35d xpcom/components/moz.build
 --- a/xpcom/components/moz.build	Tue May 21 17:27:05 2019 +0200
 +++ b/xpcom/components/moz.build	Fri May 31 11:28:11 2019 +0200
 @@ -71,6 +71,7 @@
@@ -1961,7 +1965,7 @@ diff -r 8fef89669379 xpcom/components/moz.build
  ]
  
  if 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
-diff -r 8fef89669379 xpcom/io/nsLocalFileUnix.cpp
+diff -r 916a6c229215 -r 8bf700c1a35d xpcom/io/nsLocalFileUnix.cpp
 --- a/xpcom/io/nsLocalFileUnix.cpp	Tue May 21 17:27:05 2019 +0200
 +++ b/xpcom/io/nsLocalFileUnix.cpp	Fri May 31 11:28:11 2019 +0200
 @@ -52,6 +52,7 @@

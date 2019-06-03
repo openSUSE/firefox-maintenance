@@ -2,11 +2,11 @@
 # User msirringhaus@suse.de
 # Date 1558452408 -7200
 #      Tue May 21 17:26:48 2019 +0200
-# Node ID da5a941fd85b609d06671b80b369049ba76d73ca
-# Parent  8241a8abd9d7fc0426a5bb6a602e31464c1711cc
+# Node ID 4da6bde6df3e9e7c4a502ebf46cfa602190d9cd0
+# Parent  190ea316fd8358972bbab50141ea40404f93768e
 [mq]: mozilla-s390-context.patch
 
-diff -r 8241a8abd9d7 -r da5a941fd85b js/src/wasm/WasmSignalHandlers.cpp
+diff -r 190ea316fd83 -r 4da6bde6df3e js/src/wasm/WasmSignalHandlers.cpp
 --- a/js/src/wasm/WasmSignalHandlers.cpp	Tue May 21 17:22:06 2019 +0200
 +++ b/js/src/wasm/WasmSignalHandlers.cpp	Tue May 21 17:26:48 2019 +0200
 @@ -154,6 +154,10 @@

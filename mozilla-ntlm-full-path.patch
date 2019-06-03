@@ -2,8 +2,8 @@
 # User Petr Cerny <pcerny@novell.com>
 # Date 1558442920 -7200
 #      Tue May 21 14:48:40 2019 +0200
-# Node ID 074efb062eae0521794e521a1194d37b2d624675
-# Parent  6ac4f044b439b3492945f75a8615264b0d874bee
+# Node ID 2d3617905ef7b9c1a6a773b9155707528d7ad458
+# Parent  5ef9114bf8c930773b8c97f84c3d667d8f6f391d
 Bug 634334 - call to the ntlm_auth helper fails
 
 diff --git a/extensions/auth/nsAuthSambaNTLM.cpp b/extensions/auth/nsAuthSambaNTLM.cpp

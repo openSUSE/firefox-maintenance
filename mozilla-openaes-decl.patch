@@ -2,8 +2,8 @@
 # User Wolfgang Rosenauer <wr@rosenauer.org>
 # Date 1558442924 -7200
 #      Tue May 21 14:48:44 2019 +0200
-# Node ID 76aff0b134600a95f0e2349a3706fa5a44f64927
-# Parent  074efb062eae0521794e521a1194d37b2d624675
+# Node ID 22699182fb9c26ef303fa0ce0e1b6edcb945a7b5
+# Parent  2d3617905ef7b9c1a6a773b9155707528d7ad458
 imported patch mozilla-openaes-decl.patch
 
 diff --git a/media/gmp-clearkey/0.1/openaes/oaes_lib.c b/media/gmp-clearkey/0.1/openaes/oaes_lib.c

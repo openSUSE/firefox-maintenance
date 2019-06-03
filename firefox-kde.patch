@@ -1,7 +1,12 @@
 # HG changeset patch
-# Parent  3001cd8340d0f49be9fd39369bfd3ad0afbc7fca
+# User msirringhaus@suse.de
+# Date 1559300151 -7200
+#      Fri May 31 12:55:51 2019 +0200
+# Node ID daf32779f416246ff789d51340a4dd76f0739f77
+# Parent  8bf700c1a35dbf58b83d5146796460af40dff8b9
+[mq]: firefox-kde.patch
 
-diff -r 3001cd8340d0 browser/base/content/browser-kde.xul
+diff -r 8bf700c1a35d -r daf32779f416 browser/base/content/browser-kde.xul
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/browser/base/content/browser-kde.xul	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,1403 @@
@@ -1455,7 +1460,7 @@ diff -r 3001cd8340d0 browser/components/preferences/in-content/main.js
        } catch (ex) {
          Cu.reportError(ex);
          return;
-diff -r 3001cd8340d0 browser/components/shell/moz.build
+diff -r 8bf700c1a35d -r daf32779f416 browser/components/shell/moz.build
 --- a/browser/components/shell/moz.build	Fri May 31 11:28:11 2019 +0200
 +++ b/browser/components/shell/moz.build	Fri May 31 12:55:51 2019 +0200
 @@ -33,6 +33,8 @@
@@ -1467,7 +1472,7 @@ diff -r 3001cd8340d0 browser/components/shell/moz.build
      ]
  elif CONFIG['OS_ARCH'] == 'WINNT':
      SOURCES += [
-diff -r 3001cd8340d0 browser/components/shell/nsKDEShellService.cpp
+diff -r 8bf700c1a35d -r daf32779f416 browser/components/shell/nsKDEShellService.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/browser/components/shell/nsKDEShellService.cpp	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,150 @@
@@ -1621,7 +1626,7 @@ diff -r 3001cd8340d0 browser/components/shell/nsKDEShellService.cpp
 +    return nsKDEUtils::command( command ) ? NS_OK : NS_ERROR_FAILURE;
 +}
 +
-diff -r 3001cd8340d0 browser/components/shell/nsKDEShellService.h
+diff -r 8bf700c1a35d -r daf32779f416 browser/components/shell/nsKDEShellService.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/browser/components/shell/nsKDEShellService.h	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,32 @@
@@ -1657,7 +1662,7 @@ diff -r 3001cd8340d0 browser/components/shell/nsKDEShellService.h
 +};
 +
 +#endif // nskdeshellservice_h____
-diff -r 3001cd8340d0 browser/components/shell/nsUnixShellService.cpp
+diff -r 8bf700c1a35d -r daf32779f416 browser/components/shell/nsUnixShellService.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/browser/components/shell/nsUnixShellService.cpp	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,22 @@
@@ -1683,7 +1688,7 @@ diff -r 3001cd8340d0 browser/components/shell/nsUnixShellService.cpp
 +        return nsKDEShellServiceConstructor( aOuter, aIID, aResult );
 +    return nsGNOMEShellServiceConstructor( aOuter, aIID, aResult );
 +}
-diff -r 3001cd8340d0 browser/components/shell/nsUnixShellService.h
+diff -r 8bf700c1a35d -r daf32779f416 browser/components/shell/nsUnixShellService.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/browser/components/shell/nsUnixShellService.h	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,15 @@
@@ -1702,7 +1707,7 @@ diff -r 3001cd8340d0 browser/components/shell/nsUnixShellService.h
 +nsUnixShellServiceConstructor(nsISupports *aOuter, REFNSIID aIID, void **aResult);
 +
 +#endif // nsunixshellservice_h____
-diff -r 3001cd8340d0 browser/installer/package-manifest.in
+diff -r 8bf700c1a35d -r daf32779f416 browser/installer/package-manifest.in
 --- a/browser/installer/package-manifest.in	Fri May 31 11:28:11 2019 +0200
 +++ b/browser/installer/package-manifest.in	Fri May 31 12:55:51 2019 +0200
 @@ -301,6 +301,8 @@
