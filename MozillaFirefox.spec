@@ -350,8 +350,9 @@ export LDFLAGS="${LDFLAGS} -Wl,-z,relro,-z,now"
 %endif
 %endif
 %ifarch ppc64 ppc64le
-# TODO: This is currently an unknown switch. Why do we need it?
-#export CFLAGS="$CFLAGS -mminimal-toc"
+%if 0%{?clang_build} == 0
+export CFLAGS="$CFLAGS -mminimal-toc"
+%endif
 %endif
 export CXXFLAGS="$CFLAGS"
 # Set RUSTFLAGS to fix building with rust >= 1.33
