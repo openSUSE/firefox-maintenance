@@ -2,11 +2,11 @@
 # User Mike Hommey <mh+mozilla@glandium.org>
 # Date 1527491713 -32400
 #      Mon May 28 16:15:13 2018 +0900
-# Node ID db2690be8dc1fb643b0e07bc56bf88138554cda8
-# Parent  d21d354191811919959707cc267ba7c6a41f901f
+# Node ID d94bd5b53738d71e0858050e9dba1c2beb2161fd
+# Parent  e84a97fcca535bd2adb75fc295723006a0aeb918
 Bug 1464766 - Allow to relax the addon signature requirements. r?rhelmer
 
-diff -r d21d35419181 -r db2690be8dc1 modules/libpref/init/all.js
+diff -r e84a97fcca53 -r d94bd5b53738 modules/libpref/init/all.js
 --- a/modules/libpref/init/all.js	Tue May 21 14:49:58 2019 +0200
 +++ b/modules/libpref/init/all.js	Mon May 28 16:15:13 2018 +0900
 @@ -1226,6 +1226,9 @@
@@ -19,7 +19,7 @@ diff -r d21d35419181 -r db2690be8dc1 modules/libpref/init/all.js
  // General prefs for editor.
  // Whether Gecko specific editing UI is enabled by default.
  // Those UIs are not impelemnted by any other browsers.  So, only Firefox users
-diff -r d21d35419181 -r db2690be8dc1 toolkit/mozapps/extensions/content/extensions.js
+diff -r e84a97fcca53 -r d94bd5b53738 toolkit/mozapps/extensions/content/extensions.js
 --- a/toolkit/mozapps/extensions/content/extensions.js	Tue May 21 14:49:58 2019 +0200
 +++ b/toolkit/mozapps/extensions/content/extensions.js	Mon May 28 16:15:13 2018 +0900
 @@ -55,6 +55,7 @@
@@ -45,7 +45,7 @@ diff -r d21d35419181 -r db2690be8dc1 toolkit/mozapps/extensions/content/extensio
    return signingRequired && !isCorrectlySigned(addon);
  }
  
-diff -r d21d35419181 -r db2690be8dc1 toolkit/mozapps/extensions/internal/XPIDatabase.jsm
+diff -r e84a97fcca53 -r d94bd5b53738 toolkit/mozapps/extensions/internal/XPIDatabase.jsm
 --- a/toolkit/mozapps/extensions/internal/XPIDatabase.jsm	Tue May 21 14:49:58 2019 +0200
 +++ b/toolkit/mozapps/extensions/internal/XPIDatabase.jsm	Mon May 28 16:15:13 2018 +0900
 @@ -76,6 +76,7 @@

@@ -2,13 +2,13 @@
 # User msirringhaus@suse.de
 # Date 1559300151 -7200
 #      Fri May 31 12:55:51 2019 +0200
-# Node ID daf32779f416246ff789d51340a4dd76f0739f77
-# Parent  8bf700c1a35dbf58b83d5146796460af40dff8b9
+# Node ID 4a13f1ebd4024c7909481545be4db344b81b0a0e
+# Parent  75063de9f609955b8ac4a32ec1ba488375b65ec1
 [mq]: firefox-kde.patch
 
-diff -r 8bf700c1a35d browser/components/preferences/in-content/main.js
+diff -r 75063de9f609 -r 4a13f1ebd402 browser/components/preferences/in-content/main.js
 --- a/browser/components/preferences/in-content/main.js	Fri May 31 11:28:11 2019 +0200
-+++ b/browser/components/preferences/in-content/main.js	Mon Jun 03 14:14:35 2019 +0200
++++ b/browser/components/preferences/in-content/main.js	Fri May 31 12:55:51 2019 +0200
 @@ -294,6 +294,13 @@
        }, backoffTimes[this._backoffIndex]);
      }
@@ -41,9 +41,9 @@ diff -r 8bf700c1a35d browser/components/preferences/in-content/main.js
        } catch (ex) {
          Cu.reportError(ex);
          return;
-diff -r 8bf700c1a35d browser/components/shell/moz.build
+diff -r 75063de9f609 -r 4a13f1ebd402 browser/components/shell/moz.build
 --- a/browser/components/shell/moz.build	Fri May 31 11:28:11 2019 +0200
-+++ b/browser/components/shell/moz.build	Mon Jun 03 14:14:35 2019 +0200
++++ b/browser/components/shell/moz.build	Fri May 31 12:55:51 2019 +0200
 @@ -33,6 +33,8 @@
  
      SOURCES += [
@@ -53,9 +53,9 @@ diff -r 8bf700c1a35d browser/components/shell/moz.build
      ]
  elif CONFIG['OS_ARCH'] == 'WINNT':
      SOURCES += [
-diff -r 8bf700c1a35d browser/components/shell/nsKDEShellService.cpp
+diff -r 75063de9f609 -r 4a13f1ebd402 browser/components/shell/nsKDEShellService.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/shell/nsKDEShellService.cpp	Mon Jun 03 14:14:35 2019 +0200
++++ b/browser/components/shell/nsKDEShellService.cpp	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,150 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* This Source Code Form is subject to the terms of the Mozilla Public
@@ -207,9 +207,9 @@ diff -r 8bf700c1a35d browser/components/shell/nsKDEShellService.cpp
 +    return nsKDEUtils::command( command ) ? NS_OK : NS_ERROR_FAILURE;
 +}
 +
-diff -r 8bf700c1a35d browser/components/shell/nsKDEShellService.h
+diff -r 75063de9f609 -r 4a13f1ebd402 browser/components/shell/nsKDEShellService.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/shell/nsKDEShellService.h	Mon Jun 03 14:14:35 2019 +0200
++++ b/browser/components/shell/nsKDEShellService.h	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,32 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* This Source Code Form is subject to the terms of the Mozilla Public
@@ -243,9 +243,9 @@ diff -r 8bf700c1a35d browser/components/shell/nsKDEShellService.h
 +};
 +
 +#endif // nskdeshellservice_h____
-diff -r 8bf700c1a35d browser/components/shell/nsUnixShellService.cpp
+diff -r 75063de9f609 -r 4a13f1ebd402 browser/components/shell/nsUnixShellService.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/shell/nsUnixShellService.cpp	Mon Jun 03 14:14:35 2019 +0200
++++ b/browser/components/shell/nsUnixShellService.cpp	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,22 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* This Source Code Form is subject to the terms of the Mozilla Public
@@ -269,9 +269,9 @@ diff -r 8bf700c1a35d browser/components/shell/nsUnixShellService.cpp
 +        return nsKDEShellServiceConstructor( aOuter, aIID, aResult );
 +    return nsGNOMEShellServiceConstructor( aOuter, aIID, aResult );
 +}
-diff -r 8bf700c1a35d browser/components/shell/nsUnixShellService.h
+diff -r 75063de9f609 -r 4a13f1ebd402 browser/components/shell/nsUnixShellService.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/browser/components/shell/nsUnixShellService.h	Mon Jun 03 14:14:35 2019 +0200
++++ b/browser/components/shell/nsUnixShellService.h	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,15 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* This Source Code Form is subject to the terms of the Mozilla Public
@@ -288,9 +288,9 @@ diff -r 8bf700c1a35d browser/components/shell/nsUnixShellService.h
 +nsUnixShellServiceConstructor(nsISupports *aOuter, REFNSIID aIID, void **aResult);
 +
 +#endif // nsunixshellservice_h____
-diff -r 8bf700c1a35d browser/installer/package-manifest.in
+diff -r 75063de9f609 -r 4a13f1ebd402 browser/installer/package-manifest.in
 --- a/browser/installer/package-manifest.in	Fri May 31 11:28:11 2019 +0200
-+++ b/browser/installer/package-manifest.in	Mon Jun 03 14:14:35 2019 +0200
++++ b/browser/installer/package-manifest.in	Fri May 31 12:55:51 2019 +0200
 @@ -301,6 +301,8 @@
  ; gre location for now.
  @RESPATH@/defaults/pref/channel-prefs.js
