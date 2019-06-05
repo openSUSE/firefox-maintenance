@@ -1,0 +1,59 @@
+# HG changeset patch
+# User msirringhaus@suse.de
+# Date 1559717288 -7200
+#      Wed Jun 05 08:48:08 2019 +0200
+# Node ID 85c91bf225624cb976c633a155096f9a3dc0d1eb
+# Parent  4a13f1ebd4024c7909481545be4db344b81b0a0e
+imported patch mozilla-bmo1555530.patch
+* * *
+[mq]: mozilla-ppc64le-assembler-error.patch
+
+diff -r 4a13f1ebd402 security/nss/lib/freebl/mpi/mpcpucache.c
+--- a/security/nss/lib/freebl/mpi/mpcpucache.c	Fri May 31 12:55:51 2019 +0200
++++ b/security/nss/lib/freebl/mpi/mpcpucache.c	Wed Jun 05 09:08:30 2019 +0200
+@@ -704,7 +704,7 @@
+ #define MPI_GET_PROCESSOR_LINE_SIZE_DEFINED 1
+ #endif
+ 
+-#if defined(__ppc64__)
++#if 0
+ /*
+  *  Sigh, The PPC has some really nice features to help us determine cache
+  *  size, since it had lots of direct control functions to do so. The POWER
+diff -r 4a13f1ebd402 xpcom/reflect/xptcall/md/unix/moz.build
+--- a/xpcom/reflect/xptcall/md/unix/moz.build	Fri May 31 12:55:51 2019 +0200
++++ b/xpcom/reflect/xptcall/md/unix/moz.build	Wed Jun 05 09:08:30 2019 +0200
+@@ -166,12 +166,16 @@
+ 
+ if CONFIG['CPU_ARCH'] == 'ppc64':
+     if CONFIG['OS_ARCH'] in ('Linux', 'FreeBSD'):
+-          SOURCES += [
+-              'xptcinvoke_asm_ppc64_linux.S',
+-              'xptcinvoke_ppc64_linux.cpp',
+-              'xptcstubs_asm_ppc64_linux.S',
+-              'xptcstubs_ppc64_linux.cpp',
+-          ]
++        SOURCES += [
++            'xptcinvoke_asm_ppc64_linux.S',
++            'xptcinvoke_ppc64_linux.cpp',
++            'xptcstubs_asm_ppc64_linux.S',
++            'xptcstubs_ppc64_linux.cpp',
++        ]
++        if CONFIG['CC_TYPE'] == 'clang':
++            ASFLAGS += [
++                '-fno-integrated-as',
++            ]
+ 
+ if CONFIG['OS_ARCH'] == 'OpenBSD' and CONFIG['CPU_ARCH'] == 'ppc':
+     SOURCES += [
+@@ -236,6 +240,10 @@
+             '-fomit-frame-pointer',
+             '-mbackchain',
+         ]
++        if CONFIG['CC_TYPE'] == 'clang':
++            CXXFLAGS += [
++                '-fno-integrated-as',
++            ]
+ 
+ FINAL_LIBRARY = 'xul'
+ 
