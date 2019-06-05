@@ -306,12 +306,12 @@ modified="$(sed -n '/^----/n;s/ - .*$//;p;q' "%{_sourcedir}/MozillaFirefox.chang
 DATE="\"$(date -d "${modified}" "+%%b %%e %%Y")\""
 TIME="\"$(date -d "${modified}" "+%%R")\""
 find . -regex ".*\.c\|.*\.cpp\|.*\.h" -exec sed -i "s/__DATE__/${DATE}/g;s/__TIME__/${TIME}/g" {} +
-#
-#kdehelperversion=$(cat toolkit/xre/nsKDEUtils.cpp | grep '#define KMOZILLAHELPER_VERSION' | cut -d ' ' -f 3)
-#if test "$kdehelperversion" != %{kde_helper_version}; then
-#  echo fix kde helper version in the .spec file
-#  exit 1
-#fi
+
+kdehelperversion=$(cat toolkit/xre/nsKDEUtils.cpp | grep '#define KMOZILLAHELPER_VERSION' | cut -d ' ' -f 3)
+if test "$kdehelperversion" != %{kde_helper_version}; then
+  echo fix kde helper version in the .spec file
+  exit 1
+fi
 source %{SOURCE5}
 export MOZ_SOURCE_CHANGESET=$REV
 export SOURCE_REPO=$REPO
