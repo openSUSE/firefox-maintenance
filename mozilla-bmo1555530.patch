@@ -4,9 +4,10 @@
 #      Wed Jun 05 08:48:08 2019 +0200
 # Node ID 85c91bf225624cb976c633a155096f9a3dc0d1eb
 # Parent  4a13f1ebd4024c7909481545be4db344b81b0a0e
-imported patch mozilla-bmo1555530.patch
-* * *
-[mq]: mozilla-ppc64le-assembler-error.patch
+    
+Fix compile error with inline assembler for s390x and ppc64le.
+This patch is fixed in central and can be removed once it gets merged to ESR,
+except for the "#if 0" change!
 
 diff -r 4a13f1ebd402 security/nss/lib/freebl/mpi/mpcpucache.c
 --- a/security/nss/lib/freebl/mpi/mpcpucache.c	Fri May 31 12:55:51 2019 +0200
