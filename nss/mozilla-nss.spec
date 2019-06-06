@@ -1,7 +1,7 @@
 #
 # spec file for package mozilla-nss
 #
-# Copyright (c) 2018 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2019 SUSE LINUX GmbH, Nuernberg, Germany.
 # Copyright (c) 2006-2018 Wolfgang Rosenauer
 #
 # All modifications and additions to the file contributed by third parties
@@ -54,8 +54,8 @@ Patch2:         system-nspr.patch
 Patch3:         nss-no-rpath.patch
 Patch4:         add-relro-linker-option.patch
 Patch5:         malloc.patch
+Patch6:         bmo-1400603.patch
 Patch7:         nss-sqlitename.patch
-Patch8:         bmo-1400603.patch
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 PreReq:         mozilla-nspr >= %nspr_ver
 PreReq:         libfreebl3 >= %{nss_softokn_fips_version}
@@ -194,8 +194,8 @@ cd nss
 %if %suse_version > 1110
 %patch5 -p1
 %endif
+%patch6 -p1
 %patch7 -p1
-%patch8 -p1
 # additional CA certificates
 #cd security/nss/lib/ckfw/builtins
 #cat %{SOURCE2} >> certdata.txt
@@ -213,9 +213,9 @@ export FREEBL_NO_DEPEND=1
 export FREEBL_LOWHASH=1
 export NSPR_INCLUDE_DIR=`nspr-config --includedir`
 export NSPR_LIB_DIR=`nspr-config --libdir`
-export OPT_FLAGS="%{optflags} -fno-strict-aliasing"
+export OPT_FLAGS="%{optflags} -fno-strict-aliasing -fPIE -pie"
 export LIBDIR=%{_libdir}
-%ifarch x86_64 s390x ppc64 ppc64le ia64 aarch64
+%ifarch x86_64 s390x ppc64 ppc64le ia64 aarch64 riscv64
 export USE_64=1
 %endif
 export NSS_USE_SYSTEM_SQLITE=1
@@ -283,6 +283,7 @@ cp -L  lib/libcrmf.a \
 cp -L  bin/certutil \
        bin/cmsutil \
        bin/crlutil \
+       bin/nss-policy-check \
        bin/modutil \
        bin/pk12util \
        bin/signtool \
