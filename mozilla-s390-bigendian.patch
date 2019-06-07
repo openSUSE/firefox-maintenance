@@ -2,11 +2,11 @@
 # User msirringhaus@suse.de
 # Date 1558452126 -7200
 #      Tue May 21 17:22:06 2019 +0200
-# Node ID e0c0f70a0820cb29a6d3554c3fad7874ad1af5e4
-# Parent  888eb7ea2d62aff53d3a8bbd65bd58ef4877f8cc
+# Node ID 3a66820f432cd66095be8f4dc78d8c091bea3491
+# Parent  745a250a3e1b1bfe57a2894db27eb0ff2e13b5d4
 [mq]: mozilla-s390-bigendian.patch
 
-diff -r 888eb7ea2d62 -r e0c0f70a0820 build/autoconf/icu.m4
+diff -r 745a250a3e1b -r 3a66820f432c build/autoconf/icu.m4
 --- a/build/autoconf/icu.m4	Tue May 21 17:12:20 2019 +0200
 +++ b/build/autoconf/icu.m4	Tue May 21 17:22:06 2019 +0200
 @@ -78,7 +78,7 @@

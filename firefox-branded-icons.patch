@@ -2,8 +2,8 @@
 # User msirringhaus@suse.de
 # Date 1558452425 -7200
 #      Tue May 21 17:27:05 2019 +0200
-# Node ID 9bd8fe083b2c8a178852bf6b85303121405b7929
-# Parent  a56e9eb77d0ecd64d5aa180a71a7c76c35b50961
+# Node ID 940eb07edf94aa22284895100c250912c7f7796e
+# Parent  8e05cefdcc68de1dccb6ade69ecca8e85bac4b56
 imported patch firefox-branded-icons.patch
 
 diff --git a/browser/branding/branding-common.mozbuild b/browser/branding/branding-common.mozbuild

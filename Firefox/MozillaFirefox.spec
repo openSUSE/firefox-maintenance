@@ -1,8 +1,8 @@
 #
 # spec file for package MozillaFirefox
 #
-# Copyright (c) 2018 SUSE LINUX GmbH, Nuernberg, Germany.
-#               2006-2018 Wolfgang Rosenauer
+# Copyright (c) 2019 SUSE LINUX GmbH, Nuernberg, Germany.
+#               2006-2019 Wolfgang Rosenauer
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -20,7 +20,7 @@
 # changed with every update
 %define major 68
 %define mainver %major.0
-%define version_postfix b7
+%define version_postfix b8
 %define update_channel esr
 %define branding 1
 %define releasedate 20190507001600

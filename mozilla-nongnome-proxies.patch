@@ -2,16 +2,16 @@
 # User Wolfgang Rosenauer
 # Date 1558442915 -7200
 #      Tue May 21 14:48:35 2019 +0200
-# Node ID b467ec7989fed1c0639a59e90f7789234e3ed0a5
-# Parent  9febcef65911f649028c28226d3beb194569375f
+# Node ID 3654ae0e3d4f328bde5b0ac77617731f793c860f
+# Parent  b898a92874bbf9e924a368dea7ff5c8d28bf5b46
 Do not use gconf for proxy settings if not running within Gnome
 Index: toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp
 ===================================================================
 RCS file: /cvsroot/mozilla/toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp,v
 retrieving revision 1.1
 
-diff -r 9febcef65911 -r b467ec7989fe toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp
---- a/toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp	Wed Jun 05 06:00:24 2019 +0000
+diff -r b898a92874bb -r 3654ae0e3d4f toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp
+--- a/toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp	Fri Jun 07 15:00:21 2019 +0000
 +++ b/toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp	Tue May 21 14:48:35 2019 +0200
 @@ -55,11 +55,14 @@
  }
