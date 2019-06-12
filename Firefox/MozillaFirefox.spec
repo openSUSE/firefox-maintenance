@@ -20,7 +20,7 @@
 # changed with every update
 %define major 68
 %define mainver %major.0
-%define version_postfix b8
+%define version_postfix b9
 %define update_channel esr
 %define branding 1
 %define releasedate 20190507001600

@@ -2,11 +2,11 @@
 # User Mike Hommey <mh+mozilla@glandium.org>
 # Date 1527491713 -32400
 #      Mon May 28 16:15:13 2018 +0900
-# Node ID 08a303f9ac47399e6edbf877fe2fee7fd7f0e7f2
-# Parent  df185779acc5e369db430942635d125230653e1a
+# Node ID 8ddc8679db4143abcf13528de76b5dcddd12c8fb
+# Parent  6b999cd3e731f5a092ab07de828426a16c7f5d00
 Bug 1464766 - Allow to relax the addon signature requirements. r?rhelmer
 
-diff -r df185779acc5 -r 08a303f9ac47 modules/libpref/init/all.js
+diff -r 6b999cd3e731 -r 8ddc8679db41 modules/libpref/init/all.js
 --- a/modules/libpref/init/all.js	Tue May 21 14:49:58 2019 +0200
 +++ b/modules/libpref/init/all.js	Mon May 28 16:15:13 2018 +0900
 @@ -1226,6 +1226,9 @@
@@ -19,7 +19,7 @@ diff -r df185779acc5 -r 08a303f9ac47 modules/libpref/init/all.js
  // General prefs for editor.
  // Whether Gecko specific editing UI is enabled by default.
  // Those UIs are not impelemnted by any other browsers.  So, only Firefox users
-diff -r df185779acc5 -r 08a303f9ac47 toolkit/mozapps/extensions/content/extensions.js
+diff -r 6b999cd3e731 -r 8ddc8679db41 toolkit/mozapps/extensions/content/extensions.js
 --- a/toolkit/mozapps/extensions/content/extensions.js	Tue May 21 14:49:58 2019 +0200
 +++ b/toolkit/mozapps/extensions/content/extensions.js	Mon May 28 16:15:13 2018 +0900
 @@ -53,6 +53,7 @@
@@ -30,7 +30,7 @@ diff -r df185779acc5 -r 08a303f9ac47 toolkit/mozapps/extensions/content/extensio
  
  const LOADING_MSG_DELAY = 100;
  
-@@ -316,9 +317,11 @@
+@@ -310,9 +311,11 @@
  }
  
  function isDisabledUnsigned(addon) {
@@ -45,7 +45,7 @@ diff -r df185779acc5 -r 08a303f9ac47 toolkit/mozapps/extensions/content/extensio
    return signingRequired && !isCorrectlySigned(addon);
  }
  
-diff -r df185779acc5 -r 08a303f9ac47 toolkit/mozapps/extensions/internal/XPIDatabase.jsm
+diff -r 6b999cd3e731 -r 8ddc8679db41 toolkit/mozapps/extensions/internal/XPIDatabase.jsm
 --- a/toolkit/mozapps/extensions/internal/XPIDatabase.jsm	Tue May 21 14:49:58 2019 +0200
 +++ b/toolkit/mozapps/extensions/internal/XPIDatabase.jsm	Mon May 28 16:15:13 2018 +0900
 @@ -76,6 +76,7 @@

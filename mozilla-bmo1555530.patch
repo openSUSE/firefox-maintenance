@@ -2,11 +2,11 @@
 # User msirringhaus@suse.de
 # Date 1559717288 -7200
 #      Wed Jun 05 08:48:08 2019 +0200
-# Node ID 00be29fb08a65f3ccc21fdc8599f8329f1fc12f2
-# Parent  b4ab41655c17630ac9b5dab90c5421c9492aa2a5
+# Node ID 62abb5cb9e282faeeed557611d0c23573ced5b5e
+# Parent  8e8ba7530f45a4a96faa084cc0f3bbc39146b40b
 Fix compile error with inline assembler for s390x and ppc64le.
 
-diff -r b4ab41655c17 -r 00be29fb08a6 security/nss/lib/freebl/mpi/mpcpucache.c
+diff -r 8e8ba7530f45 -r 62abb5cb9e28 security/nss/lib/freebl/mpi/mpcpucache.c
 --- a/security/nss/lib/freebl/mpi/mpcpucache.c	Fri May 31 12:55:51 2019 +0200
 +++ b/security/nss/lib/freebl/mpi/mpcpucache.c	Wed Jun 05 08:48:08 2019 +0200
 @@ -704,7 +704,7 @@

@@ -2,11 +2,11 @@
 # User Steve Singer <steve@ssinger.info>
 # Date 1558451540 -7200
 #      Tue May 21 17:12:20 2019 +0200
-# Node ID 745a250a3e1b1bfe57a2894db27eb0ff2e13b5d4
-# Parent  08a303f9ac47399e6edbf877fe2fee7fd7f0e7f2
+# Node ID 15945f0524d8cd1577065b1d8593a31c6babeeb1
+# Parent  8ddc8679db4143abcf13528de76b5dcddd12c8fb
 Bug 1005535 - Get skia GPU building on big endian.
 
-diff -r 08a303f9ac47 -r 745a250a3e1b gfx/skia/skia/include/private/GrColor.h
+diff -r 8ddc8679db41 -r 15945f0524d8 gfx/skia/skia/include/private/GrColor.h
 --- a/gfx/skia/skia/include/private/GrColor.h	Mon May 28 16:15:13 2018 +0900
 +++ b/gfx/skia/skia/include/private/GrColor.h	Tue May 21 17:12:20 2019 +0200
 @@ -63,7 +63,7 @@

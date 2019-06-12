@@ -2,8 +2,8 @@
 # User msirringhaus@suse.de
 # Date 1558452418 -7200
 #      Tue May 21 17:26:58 2019 +0200
-# Node ID 8e05cefdcc68de1dccb6ade69ecca8e85bac4b56
-# Parent  a7cd67edd9552bfe7a4af7fa93fb794b7e15da58
+# Node ID d6a951feb05592892956aa7880195e805162dc9b
+# Parent  4d5a547c426277ab08d06e174f886bf83f1cea9e
 imported patch mozilla-ppc-altivec_static_inline.patch
 
 diff --git a/gfx/qcms/transform-altivec.c b/gfx/qcms/transform-altivec.c
