@@ -160,7 +160,6 @@ Patch4:         mozilla-openaes-decl.patch
 Patch6:         mozilla-reduce-files-per-UnifiedBindings.patch
 Patch7:         mozilla-aarch64-startup-crash.patch
 Patch8:         mozilla-bmo1555530.patch
-Patch11:        mozilla-bmo1464766.patch
 Patch15:        mozilla-bmo1005535.patch
 Patch18:        mozilla-s390-bigendian.patch
 Patch19:        mozilla-s390-context.patch
@@ -279,7 +278,6 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 #%patch9 -p1
 #%patch10 -p1
 %endif
-%patch11 -p1
 #%patch13 -p1
 #%patch14 -p1
 %ifarch s390x
@@ -419,6 +417,7 @@ ac_add_options --enable-update-channel=%{update_channel}
 ac_add_options --with-mozilla-api-keyfile=%{SOURCE18}
 ac_add_options --with-google-location-service-api-keyfile=%{SOURCE19}
 ac_add_options --with-google-safebrowsing-api-keyfile=%{SOURCE19}
+ac_add_options --with-unsigned-addon-scopes=app
 %if %branding
 ac_add_options --enable-official-branding
 %endif
