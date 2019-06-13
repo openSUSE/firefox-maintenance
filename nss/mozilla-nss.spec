@@ -18,14 +18,16 @@
 
 
 %global nss_softokn_fips_version 3.44
+%define NSPR_min_version 4.21
 
 Name:           mozilla-nss
 BuildRequires:  gcc-c++
-BuildRequires:  mozilla-nspr-devel >= 4.21
+BuildRequires:  mozilla-nspr-devel >= %{NSPR_min_version}
 BuildRequires:  pkg-config
 BuildRequires:  sqlite-devel
 BuildRequires:  zlib-devel
 Version:        3.44
+%define underscore_version 3_44
 Release:        0
 # bug437293
 %ifarch ppc64
@@ -36,8 +38,8 @@ Summary:        Network Security Services
 License:        MPL-2.0
 Group:          System/Libraries
 Url:            http://www.mozilla.org/projects/security/pki/nss/
-Source:         https://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/NSS_3_44_RTM/src/nss-%{version}.tar.gz
-# hg clone https://hg.mozilla.org/projects/nss nss-3.40.1/nss ; cd nss-3.40.1/nss ; hg up NSS_3_40_1_RTM
+Source:         https://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/NSS_%{underscore_version}_RTM/src/nss-%{version}.tar.gz
+# hg clone https://hg.mozilla.org/projects/nss nss-%{version}/nss ; cd nss-%{version}/nss ; hg up NSS_%{underscore_version}_RTM
 #Source:         nss-%{version}.tar.gz
 Source1:        nss.pc.in
 Source3:        nss-config.in
@@ -87,7 +89,7 @@ Summary:        Network (Netscape) Security Services development files
 Group:          Development/Libraries/C and C++
 Requires:       libfreebl3
 Requires:       libsoftokn3
-Requires:       mozilla-nspr-devel >= 4.21
+Requires:       mozilla-nspr-devel >= %{NSPR_min_version}
 Requires:       mozilla-nss = %{version}-%{release}
 # bug437293
 %ifarch ppc64
@@ -373,9 +375,6 @@ if [ $1 = 0 ]; then
 fi
 
 %postun sysinit -p /sbin/ldconfig
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-, root, root)
