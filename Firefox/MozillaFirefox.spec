@@ -20,10 +20,10 @@
 # changed with every update
 %define major 68
 %define mainver %major.0
-%define version_postfix b9
+%define version_postfix b10
 %define update_channel esr
 %define branding 1
-%define releasedate 20190507001600
+%define releasedate 20190612174318
 %define source_prefix firefox-%{mainver}
 
 # PIE, full relro (x86_64 for now)

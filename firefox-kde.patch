@@ -2,9 +2,8 @@
 # User msirringhaus@suse.de
 # Date 1559300151 -7200
 #      Fri May 31 12:55:51 2019 +0200
-# Node ID 8e8ba7530f45a4a96faa084cc0f3bbc39146b40b
-# Parent  8b8fae454c6d7d160845fbe1ba87ca9787ad4a1e
-
+# Node ID 54d41b0033b8d649d842a1f862c6fed8b9874dec
+# Parent  428161c3b9599083e1b8710eda1760f1f707ab11
 How to apply this patch:
 1. Import and apply it
 2. cp browser/base/content/browser.xul browser/base/content/browser-kde.xul
@@ -12,7 +11,7 @@ How to apply this patch:
 4. Replace #ifndef with #ifdef in the line above (this hanges the button order from Gnome-style to KDE-style)
 5. hg qrefresh
 
-diff -r 8b8fae454c6d -r 8e8ba7530f45 browser/base/content/browser-kde.xul
+diff -r 428161c3b959 -r 54d41b0033b8 browser/base/content/browser-kde.xul
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/browser/base/content/browser-kde.xul	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,1375 @@
@@ -1391,8 +1390,8 @@ diff -r 8b8fae454c6d -r 8e8ba7530f45 browser/base/content/browser-kde.xul
 +    <!-- gNotificationBox will be added here lazily. -->
 +  </vbox>
 +</window>
-diff -r 8b8fae454c6d -r 8e8ba7530f45 browser/base/jar.mn
---- a/browser/base/jar.mn	Fri May 31 11:28:11 2019 +0200
+diff -r 428161c3b959 -r 54d41b0033b8 browser/base/jar.mn
+--- a/browser/base/jar.mn	Mon Jun 17 09:02:06 2019 +0200
 +++ b/browser/base/jar.mn	Fri May 31 12:55:51 2019 +0200
 @@ -33,6 +33,8 @@
  #else
@@ -1403,8 +1402,8 @@ diff -r 8b8fae454c6d -r 8e8ba7530f45 browser/base/jar.mn
          content/browser/browser-addons.js             (content/browser-addons.js)
          content/browser/browser-allTabsMenu.js        (content/browser-allTabsMenu.js)
          content/browser/browser-captivePortal.js      (content/browser-captivePortal.js)
-diff -r 8b8fae454c6d -r 8e8ba7530f45 browser/components/preferences/in-content/main.js
---- a/browser/components/preferences/in-content/main.js	Fri May 31 11:28:11 2019 +0200
+diff -r 428161c3b959 -r 54d41b0033b8 browser/components/preferences/in-content/main.js
+--- a/browser/components/preferences/in-content/main.js	Mon Jun 17 09:02:06 2019 +0200
 +++ b/browser/components/preferences/in-content/main.js	Fri May 31 12:55:51 2019 +0200
 @@ -294,6 +294,13 @@
        }, backoffTimes[this._backoffIndex]);
@@ -1438,8 +1437,8 @@ diff -r 8b8fae454c6d -r 8e8ba7530f45 browser/components/preferences/in-content/m
        } catch (ex) {
          Cu.reportError(ex);
          return;
-diff -r 8b8fae454c6d -r 8e8ba7530f45 browser/components/shell/moz.build
---- a/browser/components/shell/moz.build	Fri May 31 11:28:11 2019 +0200
+diff -r 428161c3b959 -r 54d41b0033b8 browser/components/shell/moz.build
+--- a/browser/components/shell/moz.build	Mon Jun 17 09:02:06 2019 +0200
 +++ b/browser/components/shell/moz.build	Fri May 31 12:55:51 2019 +0200
 @@ -33,6 +33,8 @@
  
@@ -1450,7 +1449,7 @@ diff -r 8b8fae454c6d -r 8e8ba7530f45 browser/components/shell/moz.build
      ]
  elif CONFIG['OS_ARCH'] == 'WINNT':
      SOURCES += [
-diff -r 8b8fae454c6d -r 8e8ba7530f45 browser/components/shell/nsKDEShellService.cpp
+diff -r 428161c3b959 -r 54d41b0033b8 browser/components/shell/nsKDEShellService.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/browser/components/shell/nsKDEShellService.cpp	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,150 @@
@@ -1604,7 +1603,7 @@ diff -r 8b8fae454c6d -r 8e8ba7530f45 browser/components/shell/nsKDEShellService.
 +    return nsKDEUtils::command( command ) ? NS_OK : NS_ERROR_FAILURE;
 +}
 +
-diff -r 8b8fae454c6d -r 8e8ba7530f45 browser/components/shell/nsKDEShellService.h
+diff -r 428161c3b959 -r 54d41b0033b8 browser/components/shell/nsKDEShellService.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/browser/components/shell/nsKDEShellService.h	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,32 @@
@@ -1640,7 +1639,7 @@ diff -r 8b8fae454c6d -r 8e8ba7530f45 browser/components/shell/nsKDEShellService.
 +};
 +
 +#endif // nskdeshellservice_h____
-diff -r 8b8fae454c6d -r 8e8ba7530f45 browser/components/shell/nsUnixShellService.cpp
+diff -r 428161c3b959 -r 54d41b0033b8 browser/components/shell/nsUnixShellService.cpp
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/browser/components/shell/nsUnixShellService.cpp	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,22 @@
@@ -1666,7 +1665,7 @@ diff -r 8b8fae454c6d -r 8e8ba7530f45 browser/components/shell/nsUnixShellService
 +        return nsKDEShellServiceConstructor( aOuter, aIID, aResult );
 +    return nsGNOMEShellServiceConstructor( aOuter, aIID, aResult );
 +}
-diff -r 8b8fae454c6d -r 8e8ba7530f45 browser/components/shell/nsUnixShellService.h
+diff -r 428161c3b959 -r 54d41b0033b8 browser/components/shell/nsUnixShellService.h
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
 +++ b/browser/components/shell/nsUnixShellService.h	Fri May 31 12:55:51 2019 +0200
 @@ -0,0 +1,15 @@
@@ -1685,10 +1684,10 @@ diff -r 8b8fae454c6d -r 8e8ba7530f45 browser/components/shell/nsUnixShellService
 +nsUnixShellServiceConstructor(nsISupports *aOuter, REFNSIID aIID, void **aResult);
 +
 +#endif // nsunixshellservice_h____
-diff -r 8b8fae454c6d -r 8e8ba7530f45 browser/installer/package-manifest.in
---- a/browser/installer/package-manifest.in	Fri May 31 11:28:11 2019 +0200
+diff -r 428161c3b959 -r 54d41b0033b8 browser/installer/package-manifest.in
+--- a/browser/installer/package-manifest.in	Mon Jun 17 09:02:06 2019 +0200
 +++ b/browser/installer/package-manifest.in	Fri May 31 12:55:51 2019 +0200
-@@ -302,6 +302,8 @@
+@@ -299,6 +299,8 @@
  ; gre location for now.
  @RESPATH@/defaults/pref/channel-prefs.js
  

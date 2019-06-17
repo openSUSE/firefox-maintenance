@@ -2,8 +2,8 @@
 # User Andreas Stieger <astieger@suse.com>
 # Date 1456503609 0
 #      Fri Feb 26 16:20:09 2016 +0000
-# Node ID 4d87a214a3ff5fd0343a3e00d483403c99e8ff85
-# Parent  4031e64dbafce4287414db19744b074d52b3cf01
+# Node ID 835641be7eb9408aa1eff0d38b37f6c523d2ef98
+# Parent  beca42e6765b14ff0f69bb056678b65fedd7a39e
 For UnifiedBindings*.cpp files, reduce number of files per unified file
 Upstream: no
 home/abuild/rpmbuild/BUILD/obj/dom/bindings/UnifiedBindings16.cpp
@@ -16,9 +16,9 @@ home/abuild/rpmbuild/BUILD/obj/dom/bindings/UnifiedBindings16.cpp
 [ 1636s] c++: internal compiler error: Killed (program cc1plus)
 [ 1636s] Please submit a full bug report,
 
-diff --git a/python/mozbuild/mozbuild/frontend/data.py b/python/mozbuild/mozbuild/frontend/data.py
---- a/python/mozbuild/mozbuild/frontend/data.py
-+++ b/python/mozbuild/mozbuild/frontend/data.py
+diff -r beca42e6765b -r 835641be7eb9 python/mozbuild/mozbuild/frontend/data.py
+--- a/python/mozbuild/mozbuild/frontend/data.py	Tue May 21 14:48:44 2019 +0200
++++ b/python/mozbuild/mozbuild/frontend/data.py	Fri Feb 26 16:20:09 2016 +0000
 @@ -320,7 +320,7 @@
          return list(group_unified_files(self.all_regular_cpp_basenames(),
                                          unified_prefix='UnifiedBindings',

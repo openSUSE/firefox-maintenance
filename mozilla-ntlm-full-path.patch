@@ -2,13 +2,13 @@
 # User Petr Cerny <pcerny@novell.com>
 # Date 1558442920 -7200
 #      Tue May 21 14:48:40 2019 +0200
-# Node ID ac1ab556d01fa70e3747e175789fe4725d232bda
-# Parent  ca18473c6db43591120448a9054bbcd2a35506a5
+# Node ID a9195ad0464a3d1797630bca010dfbb53fe12027
+# Parent  c2aa7198fb925e7fde96abf65b6f68b9b755f112
 Bug 634334 - call to the ntlm_auth helper fails
 
-diff --git a/extensions/auth/nsAuthSambaNTLM.cpp b/extensions/auth/nsAuthSambaNTLM.cpp
---- a/extensions/auth/nsAuthSambaNTLM.cpp
-+++ b/extensions/auth/nsAuthSambaNTLM.cpp
+diff -r c2aa7198fb92 -r a9195ad0464a extensions/auth/nsAuthSambaNTLM.cpp
+--- a/extensions/auth/nsAuthSambaNTLM.cpp	Fri May 31 11:28:11 2019 +0200
++++ b/extensions/auth/nsAuthSambaNTLM.cpp	Tue May 21 14:48:40 2019 +0200
 @@ -161,7 +161,7 @@
    const char* username = PR_GetEnv("USER");
    if (!username) return NS_ERROR_FAILURE;
