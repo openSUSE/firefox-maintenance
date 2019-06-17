@@ -1,1 +1,38 @@
-../firefox-branded-icons.patch
+# HG changeset patch
+# User msirringhaus@suse.de
+# Date 1558452425 -7200
+#      Tue May 21 17:27:05 2019 +0200
+# Node ID 6e6474b11adad64e5df14385adf1782dd2b85655
+# Parent  54d41b0033b8d649d842a1f862c6fed8b9874dec
+imported patch firefox-branded-icons.patch
+
+diff -r 54d41b0033b8 -r 6e6474b11ada browser/branding/branding-common.mozbuild
+--- a/browser/branding/branding-common.mozbuild	Fri May 31 12:55:51 2019 +0200
++++ b/browser/branding/branding-common.mozbuild	Tue May 21 17:27:05 2019 +0200
+@@ -27,6 +27,9 @@
+         FINAL_TARGET_FILES.chrome.icons.default += [
+             'default128.png',
+             'default16.png',
++	    'default22.png',
++	    'default24.png',
++	    'default256.png',
+             'default32.png',
+             'default48.png',
+             'default64.png',
+diff -r 54d41b0033b8 -r 6e6474b11ada browser/installer/package-manifest.in
+--- a/browser/installer/package-manifest.in	Fri May 31 12:55:51 2019 +0200
++++ b/browser/installer/package-manifest.in	Tue May 21 17:27:05 2019 +0200
+@@ -249,10 +249,13 @@
+ @RESPATH@/chrome/recording/*
+ #ifdef MOZ_GTK
+ @RESPATH@/browser/chrome/icons/default/default16.png
++@RESPATH@/browser/chrome/icons/default/default22.png
++@RESPATH@/browser/chrome/icons/default/default24.png
+ @RESPATH@/browser/chrome/icons/default/default32.png
+ @RESPATH@/browser/chrome/icons/default/default48.png
+ @RESPATH@/browser/chrome/icons/default/default64.png
+ @RESPATH@/browser/chrome/icons/default/default128.png
++@RESPATH@/browser/chrome/icons/default/default256.png
+ #endif
+ @RESPATH@/browser/features/*
+ 
