@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Upstream does not want to ship it https://bugzilla.mozilla.org/show_bug.cgi?id=1071065
+so maintain a stub in here.
+-->
+
+<application>
+  <id type="desktop">thunderbird.desktop</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <description>
+    <p>
+      Thunderbird is an email client that allows you to read, write and organise all
+      of your email messages. It is compatible with most email accounts, including the
+      most popular webmail services.
+    </p>
+    <p>
+      Thunderbird is designed by Mozilla, a global community working together to make
+      the Internet better. Mozilla believe that the Internet should be open, public,
+      and accessible to everyone without any restrictions.
+    </p>
+    <ul>
+      <li>Easier than ever to set up a new e-mail account</li>
+      <li>Awesome search allows you to find your messages fast</li>
+      <li>Thousands of add-ons give you the freedom to make Thunderbird your own</li>
+    </ul>
+  </description>
+  <url type="homepage">http://www.mozilla.org/thunderbird/</url>
+  <screenshots>
+    <screenshot type="default">https://addons.cdn.mozilla.net/user-media/previews/full/60/60940.png</screenshot>
+  </screenshots>
+</application>
