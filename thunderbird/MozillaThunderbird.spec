@@ -196,6 +196,16 @@ symbols meant for upload to Mozilla's crash collector database.
 %endif
 
 %prep
+%if %localize
+
+# If generated incorrectly, the tarball will be ~270B in
+# size, so 1MB seems like good enough limit to check.
+MINSIZE=1048576
+if (( $(stat -c%s "%{SOURCE4}") < MINSIZE)); then
+    echo "Translations tarball %{SOURCE7} not generated properly."
+    exit 1
+fi
+%endif
 %setup -n thunderbird-%{version} -q -b 4 -b 11
 # xulrunner patches
 %patch1 -p1
