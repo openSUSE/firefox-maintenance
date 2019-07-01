@@ -1,0 +1,216 @@
+#!/bin/bash
+
+print_help () {
+cat << EOD
+$0 [ flags ] <chroot>
+
+    chroot into a directory, optionally doing some preparation/customization
+    
+    All operations requiring root privilege are performed via 'sudo' - make
+    sure you supply appropriate rules in your '/etc/sudoers'. If you want to
+    constrain it as much as possible (generally a good idea), you are going to
+    need to allow your user to run the following through sudo:
+
+        mount -o bind /dev <chroot>/dev
+        mount -o bind /dev/pts <chroot>/dev/pts
+        mount -o bind /proc <chroot>/proc
+        mount -o bind /sys <chroot>/sys
+        mount -o size=16M -t tmpfs tmpfs <chroot>/dev/shm
+        mount -o size=16M -t tmpfs tmpfs <chroot>/run
+        umount <chroot>/dev
+        umount <chroot>/dev/pts
+        umount <chroot>/proc
+        umount <chroot>/sys
+        umount <chroot>/dev/shm
+        umount <chroot>/run
+        chroot <chroot>
+
+    to get the full functionality.
+
+    -M
+        bind /dev, /dev/pts, /proc, /sys from parent system
+
+    -n <string>
+        set CHROOTNAME to 'string', this can be used in the chroot e.g. in PS1
+        If left empty, <chroot>/.build.log is checked for .spec file name
+
+    -P
+        -M plus mount small tmpfs at /dev/shm and /run
+
+    -r
+        copy /etc/resolv.conf to <chroot>/tmp/ (you'll need to make sure it is
+        copied to /etc/resolv.conf in the chroot yourself)
+
+    -U
+        just try to unmount *all* pseudo filesystems this script is capable
+        of mounting at <chroot> (i.e. /dev{,/{shm,pts}}, /proc, /run, /sys)
+        Useful for removing "stale" mounts that were left hanging because used
+        by a process running in the chroot when exiting the chroot, after such
+        process has been terminated separately)
+
+    -u
+        do not try to unmount filesystems mounted through -M or -P on exit from
+        the chroot (only really useful if you want to chroot into the same
+        directory from another shell and don't want to worry about the order in
+        which you exit the chrooted environment)
+    -x
+        use empty DISPLAY and SESSION_MANAGER variables
+
+EOD
+}
+
+do_checks () {
+    if ! which realpath >& /dev/null ; then
+        printf "realpath not available, exiting\n"
+        exit 1
+    fi
+
+    REALCHROOTDIR=$( realpath "$CHROOTDIR" 2>/dev/null )
+    if [[ "$?" -ne 0 ]]; then
+        printf "path '%s' does not exist\n" "$CHROOTDIR"
+        exit 2
+    fi
+
+    if [[ "$REALCHROOTDIR" == "/" ]]; then
+        printf "refusing to chroot to '%s' which points to '/'\n" "$CHROOTDIR"
+        exit 3
+    fi
+
+    if [[ ! -d "$REALCHROOTDIR" ]]; then
+        printf "'%s' is not a directory\n" "$REALCHROOTDIR"
+        exit 4
+    fi
+}
+
+do_prepare_vars () {
+    if [[ ( -z "${CHROOTNAME}" ) 
+            && ( -f "${CHROOTDIR}/.build.command" ) ]]; then
+        CHROOTNAME=$( sed -r '1d;2s,^.*"[^"]+/([^/]*).spec"$,\1,' \
+            < "${CHROOTDIR}/.build.command" )
+    fi
+    
+    VARS="${VARS} CHROOT='${CHROOTNAME}'"
+    VARS=${VARS# }
+}
+
+do_mounts () {
+    # bind-mount from host
+    trees=( "dev" "dev/pts" "proc" "sys" )
+    unmount=()
+    for d in ${trees[@]}; do
+        if cut -f2 -d" " < /etc/mtab | grep "^${CHROOTDIR}/${d}$" >& /dev/null ; then
+            echo "${d} already mounted in chroot"
+        else
+            echo "binding ${d} in chroot"
+            sudo mount -o bind /${d} ${CHROOTDIR}/${d} \
+                && unmount=( "${d}" "${unmount[@]}" )
+        fi
+    done
+    
+    [[ -z "$want_tmount" ]] && return
+
+    # directly mount from host
+    trees=( "dev/shm" "run" )
+    for d in ${trees[@]}; do
+        if cut -f2 -d" " < /etc/mtab | grep "^${CHROOTDIR}/${d}$" >& /dev/null ; then
+            echo "${d} already mounted in chroot"
+        else
+            echo "mounting tmpfs ${d} in chroot"
+            sudo mount -t tmpfs tmpfs -o size=16M ${CHROOTDIR}/${d} \
+                && [[ -z "$want_no_unmount" ]] && unmount=( "${d}" "${unmount[@]}" )
+        fi
+    done
+}
+
+do_unmount () {
+    cnt=0
+    while [[ -n "${unmount[@]}" ]]; do
+        if (( cnt++ > 3 )); then
+            echo "Troubles unmounting the following previously mounted filesystems:" >&2
+            echo -e "${unmount// /, }" >&2
+            exit 4
+        fi
+
+        local un=()
+        for d in "${unmount[@]}"; do
+            echo "unmounting $d"
+            if ! sudo umount ${CHROOTDIR}/${d} ; then
+                un=( "${un[@]}" ${d} )
+            fi
+        done
+        unmount=( "${un[@]}" )
+    done
+}
+
+VARS=
+CHROOTDIR=
+CHROOTNAME=
+
+want_mount=
+want_tmount=
+want_chroot=1
+want_just_umount=
+want_no_unmount=
+want_resolv=
+MOUNT=
+PMOUNT=
+UMOUNT=
+unmount=()
+unmount_all=( "dev" "dev/shm" "dev/pts" "proc" "run" "sys" )
+
+while [[ ! -z "$1" ]]; do
+    case "$1" in
+        "-M")
+            want_mount=1
+            ;;
+        "-n")
+            CHROOTNAME="$2"
+            shift
+            ;;
+        "-P")
+            want_mount=1
+            want_tmount=1
+            ;;
+        "-r")
+            want_resolv=1
+            ;;
+        "-U")
+            want_chroot=
+            want_just_umount=1
+            ;;
+        "-u")
+            want_no_unmount=1
+            ;;
+        "-x")
+            VARS="${VARS} DISPLAY= SESSION_MANAGER="
+            ;;
+        "-?")
+            print_help
+            exit 0
+            ;;
+        *)
+            CHROOTDIR="$1"
+            ;;
+    esac
+    shift
+done
+
+do_checks
+
+do_prepare_vars
+
+[[ -n "$want_mount" ]] && do_mounts
+
+[[ -n "$want_resolv" ]] && cp -v /etc/resolv.conf ${CHROOTDIR}/tmp/
+
+[[ -n "$want_chroot" ]] && eval sudo "${VARS} chroot ${CHROOTDIR}"
+
+if [[ ( -n "$want_just_umount" ) ]]; then
+    unmount=()
+    for d in "${unmount_all[@]}"; do
+        unmount=( "${d}" "${unmount[@]}" )
+    done
+fi
+
+[[ -n "${unmount[@]}" ]] && do_unmount
+
