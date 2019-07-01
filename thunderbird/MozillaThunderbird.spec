@@ -18,7 +18,7 @@
 
 
 %define mainversion 68.0
-%define version_postfix b1
+%define version_postfix b2
 %define update_channel release
 %define releasedate 20190522150740
 
@@ -142,6 +142,8 @@ Recommends:     libpulse0
 %define has_system_cairo 0
 # TODO: Reactivate this!
 %define localize 0
+# TODO: Setting this to 0 does NOT use gcc just yet
+%define clang_build 1
 ### build options end
 %define __provides_exclude ^lib.*\\.so.*$
 %define __requires_exclude ^(libmoz.*|liblgpllibs.*|libxul.*|libldap.*|libldif.*|libprldap.*)$
