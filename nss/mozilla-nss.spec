@@ -26,8 +26,8 @@ BuildRequires:  mozilla-nspr-devel >= %{NSPR_min_version}
 BuildRequires:  pkg-config
 BuildRequires:  sqlite-devel
 BuildRequires:  zlib-devel
-Version:        3.44
-%define underscore_version 3_44
+Version:        3.44.1
+%define underscore_version 3_44_1
 Release:        0
 # bug437293
 %ifarch ppc64
