@@ -20,11 +20,15 @@
 # changed with every update
 %define major 68
 %define mainver %major.0
-%define version_postfix b11
+%define version_postfix b14
 %define update_channel esr
 %define branding 1
 %define releasedate 20190612174318
 %define source_prefix firefox-%{mainver}
+
+# https://bugzilla.suse.com/show_bug.cgi?id=1138688
+# always build with GCC as SUSE Security Team requires that
+%define clang_build 0
 
 # PIE, full relro (x86_64 for now)
 %define build_hardened 1
@@ -160,6 +164,7 @@ Patch4:         mozilla-openaes-decl.patch
 Patch6:         mozilla-reduce-files-per-UnifiedBindings.patch
 Patch7:         mozilla-aarch64-startup-crash.patch
 Patch8:         mozilla-bmo1555530.patch
+Patch10:        mozilla-cubeb-noreturn.patch
 Patch15:        mozilla-bmo1005535.patch
 Patch18:        mozilla-s390-bigendian.patch
 Patch19:        mozilla-s390-context.patch
@@ -283,9 +288,9 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 %endif
 %patch7 -p1
 %patch8 -p1
+%patch10 -p1
 %ifarch %ix86
 #%patch9 -p1
-#%patch10 -p1
 %endif
 #%patch13 -p1
 #%patch14 -p1
@@ -330,6 +335,11 @@ export BUILD_OFFICIAL=1
 export MOZ_TELEMETRY_REPORTING=1
 %if 0%{?suse_version} <= 1320
 export CC=gcc-7
+%else
+%if 0%{?clang_build} == 0
+export CC=gcc
+export CXX=g++
+%endif
 %endif
 export CFLAGS="%{optflags} -fno-strict-aliasing"
 ## bmo#1461041: aarch64: GraphicsCriticalError: seg fault crash

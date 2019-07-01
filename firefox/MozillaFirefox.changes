@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Jun 19 12:35:12 UTC 2019 - Martin Sirringhaus <martin.sirringhaus@suse.com>
+
+- Build Firefox with gcc instead of clang (bsc#1138688)
+
+-------------------------------------------------------------------
 Tue May 14 17:23:34 UTC 2019 - Charles Robertson <cgrobertson@suse.com>
 
 - Enable Firefox to build with Rust >= 1.30 with fix. See below.
