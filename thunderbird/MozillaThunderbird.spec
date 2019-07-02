@@ -63,7 +63,9 @@ BuildRequires:  zip
 BuildRequires:  rust-cbindgen
 BuildRequires:  nodejs10 >= 8.11
 BuildRequires:  nasm
-BuildRequires:  pkgconfig(gconf-2.0)
+%if 0%{?suse_version} < 1550
+BuildRequires:  pkgconfig(gconf-2.0) >= 1.2.1
+%endif
 BuildRequires:  pkgconfig(gdk-x11-2.0)
 BuildRequires:  pkgconfig(glib-2.0) >= 2.22
 BuildRequires:  pkgconfig(gobject-2.0)
@@ -124,6 +126,7 @@ Patch4:         mozilla-openaes-decl.patch
 Patch6:         mozilla-reduce-files-per-UnifiedBindings.patch
 Patch7:         mozilla-aarch64-startup-crash.patch
 Patch8:         mozilla-bmo1555530.patch
+Patch10:        mozilla-cubeb-noreturn.patch
 Patch15:        mozilla-bmo1005535.patch
 Patch18:        mozilla-s390-bigendian.patch
 Patch19:        mozilla-s390-context.patch
@@ -221,9 +224,9 @@ fi
 %endif
 %patch7 -p1
 %patch8 -p1
+%patch10 -p1
 %ifarch %ix86
 #%patch9 -p1
-#%patch10 -p1
 %endif
 %ifarch ppc ppc64 s390 s390x
 %patch15 -p1
