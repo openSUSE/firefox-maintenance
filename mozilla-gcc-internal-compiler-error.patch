@@ -1,7 +1,7 @@
 diff -r bd99e084bac7 gfx/skia/skia/third_party/skcms/src/Transform_inl.h
---- a/gfx/skia/skia/third_party/skcms/src/Transform_inl.h	Mon Jul 01 22:35:19 2019 +0000
-+++ b/gfx/skia/skia/third_party/skcms/src/Transform_inl.h	Tue Jul 02 11:54:23 2019 +0200
-@@ -559,7 +559,7 @@
+--- a/gfx/skia/skia/third_party/skcms/src/Transform_inl.h       Mon Jul 01 22:35:19 2019 +0000
++++ b/gfx/skia/skia/third_party/skcms/src/Transform_inl.h       Wed Jul 03 14:59:58 2019 +0200
+@@ -559,7 +559,8 @@
  
  // GCC 7.2.0 hits an internal compiler error with -finline-functions (or -O3)
  // when targeting MIPS 64,  I think attempting to inline clut() into exec_ops().

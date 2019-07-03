@@ -14,6 +14,3 @@ pref("intl.locale.requested", "");
 // do not disable system-global or app-global extensions
 pref("extensions.autoDisableScopes", 3);
 pref("extensions.shownSelectionUI", true);
-
-// spellcheck
-pref("spellchecker.dictionary_path", "/usr/share/myspell");

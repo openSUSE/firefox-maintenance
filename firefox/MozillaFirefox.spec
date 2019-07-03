@@ -2,7 +2,7 @@
 # spec file for package MozillaFirefox
 #
 # Copyright (c) 2019 SUSE LINUX GmbH, Nuernberg, Germany.
-#               2006-2019 Wolfgang Rosenauer
+#               2006-2019 Wolfgang Rosenauer <wr@rosenauer.org>
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -13,7 +13,7 @@
 # license that conforms to the Open Source Definition (Version 1.9)
 # published by the Open Source Initiative.
 
-# Please submit bugfixes or comments via http://bugs.opensuse.org/
+# Please submit bugfixes or comments via https://bugs.opensuse.org/
 #
 
 
@@ -73,10 +73,7 @@ BuildRequires:  cargo
 BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
 BuildRequires:  libidl-devel
-BuildRequires:  libiw-devel
 BuildRequires:  libnotify-devel
-BuildRequires:  libproxy-devel
-BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.19
 BuildRequires:  mozilla-nss-devel >= 3.36.6
 BuildRequires:  python-devel
@@ -95,7 +92,9 @@ BuildRequires:  zip
 BuildRequires:  rust-cbindgen
 BuildRequires:  nodejs10 >= 8.11
 BuildRequires:  nasm
-BuildRequires:  pkgconfig(gconf-2.0)
+%if 0%{?suse_version} < 1550
+BuildRequires:  pkgconfig(gconf-2.0) >= 1.2.1
+%endif
 BuildRequires:  pkgconfig(gdk-x11-2.0)
 BuildRequires:  pkgconfig(glib-2.0) >= 2.22
 BuildRequires:  pkgconfig(gobject-2.0)
@@ -105,6 +104,9 @@ BuildRequires:  pkgconfig(gtk+-unix-print-2.0)
 BuildRequires:  pkgconfig(gtk+-unix-print-3.0)
 BuildRequires:  pkgconfig(libffi)
 BuildRequires:  pkgconfig(libpulse)
+BuildRequires:  libiw-devel
+BuildRequires:  libproxy-devel
+BuildRequires:  makeinfo
 %if 0%{?suse_version} > 1320
 BuildRequires:  llvm-clang-devel >= 3.9.0
 %else
@@ -119,7 +121,7 @@ Recommends:     libavcodec-full >= 0.10.16
 Version:        %{mainver}
 Release:        0
 %if "%{name}" == "MozillaFirefox"
-Provides:       firefox = %{mainver}
+Provides:       firefox = %{version}
 Provides:       firefox = %{version}-%{release}
 %endif
 Provides:       web_browser
@@ -133,7 +135,7 @@ Summary:        Mozilla %{appname} Web Browser
 License:        MPL-2.0
 Group:          Productivity/Networking/Web/Browsers
 Url:            http://www.mozilla.org/
-Source:         http://ftp.mozilla.org/pub/firefox/releases/%{version}%{version_postfix}/source/firefox-%{version}%{version_postfix}.source.tar.xz
+Source:         http://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{version_postfix}/source/%{progname}-%{version}%{version_postfix}.source.tar.xz
 Source1:        MozillaFirefox.desktop
 Source2:        MozillaFirefox-rpmlintrc
 Source3:        mozilla.sh.in
@@ -154,8 +156,8 @@ Source16:       MozillaFirefox.changes
 # please get your own set of keys.
 Source18:       mozilla-api-key
 Source19:       google-api-key
-Source20:       http://ftp.mozilla.org/pub/firefox/releases/%{version}%{version_postfix}/source/firefox-%{version}%{version_postfix}.source.tar.xz.asc
-Source21:       mozilla.keyring
+#Source20:       https://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{version_postfix}/source/%{progname}-%{version}%{version_postfix}.source.tar.xz.asc
+Source21:       https://ftp.mozilla.org/pub/%{progname}/releases/%{version}/KEY#/mozilla.keyring
 # Gecko/Toolkit
 Patch1:         mozilla-nongnome-proxies.patch
 Patch2:         mozilla-kde.patch
@@ -212,7 +214,7 @@ Development files for %{appname} to make packaging of addons easier.
 %package translations-common
 Summary:        Common translations for %{appname}
 Group:          System/Localization
-Provides:       locale(%{name}:ar;ca;cs;da;de;en_GB;el;es_AR;es_CL;es_ES;fi;fr;hu;it;ja;ko;nb_NO;nl;pl;pt_BR;pt_PT;ru;sv_SE;zh_CN;zh_TW)
+Provides:       locale(%{name}:ar;ca;cs;da;de;el;en_GB;es_AR;es_CL;es_ES;fi;fr;hu;it;ja;ko;nb_NO;nl;pl;pt_BR;pt_PT;ru;sv_SE;zh_CN;zh_TW)
 Requires:       %{name} = %{version}
 Provides:       %{name}-translations
 Obsoletes:      %{name}-translations < %{version}-%{release}
@@ -294,8 +296,6 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 %ifarch %ix86
 #%patch9 -p1
 %endif
-#%patch13 -p1
-#%patch14 -p1
 %ifarch s390x
 %patch15 -p1
 #%patch16 -p1
@@ -316,7 +316,7 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 %endif
 
 # no need to add build time to binaries
-modified="$(sed -n '/^----/n;s/ - .*$//;p;q' "%{_sourcedir}/MozillaFirefox.changes")"
+modified="$(sed -n '/^----/n;s/ - .*$//;p;q' "%{_sourcedir}/%{name}.changes")"
 DATE="\"$(date -d "${modified}" "+%%b %%e %%Y")\""
 TIME="\"$(date -d "${modified}" "+%%R")\""
 find . -regex ".*\.c\|.*\.cpp\|.*\.h" -exec sed -i "s/__DATE__/${DATE}/g;s/__TIME__/${TIME}/g" {} +
@@ -344,14 +344,6 @@ export CXX=g++
 %endif
 %endif
 export CFLAGS="%{optflags} -fno-strict-aliasing"
-## bmo#1461041: aarch64: GraphicsCriticalError: seg fault crash
-#%ifnarch %arm aarch64
-#  #boo#986541: add -fno-delete-null-pointer-checks for gcc6
-#  %if 0%{?suse_version} > 1320
-#  export CFLAGS="$CFLAGS -fno-delete-null-pointer-checks"
-#  %endif
-#%endif
-# boo#986541: add -fno-delete-null-pointer-checks for gcc6
 %if 0%{?suse_version} > 1320
 export CFLAGS="$CFLAGS -fno-delete-null-pointer-checks"
 %endif
@@ -495,7 +487,7 @@ install -m 644 %{SOURCE13} %{buildroot}%{progdir}/defaults/pref/
 # install browser prefs
 install -m 644 %{SOURCE6} %{buildroot}%{progdir}/browser/defaults/preferences/kde.js
 install -m 644 %{SOURCE9} %{buildroot}%{progdir}/browser/defaults/preferences/firefox.js
-# install additional locales
+# build additional locales
 %if %localize
 mkdir -p %{buildroot}%{progdir}/browser/extensions
 truncate -s 0 %{_tmppath}/translations.{common,other}
@@ -516,7 +508,7 @@ sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{source_prefix}/browse
         rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/hyphenation
         # check against the fixed common list and sort into the right filelist
         _matched=0
-        for _match in ar ca cs da de en-GB el es-AR es-CL es-ES fi fr hu it ja ko nb-NO nl pl pt-BR pt-PT ru sv-SE zh-CN zh-TW; do
+        for _match in ar ca cs da de el en-GB es-AR es-CL es-ES fi fr hu it ja ko nb-NO nl pl pt-BR pt-PT ru sv-SE zh-CN zh-TW; do
             [ "$_match" = "$locale" ] && _matched=1
         done
         [ $_matched -eq 1 ] && _l10ntarget=common || _l10ntarget=other
@@ -707,7 +699,6 @@ exit 0
 %config %{_sysconfdir}/rpm/macros.%{progname}
 
 %if %localize
-
 %files translations-common -f %{_tmppath}/translations.common
 %defattr(-,root,root)
 %dir %{progdir}
