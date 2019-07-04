@@ -387,6 +387,12 @@ export RUSTFLAGS="-Cdebuginfo=0 --cap-lints allow"
 %endif
 export MOZCONFIG=$RPM_BUILD_DIR/mozconfig
 %if %{with only_print_mozconfig}
+echo "export CC=$CC"
+echo "export CXX=$CXX"
+echo "export CFLAGS=\"$CFLAGS\""
+echo "export LDFLAGS=\"$LDFLAGS\""
+echo "export RUSTFLAGS=\"$RUSTFLAGS\""
+echo ""
 cat << EOF
 %else
 cat << EOF > $MOZCONFIG
@@ -465,14 +471,7 @@ ac_add_options --disable-webrtc
 %endif
 EOF
 
-%if %{with only_print_mozconfig}
-echo "================================================"
-echo "CC=$CC"
-echo "CXX=$CXX"
-echo "CFLAGS=$CFLAGS"
-echo "LDFLAGS=$LDFLAGS"
-echo "RUSTFLAGS=$RUSTFLAGS"
-%else
+%if !%{with only_print_mozconfig}
 %ifarch ppc64 s390x s390
 # NOTE: Currently, system-icu is too old, so we can't build with that,
 #       but have to generate the .dat-file freshly. This seems to be a
