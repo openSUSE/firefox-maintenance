@@ -33,6 +33,8 @@
 # PIE, full relro (x86_64 for now)
 %define build_hardened 1
 
+%bcond_with only_print_mozconfig
+
 # Firefox only supports i686
 %ifarch %ix86
 ExclusiveArch:  i586 i686
@@ -135,6 +137,7 @@ Summary:        Mozilla %{appname} Web Browser
 License:        MPL-2.0
 Group:          Productivity/Networking/Web/Browsers
 Url:            http://www.mozilla.org/
+%if !%{with only_print_mozconfig}
 Source:         http://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{version_postfix}/source/%{progname}-%{version}%{version_postfix}.source.tar.xz
 Source1:        MozillaFirefox.desktop
 Source2:        MozillaFirefox-rpmlintrc
@@ -176,6 +179,7 @@ Patch21:        mozilla-reduce-rust-debuginfo.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
+%endif # only_print_mozconfig
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post):   coreutils shared-mime-info desktop-file-utils
 Requires(postun): shared-mime-info desktop-file-utils
@@ -266,6 +270,7 @@ This subpackage contains the Breakpad created and compatible debugging
 symbols meant for upload to Mozilla's crash collector database.
 %endif
 
+%if !%{with only_print_mozconfig}
 %prep
 %if %localize
 
@@ -307,8 +312,10 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 # Firefox
 %patch101 -p1
 %patch102 -p1
+%endif # only_print_mozconfig
 
 %build
+%if !%{with only_print_mozconfig}
 %ifarch x86_64
 # x86_64 has often problems of too many concurrent jobs
 # it seems 1.epsilon GB per build job is enough
@@ -327,6 +334,8 @@ if test "$kdehelperversion" != %{kde_helper_version}; then
   exit 1
 fi
 source %{SOURCE5}
+%endif # only_print_mozconfig
+
 export MOZ_SOURCE_CHANGESET=$REV
 export SOURCE_REPO=$REPO
 export source_repo=$REPO
@@ -377,7 +386,11 @@ export RUSTFLAGS="--cap-lints allow"
 export RUSTFLAGS="-Cdebuginfo=0 --cap-lints allow"
 %endif
 export MOZCONFIG=$RPM_BUILD_DIR/mozconfig
+%if %{with only_print_mozconfig}
+cat << EOF
+%else
 cat << EOF > $MOZCONFIG
+%endif
 mk_add_options MOZILLA_OFFICIAL=1
 mk_add_options BUILD_OFFICIAL=1
 mk_add_options MOZ_MAKE_FLAGS=%{?jobs:-j%jobs}
@@ -452,6 +465,14 @@ ac_add_options --disable-webrtc
 %endif
 EOF
 
+%if %{with only_print_mozconfig}
+echo "================================================"
+echo "CC=$CC"
+echo "CXX=$CXX"
+echo "CFLAGS=$CFLAGS"
+echo "LDFLAGS=$LDFLAGS"
+echo "RUSTFLAGS=$RUSTFLAGS"
+%else
 %ifarch ppc64 s390x s390
 # NOTE: Currently, system-icu is too old, so we can't build with that,
 #       but have to generate the .dat-file freshly. This seems to be a
@@ -464,6 +485,7 @@ rm -f config/external/icu/data/icudt*l.dat
 %endif
 
 ./mach build
+%endif # only_print_mozconfig
 
 %install
 cd $RPM_BUILD_DIR/obj

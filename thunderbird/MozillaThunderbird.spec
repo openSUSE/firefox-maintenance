@@ -34,6 +34,8 @@
 # PIE, full relro (x86_64 for now)
 %define build_hardened 1
 
+%bcond_with only_print_mozconfig
+
 %bcond_without mozilla_tb_kde4
 %bcond_with    mozilla_tb_valgrind
 %bcond_without mozilla_tb_optimize_for_size
@@ -136,6 +138,7 @@ Summary:        The Stand-Alone Mozilla Mail Component
 License:        MPL-2.0
 Group:          Productivity/Networking/Email/Clients
 Url:            http://www.mozilla.org/products/thunderbird/
+%if !%{with only_print_mozconfig}
 Source:         http://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{version_postfix}/source/%{progname}-%{version}%{version_postfix}.source.tar.xz
 Source1:        thunderbird.desktop
 Source2:        thunderbird-rpmlintrc
@@ -165,6 +168,7 @@ Patch18:        mozilla-s390-bigendian.patch
 Patch19:        mozilla-s390-context.patch
 Patch20:        mozilla-ppc-altivec_static_inline.patch
 Patch21:        mozilla-reduce-rust-debuginfo.patch
+%endif # only_print_mozconfig
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 PreReq:         coreutils fileutils textutils /bin/sh
 Requires:       mozilla-nspr >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
@@ -214,6 +218,7 @@ This subpackage contains the Breakpad created and compatible debugging
 symbols meant for upload to Mozilla's crash collector database.
 %endif
 
+%if !%{with only_print_mozconfig}
 %prep
 %if %localize
 
@@ -253,13 +258,13 @@ fi
 %endif
 %patch20 -p1
 %patch21 -p1
+%endif # only_print_mozconfig
 
 %build
-%ifarch x86_64
-# x86_64 has often problems of too many concurrent jobs
-# it seems 1.epsilon GB per build job is enough
-%limit_build -m 1100
-%endif
+%if !%{with only_print_mozconfig}
+#
+# Limit RAM usage to avoid OOM
+%limit_build -m 1500
 
 # no need to add build time to binaries
 modified="$(sed -n '/^----/n;s/ - .*$//;p;q' "%{_sourcedir}/%{name}.changes")"
@@ -274,6 +279,8 @@ if test "$kdehelperversion" != %{kde_helper_version}; then
   exit 1
 fi
 %endif
+%endif # only_print_mozconfig
+
 export SUSE_ASNEEDED=0
 export MOZ_BUILD_DATE=%{releasedate}
 export MOZILLA_OFFICIAL=1
@@ -327,10 +334,11 @@ export MOZCONFIG=$RPM_BUILD_DIR/mozconfig
 # gcc lacks a an explicit -noop, so use something similar to make sure -g
 # is not forced into CFLAGS
 export MOZ_DEBUG_FLAGS="-pipe"
-#
-# Limit RAM usage to avoid OOM
-%limit_build -m 1500
+%if %{with only_print_mozconfig}
+cat << EOF
+%else
 cat << EOF > $MOZCONFIG
+%endif
 mk_add_options MOZILLA_OFFICIAL=1
 mk_add_options BUILD_OFFICIAL=1
 mk_add_options MOZ_MILESTONE_RELEASE=1
@@ -408,6 +416,14 @@ ac_add_options --enable-valgrind
 %endif
 EOF
 
+%if %{with only_print_mozconfig}
+echo "================================================"
+echo "CC=$CC"
+echo "CXX=$CXX"
+echo "CFLAGS=$CFLAGS"
+echo "LDFLAGS=$LDFLAGS"
+echo "RUSTFLAGS=$RUSTFLAGS"
+%else
 %ifarch ppc64 s390x s390
 # NOTE: Currently, system-icu is too old, so we can't build with that,
 #       but have to generate the .dat-file freshly. This seems to be a
@@ -420,6 +436,7 @@ rm -f config/external/icu/data/icudt*l.dat
 %endif
 
 ./mach build
+%endif # only_print_mozconfig
 
 %install
 cd $RPM_BUILD_DIR/obj
