@@ -71,29 +71,30 @@ BuildRequires:  gcc7-c++
 %else
 BuildRequires:  gcc-c++
 %endif
-BuildRequires:  cargo
+BuildRequires:  cargo >= 1.32
 BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
 BuildRequires:  libidl-devel
 BuildRequires:  libnotify-devel
-BuildRequires:  mozilla-nspr-devel >= 4.19
-BuildRequires:  mozilla-nss-devel >= 3.36.6
+BuildRequires:  mozilla-nspr-devel >= 4.21
+BuildRequires:  mozilla-nss-devel >= 3.44.1
+BuildRequires:  nasm >= 2.13
+BuildRequires:  nodejs10 >= 8.11
 BuildRequires:  python-devel
 BuildRequires:  python2-xml
+BuildRequires:  python3 >= 3.5
 # Rust version bump for packaging changes only, Firefox can build with older rust
 # Upstream Firefox ESR 60.x presumes rust-1.24
 # openSUSE and SLE use improved packaging in rust >= 1.30
 # Use RUSTFLAGS="--cap-lints allow" to allow building, see below
 BuildRequires:  rust >= 1.34
+BuildRequires:  rust-cbindgen >= 0.8.2
 BuildRequires:  startup-notification-devel
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
 BuildRequires:  xorg-x11-libXt-devel
 BuildRequires:  yasm
 BuildRequires:  zip
-BuildRequires:  rust-cbindgen
-BuildRequires:  nodejs10 >= 8.11
-BuildRequires:  nasm
 %if 0%{?suse_version} < 1550
 BuildRequires:  pkgconfig(gconf-2.0) >= 1.2.1
 %endif
