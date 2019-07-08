@@ -1,10 +1,10 @@
+Bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90756
+Mozilla: https://bugzilla.mozilla.org/show_bug.cgi?id=1562886
+
 diff -r bd99e084bac7 gfx/skia/skia/third_party/skcms/src/Transform_inl.h
 --- a/gfx/skia/skia/third_party/skcms/src/Transform_inl.h       Mon Jul 01 22:35:19 2019 +0000
 +++ b/gfx/skia/skia/third_party/skcms/src/Transform_inl.h       Wed Jul 03 14:59:58 2019 +0200
 @@ -559,7 +559,8 @@
-Bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90756
-Mozilla: https://bugzilla.mozilla.org/show_bug.cgi?id=1562886
- 
  // GCC 7.2.0 hits an internal compiler error with -finline-functions (or -O3)
  // when targeting MIPS 64,  I think attempting to inline clut() into exec_ops().
 -#if 1 && defined(__GNUC__) && !defined(__clang__) && defined(__mips64)
