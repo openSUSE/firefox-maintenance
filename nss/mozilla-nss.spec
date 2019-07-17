@@ -17,7 +17,7 @@
 #
 
 
-%global nss_softokn_fips_version 3.44
+%global nss_softokn_fips_version 3.45
 %define NSPR_min_version 4.21
 
 Name:           mozilla-nss
@@ -26,8 +26,8 @@ BuildRequires:  mozilla-nspr-devel >= %{NSPR_min_version}
 BuildRequires:  pkg-config
 BuildRequires:  sqlite-devel
 BuildRequires:  zlib-devel
-Version:        3.44.1
-%define underscore_version 3_44_1
+Version:        3.45
+%define underscore_version 3_45
 Release:        0
 # bug437293
 %ifarch ppc64

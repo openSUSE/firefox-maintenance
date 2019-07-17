@@ -1,4 +1,42 @@
 -------------------------------------------------------------------
+Mon Jul 15 06:07:37 UTC 2019 - Martin Sirringhaus <martin.sirringhaus@suse.com>
+
+- update to NSS 3.45 (bsc#1141322)
+  * New function in pk11pub.h: PK11_FindRawCertsWithSubject
+  * The following CA certificates were Removed:
+    CN = Certinomis - Root CA (bmo#1552374)
+  * Implement Delegated Credentials (draft-ietf-tls-subcerts)
+    (bmo#1540403)
+      This adds a new experimental function SSL_DelegateCredential
+      Note: In 3.45, selfserv does not yet support delegated
+            credentials (See bmo#1548360).
+      Note: In 3.45 the SSLChannelInfo is left unmodified,
+            while an upcoming change in 3.46 will set
+            SSLChannelInfo.authKeyBits to that of the delegated
+            credential for better policy enforcement
+            (See bmo#1563078).
+  * Replace ARM32 Curve25519 implementation with one from
+    fiat-crypto (bmo#1550579)
+  * Support static linking on Windows (bmo#1551129)
+  * Expose a function PK11_FindRawCertsWithSubject for finding
+    certificates with a given subject on a given slot
+    (bmo#1552262)
+  * Add IPSEC IKE support to softoken (bmo#1546229)
+  * Add support for the Elbrus lcc compiler (<=1.23)
+    (bmo#1554616)
+  * Expose an external clock for SSL (bmo#1543874)
+      This adds new experimental functions: SSL_SetTimeFunc,
+      SSL_CreateAntiReplayContext, SSL_SetAntiReplayContext, and
+      SSL_ReleaseAntiReplayContext.
+        The experimental function SSL_InitAntiReplay is removed.
+  * Various changes in response to the ongoing FIPS review
+    (bmo#1546477)
+      Note: The source package size has increased substantially
+            due to the new FIPS test vectors. This will likely
+            prompt follow-on work, but please accept our
+            apologies in the meantime.
+
+-------------------------------------------------------------------
 Fri Jun 28 16:58:58 UTC 2019 - Charles Robertson <cgrobertson@suse.com>
 
 - update to NSS 3.44.1
