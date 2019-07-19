@@ -19,11 +19,11 @@
 
 # changed with every update
 %define major 68
-%define mainver %major.0
+%define mainver %major.0.1
 %define version_postfix esr
 %define update_channel esr
 %define branding 1
-%define releasedate 20190612174318
+%define releasedate 20190718152132
 %define source_prefix firefox-%{mainver}
 
 # https://bugzilla.suse.com/show_bug.cgi?id=1138688
@@ -170,7 +170,6 @@ Patch4:         mozilla-openaes-decl.patch
 Patch6:         mozilla-reduce-files-per-UnifiedBindings.patch
 Patch7:         mozilla-aarch64-startup-crash.patch
 Patch8:         mozilla-bmo1555530.patch
-Patch9:         mozilla-gcc-internal-compiler-error.patch
 Patch10:        mozilla-cubeb-noreturn.patch
 Patch15:        mozilla-bmo1005535.patch
 Patch18:        mozilla-s390-bigendian.patch
@@ -297,7 +296,6 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 %endif
 %patch7 -p1
 %patch8 -p1
-%patch9 -p1
 %patch10 -p1
 %ifarch %ix86
 #%patch9 -p1
