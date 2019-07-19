@@ -162,6 +162,7 @@ Patch4:         mozilla-openaes-decl.patch
 Patch6:         mozilla-reduce-files-per-UnifiedBindings.patch
 Patch7:         mozilla-aarch64-startup-crash.patch
 Patch8:         mozilla-bmo1555530.patch
+Patch9:         mozilla-gcc-internal-compiler-error.patch
 Patch10:        mozilla-cubeb-noreturn.patch
 Patch15:        mozilla-bmo1005535.patch
 Patch18:        mozilla-s390-bigendian.patch
@@ -245,6 +246,7 @@ fi
 %endif
 %patch7 -p1
 %patch8 -p1
+%patch9 -p1
 %patch10 -p1
 %ifarch %ix86
 #%patch9 -p1
