@@ -1,0 +1,21 @@
+# HG changeset patch
+# User msirringhaus@suse.de
+# Date 1562323425 -7200
+#      Fri Jul 05 12:43:45 2019 +0200
+# Node ID 49c37f3c614305dd20213e8206106d3eb7a18f69
+# Parent  19e1d2f6394f20f11f8bc3e2606df2a3458493af
+imported patch mozilla-gtest-cleanup.patch
+
+diff -r 19e1d2f6394f -r 49c37f3c6143 toolkit/components/telemetry/geckoview/gtest/TestGeckoView.cpp
+--- a/toolkit/components/telemetry/geckoview/gtest/TestGeckoView.cpp	Fri Jul 05 12:43:41 2019 +0200
++++ b/toolkit/components/telemetry/geckoview/gtest/TestGeckoView.cpp	Fri Jul 05 12:43:45 2019 +0200
+@@ -573,6 +573,9 @@
+   uint32_t expectedValue = 25;
+   CheckUintScalar("telemetry.test.unsigned_int_kind", cx.GetJSContext(),
+                   scalarsSnapshot, expectedValue);
++
++  // Cleanup/remove the files.
++  RemovePersistenceFile();
+ }
+ 
+ TEST_F(TelemetryGeckoViewFixture, MultipleAppendOperations) {

@@ -1,0 +1,73 @@
+# HG changeset patch
+# User msirringhaus@suse.de
+# Date 1562329125 -7200
+#      Fri Jul 05 14:18:45 2019 +0200
+# Node ID bdaf9b68df7bd5c2169f302b949356a478d2869c
+# Parent  49c37f3c614305dd20213e8206106d3eb7a18f69
+imported patch mozilla-color-access-endian.patch
+
+diff -r 49c37f3c6143 -r bdaf9b68df7b image/test/gtest/Common.cpp
+--- a/image/test/gtest/Common.cpp	Fri Jul 05 12:43:45 2019 +0200
++++ b/image/test/gtest/Common.cpp	Fri Jul 05 14:18:45 2019 +0200
+@@ -193,15 +193,33 @@
+     for (int32_t col = rect.X(); col < rect.XMost(); ++col) {
+       int32_t i = row * rowLength + col * 4;
+       if (aFuzz != 0) {
+-        ASSERT_LE_OR_RETURN(abs(pmColor.mBlue - data[i + 0]), aFuzz, false);
+-        ASSERT_LE_OR_RETURN(abs(pmColor.mGreen - data[i + 1]), aFuzz, false);
+-        ASSERT_LE_OR_RETURN(abs(pmColor.mRed - data[i + 2]), aFuzz, false);
+-        ASSERT_LE_OR_RETURN(abs(pmColor.mAlpha - data[i + 3]), aFuzz, false);
++#if MOZ_LITTLE_ENDIAN
++          ASSERT_LE_OR_RETURN(abs(pmColor.mBlue - data[i + 0]), aFuzz, false);
++          ASSERT_LE_OR_RETURN(abs(pmColor.mGreen - data[i + 1]), aFuzz, false);
++          ASSERT_LE_OR_RETURN(abs(pmColor.mRed - data[i + 2]), aFuzz, false);
++          ASSERT_LE_OR_RETURN(abs(pmColor.mAlpha - data[i + 3]), aFuzz, false);
++#elif MOZ_BIG_ENDIAN
++          ASSERT_LE_OR_RETURN(abs(pmColor.mBlue - data[i + 3]), aFuzz, false);
++          ASSERT_LE_OR_RETURN(abs(pmColor.mGreen - data[i + 2]), aFuzz, false);
++          ASSERT_LE_OR_RETURN(abs(pmColor.mRed - data[i + 1]), aFuzz, false);
++          ASSERT_LE_OR_RETURN(abs(pmColor.mAlpha - data[i + 0]), aFuzz, false);
++#else
++#  error "bad endianness"
++#endif
+       } else {
+-        ASSERT_EQ_OR_RETURN(pmColor.mBlue, data[i + 0], false);
+-        ASSERT_EQ_OR_RETURN(pmColor.mGreen, data[i + 1], false);
+-        ASSERT_EQ_OR_RETURN(pmColor.mRed, data[i + 2], false);
+-        ASSERT_EQ_OR_RETURN(pmColor.mAlpha, data[i + 3], false);
++#if MOZ_LITTLE_ENDIAN
++          ASSERT_EQ_OR_RETURN(pmColor.mBlue, data[i + 0], false);
++          ASSERT_EQ_OR_RETURN(pmColor.mGreen, data[i + 1], false);
++          ASSERT_EQ_OR_RETURN(pmColor.mRed, data[i + 2], false);
++          ASSERT_EQ_OR_RETURN(pmColor.mAlpha, data[i + 3], false);
++#elif MOZ_BIG_ENDIAN
++          ASSERT_EQ_OR_RETURN(pmColor.mBlue, data[i + 3], false);
++          ASSERT_EQ_OR_RETURN(pmColor.mGreen, data[i + 2], false);
++          ASSERT_EQ_OR_RETURN(pmColor.mRed, data[i + 1], false);
++          ASSERT_EQ_OR_RETURN(pmColor.mAlpha, data[i + 0], false);
++#else
++#  error "bad endianness"
++#endif
+       }
+     }
+   }
+@@ -267,10 +285,19 @@
+   int32_t rowLength = mapping.GetStride();
+   for (int32_t col = 0; col < surfaceSize.width; ++col) {
+     int32_t i = aRow * rowLength + col * 4;
++#if MOZ_LITTLE_ENDIAN
+     ASSERT_EQ_OR_RETURN(aPixels[col].mBlue, data[i + 0], false);
+     ASSERT_EQ_OR_RETURN(aPixels[col].mGreen, data[i + 1], false);
+     ASSERT_EQ_OR_RETURN(aPixels[col].mRed, data[i + 2], false);
+     ASSERT_EQ_OR_RETURN(aPixels[col].mAlpha, data[i + 3], false);
++#elif MOZ_BIG_ENDIAN
++    ASSERT_EQ_OR_RETURN(aPixels[col].mBlue, data[i + 3], false);
++    ASSERT_EQ_OR_RETURN(aPixels[col].mGreen, data[i + 2], false);
++    ASSERT_EQ_OR_RETURN(aPixels[col].mRed, data[i + 1], false);
++    ASSERT_EQ_OR_RETURN(aPixels[col].mAlpha, data[i + 0], false);
++#else
++#  error "bad endianness"
++#endif
+   }
+ 
+   return true;
