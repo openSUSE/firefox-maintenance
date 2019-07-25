@@ -1,19 +1,11 @@
 # HG changeset patch
 # Parent  548d0a2f3a22bfac32ec0c3921c6c969c8bf32a9
 
-diff -r 548d0a2f3a22 -r 03359dcf2ddd gfx/2d/ConvolutionFilter.cpp
+diff -r 548d0a2f3a22 gfx/2d/ConvolutionFilter.cpp
 --- a/gfx/2d/ConvolutionFilter.cpp	Mon Jul 22 16:57:54 2019 +0200
-+++ b/gfx/2d/ConvolutionFilter.cpp	Thu Jul 25 08:51:51 2019 +0200
-@@ -6,6 +6,7 @@
- 
- #include "2D.h"
- #include "ConvolutionFilter.h"
-+#include "mozilla/gfx/Swizzle.h"
- #include "skia/src/core/SkBitmapFilter.h"
- #include "skia/src/core/SkConvolver.h"
- #include "skia/src/core/SkOpts.h"
-@@ -40,6 +41,15 @@
-   SkOpts::convolve_horizontally(aSrc, *mFilter, aDst, aHasAlpha);
++++ b/gfx/2d/ConvolutionFilter.cpp	Thu Jul 25 14:27:59 2019 +0200
+@@ -35,9 +35,38 @@
+   return true;
  }
  
 +static void ByteSwapArray(uint8_t *u8Array, int32_t size) {
@@ -25,10 +17,33 @@ diff -r 548d0a2f3a22 -r 03359dcf2ddd gfx/2d/ConvolutionFilter.cpp
 +    }
 +}
 +
+ void ConvolutionFilter::ConvolveHorizontally(const uint8_t* aSrc, uint8_t* aDst,
+                                              bool aHasAlpha) {
++#ifdef MOZ_BIG_ENDIAN
++    int outputSize = mFilter->numValues();
++
++    // Input size isn't handed in, so we have to calculate it quickly
++    int inputSize = 0;
++    for (int xx = 0; xx < outputSize; ++xx) {
++        // Get the filter that determines the current output pixel.
++        int filterOffset, filterLength;
++        mFilter->FilterForValue(xx, &filterOffset, &filterLength);
++        inputSize = std::max(inputSize, filterOffset + filterLength);
++    }
++
++    ByteSwapArray((uint8_t*)aSrc, inputSize);
++#endif
++
+   SkOpts::convolve_horizontally(aSrc, *mFilter, aDst, aHasAlpha);
++
++#ifdef MOZ_BIG_ENDIAN
++    ByteSwapArray((uint8_t*)aSrc, inputSize);
++    ByteSwapArray(aDst, outputSize);
++#endif
+ }
+ 
  void ConvolutionFilter::ConvolveVertically(uint8_t* const* aSrc, uint8_t* aDst,
-                                            int32_t aRowIndex, int32_t aRowSize,
-                                            bool aHasAlpha) {
-@@ -49,8 +59,26 @@
+@@ -49,8 +78,26 @@
    int32_t filterLength;
    auto filterValues =
        mFilter->FilterForValue(aRowIndex, &filterOffset, &filterLength);
@@ -55,9 +70,9 @@ diff -r 548d0a2f3a22 -r 03359dcf2ddd gfx/2d/ConvolutionFilter.cpp
  }
  
  /* ConvolutionFilter::ComputeResizeFactor is derived from Skia's
-diff -r 548d0a2f3a22 -r 03359dcf2ddd gfx/skia/skia/include/core/SkPreConfig.h
+diff -r 548d0a2f3a22 gfx/skia/skia/include/core/SkPreConfig.h
 --- a/gfx/skia/skia/include/core/SkPreConfig.h	Mon Jul 22 16:57:54 2019 +0200
-+++ b/gfx/skia/skia/include/core/SkPreConfig.h	Thu Jul 25 08:51:51 2019 +0200
++++ b/gfx/skia/skia/include/core/SkPreConfig.h	Thu Jul 25 14:27:59 2019 +0200
 @@ -73,7 +73,7 @@
        defined(__ppc__) || defined(__hppa) || \
        defined(__PPC__) || defined(__PPC64__) || \
@@ -67,16 +82,3 @@ diff -r 548d0a2f3a22 -r 03359dcf2ddd gfx/skia/skia/include/core/SkPreConfig.h
        (defined(__sh__) && defined(__BIG_ENDIAN__)) || \
        (defined(__ia64) && defined(__BIG_ENDIAN__))
           #define SK_CPU_BENDIAN
-diff -r 548d0a2f3a22 -r 03359dcf2ddd image/decoders/nsIconDecoder.cpp
---- a/image/decoders/nsIconDecoder.cpp	Mon Jul 22 16:57:54 2019 +0200
-+++ b/image/decoders/nsIconDecoder.cpp	Thu Jul 25 08:51:51 2019 +0200
-@@ -93,6 +93,9 @@
-     memcpy(&pixel, aData, 4);
-     aData += 4;
-     aLength -= 4;
-+#if MOZ_BIG_ENDIAN
-+    pixel = NativeEndian::swapFromLittleEndian(pixel);
-+#endif
- 
-     return AsVariant(pixel);
-   });
