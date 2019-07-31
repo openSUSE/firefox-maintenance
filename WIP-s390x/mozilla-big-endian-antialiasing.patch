@@ -1,0 +1,51 @@
+# HG changeset patch
+# Parent  8f367d4a806d4163351386841777c926c6332304
+
+diff -r 8f367d4a806d -r 65ad01b418d2 gfx/2d/DrawTargetSkia.cpp
+--- a/gfx/2d/DrawTargetSkia.cpp	Thu Jul 25 14:27:58 2019 +0200
++++ b/gfx/2d/DrawTargetSkia.cpp	Wed Jul 31 09:08:31 2019 +0200
+@@ -578,7 +578,11 @@
+ 
+     // TODO: Can we set greyscale somehow?
+     if (aOptions.mAntialiasMode != AntialiasMode::NONE) {
+-      mPaint.setAntiAlias(true);
++      // AA is broken for Big Endian (black text is 100% transparent).
++      // This function seems to place that deals with
++      // menu icons and symbols (e.g. printing symbol, search symbol, ..)
++      // Deactivating AA here makes those icons and symbols visible (albeit pixely)
++      mPaint.setAntiAlias(false);
+     } else {
+       mPaint.setAntiAlias(false);
+     }
+diff -r 8f367d4a806d -r 65ad01b418d2 gfx/thebes/gfxFont.cpp
+--- a/gfx/thebes/gfxFont.cpp	Thu Jul 25 14:27:58 2019 +0200
++++ b/gfx/thebes/gfxFont.cpp	Wed Jul 31 09:08:31 2019 +0200
+@@ -2230,8 +2230,12 @@
+ 
+   Matrix mat;
+   Matrix oldMat = aRunParams.dt->GetTransform();
+-
+-  fontParams.drawOptions.mAntialiasMode = Get2DAAMode(mAntialiasOption);
++  // Changing this here to NONE deactivates AA for _all_ text
++  // AA is broken for XULText on Big Endian, while normal text works fine.
++  // I can't find a way to differentiate a call from XULText from "normal" text here,
++  // so I set ctx->antialismode to NONE for XULText and check it here to deactivate AA for only them.
++  fontParams.drawOptions.mAntialiasMode = aRunParams.context->CurrentAntialiasMode() == AntialiasMode::NONE ?
++                                                        AntialiasMode::NONE : Get2DAAMode(mAntialiasOption);
+ 
+   if (mStyle.baselineOffset != 0.0) {
+     baseline +=
+diff -r 8f367d4a806d -r 65ad01b418d2 layout/xul/nsTextBoxFrame.cpp
+--- a/layout/xul/nsTextBoxFrame.cpp	Thu Jul 25 14:27:58 2019 +0200
++++ b/layout/xul/nsTextBoxFrame.cpp	Wed Jul 31 09:08:31 2019 +0200
+@@ -287,6 +287,10 @@
+                                  mFrame->StyleColor()->mColor.ToColor(),
+                                  PaintTextShadowCallback, (void*)this);
+ 
++  // AA is broken for XULText on Big Endian, while normal text works fine.
++  // I can't find a way to differentiate a call from XULText from "normal" text further down the call-stack,
++  // so I set ctx->antialismode to NONE here and use that to check whether to deactivate AA further down.
++  aCtx->SetAntialiasMode(AntialiasMode::NONE);
+   PaintTextToContext(aCtx, nsPoint(0, 0), nullptr);
+ }
+ 
