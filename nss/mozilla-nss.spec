@@ -2,7 +2,7 @@
 # spec file for package mozilla-nss
 #
 # Copyright (c) 2019 SUSE LINUX GmbH, Nuernberg, Germany.
-# Copyright (c) 2006-2018 Wolfgang Rosenauer
+# Copyright (c) 2006-2019 Wolfgang Rosenauer
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -27,8 +27,8 @@ BuildRequires:  pkg-config
 BuildRequires:  sqlite-devel
 BuildRequires:  zlib-devel
 Version:        3.45
-%define underscore_version 3_45
 Release:        0
+%define underscore_version 3_45
 # bug437293
 %ifarch ppc64
 Obsoletes:      mozilla-nss-64bit
@@ -129,7 +129,7 @@ any system or user configured modules.
 %package -n libfreebl3
 Summary:        Freebl library for the Network Security Services
 Group:          System/Libraries
-Suggests:       libfreebl3-hmac
+Recommends:     libfreebl3-hmac = %{version}-%{release}
 
 %description -n libfreebl3
 Network Security Services (NSS) is a set of libraries designed to
@@ -142,7 +142,7 @@ This package installs the freebl library from NSS.
 
 
 %package -n libfreebl3-hmac
-Summary:        Freebl library for the Network Security Services
+Summary:        Freebl library checksums for the Network Security Services
 Group:          System/Libraries
 Requires:       libfreebl3 = %{version}-%{release}
 
@@ -155,7 +155,7 @@ used in the FIPS 140-2 mode.
 Summary:        Network Security Services Softoken Module
 Group:          System/Libraries
 Requires:       libfreebl3 = %{version}-%{release}
-Suggests:       libsoftokn3-hmac
+Recommends:     libsoftokn3-hmac = %{version}-%{release}
 
 %description -n libsoftokn3
 Network Security Services (NSS) is a set of libraries designed to
@@ -168,7 +168,7 @@ Network Security Services Softoken Cryptographic Module
 
 
 %package -n libsoftokn3-hmac
-Summary:        Network Security Services Softoken Module
+Summary:        Network Security Services Softoken Module checksums
 Group:          System/Libraries
 Requires:       libsoftokn3 = %{version}-%{release}
 
@@ -204,6 +204,7 @@ cd nss
 #make generate
 
 %build
+%global _lto_cflags %{_lto_cflags} -ffat-lto-objects
 cd nss
 modified="$(sed -n '/^----/n;s/ - .*$//;p;q' "%{S:99}")"
 DATE="\"$(date -d "${modified}" "+%%b %%e %%Y")\""
