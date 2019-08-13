@@ -1,5 +1,13 @@
 # HG changeset patch
 # Parent  caaf8579f0cb591dd4c9615f641c9e8e01f75556
+This patch fixes a bug on certain linux systems (noticed on s390x),
+where Firefox-code assumed a certain data-type for struct-members of
+system-headers. This is illegal, as there is no guarantee about this
+(see inline-comments below).
+
+The result of this bug was, that the address bar did not work.
+
+This patch has been commited upstream and should be removed with FF68.1
 
 diff -r caaf8579f0cb dom/system/OSFileConstants.cpp
 --- a/dom/system/OSFileConstants.cpp	Tue May 21 17:27:05 2019 +0200
