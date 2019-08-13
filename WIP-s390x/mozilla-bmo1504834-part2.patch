@@ -1,5 +1,9 @@
 # HG changeset patch
 # Parent  548d0a2f3a22bfac32ec0c3921c6c969c8bf32a9
+Skia does not support big endian. The places to fix are too numerous and upstream (skia, not Mozilla)
+has no interest in maintaining big endian.
+So here we try to swizzle the input for skia, so that skia always works on LE, and when it comes
+out again, we transform back to BE.
 
 diff -r 548d0a2f3a22 gfx/2d/ConvolutionFilter.cpp
 --- a/gfx/2d/ConvolutionFilter.cpp	Mon Jul 22 16:57:54 2019 +0200

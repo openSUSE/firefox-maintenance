@@ -4,7 +4,9 @@
 #      Fri Jul 05 14:18:45 2019 +0200
 # Node ID bdaf9b68df7bd5c2169f302b949356a478d2869c
 # Parent  49c37f3c614305dd20213e8206106d3eb7a18f69
-imported patch mozilla-color-access-endian.patch
+Several failing gtests on big endian machine due to this Common.cpp-file,
+which accesses u32 colors in LE only.
+This is not relevant for FF as a product (only if you want to run gtests on BE).
 
 diff -r 49c37f3c6143 -r bdaf9b68df7b image/test/gtest/Common.cpp
 --- a/image/test/gtest/Common.cpp	Fri Jul 05 12:43:45 2019 +0200

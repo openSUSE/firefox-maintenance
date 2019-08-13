@@ -5,6 +5,11 @@
 # Node ID 0309ff19e46b126c527e633518d7de8570442114
 # Parent  53107afbc21ec78e7ac46d37af212505f2032d5d
 Bug 1511604 - Swizzle YCbCr->RGB data on big-endian machines
+Taken from https://bugzilla.mozilla.org/show_bug.cgi?id=1511604
+
+This is very closely related to mozilla-bmo1504834
+
+Again, input for skia is swizzled to LE, as skia only understands LE.
 
 diff -r 53107afbc21e -r 0309ff19e46b gfx/ycbcr/YCbCrUtils.cpp
 --- a/gfx/ycbcr/YCbCrUtils.cpp  Wed Nov 07 04:50:21 2018 +0000

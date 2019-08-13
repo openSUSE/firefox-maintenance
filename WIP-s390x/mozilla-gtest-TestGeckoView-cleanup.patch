@@ -4,7 +4,11 @@
 #      Fri Jul 05 12:43:45 2019 +0200
 # Node ID 49c37f3c614305dd20213e8206106d3eb7a18f69
 # Parent  19e1d2f6394f20f11f8bc3e2606df2a3458493af
-imported patch mozilla-gtest-cleanup.patch
+TestGeckoView creates some file in /tmp/, but one test fails to clean up that file afterwards.
+
+This causes the test to fail, if one user ran the test and then another user tries to run the same test on the same machine.
+The file has the same name, but different permissions. So if it still exists, another user can't modify that file,
+causing the test to fail.
 
 diff -r 19e1d2f6394f -r 49c37f3c6143 toolkit/components/telemetry/geckoview/gtest/TestGeckoView.cpp
 --- a/toolkit/components/telemetry/geckoview/gtest/TestGeckoView.cpp	Fri Jul 05 12:43:41 2019 +0200

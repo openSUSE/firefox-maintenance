@@ -1,5 +1,6 @@
 # HG changeset patch
 # Parent  051b75a600dfbf7503c3485cebfd34d4eb29be96
+Taken from https://bugzilla.mozilla.org/show_bug.cgi?id=1504834
 
 diff -r 051b75a600df gfx/2d/DrawTargetSkia.cpp
 --- a/gfx/2d/DrawTargetSkia.cpp	Fri Jul 05 12:42:44 2019 +0200

@@ -1,5 +1,9 @@
 # HG changeset patch
 # Parent  45680ce4ca06795cbca1ea5a9ae8a7a11ab95cf1
+Experimental patch to replace libvpx with ffmpeg for VP8/VP9 decoding on s390x, as
+libvpx has no interest in supporting big endian.
+
+This patch is currently not used and is only there for future reference.
 
 diff -r 45680ce4ca06 media/ffvpx/config.h
 --- a/media/ffvpx/config.h	Mon Aug 05 09:28:53 2019 +0200

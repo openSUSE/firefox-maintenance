@@ -1,5 +1,10 @@
 # HG changeset patch
 # Parent  8f367d4a806d4163351386841777c926c6332304
+For FF68, AntiAliasing of XULTexts seem to be broken on big endian (s390x). Text and icons of the sandwich-menu to the
+right of the address bar, as well as plugin-windows appears transparant, which usually means unreadable (white on white).
+
+This is a hacky workaround to deactivate AA only for those elements and not every text, until a real fix is worked out.
+The resulting text is correctly colored, but pixely.
 
 diff -r 8f367d4a806d -r 65ad01b418d2 gfx/2d/DrawTargetSkia.cpp
 --- a/gfx/2d/DrawTargetSkia.cpp	Thu Jul 25 14:27:58 2019 +0200
