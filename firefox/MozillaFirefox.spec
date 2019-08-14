@@ -177,6 +177,13 @@ Patch18:        mozilla-s390-bigendian.patch
 Patch19:        mozilla-s390-context.patch
 Patch20:        mozilla-ppc-altivec_static_inline.patch
 Patch21:        mozilla-reduce-rust-debuginfo.patch
+Patch22:        mozilla-bmo1564900.patch
+Patch23:        mozilla-media-mime-type.patch
+Patch24:        mozilla-bmo1504834-part1.patch
+Patch25:        mozilla-bmo1504834-part2.patch
+Patch26:        mozilla-bmo1504834-part3.patch
+Patch27:        mozilla-bmo1511604.patch
+Patch28:        mozilla-bmo1554971.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -310,6 +317,15 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 %endif
 %patch20 -p1
 %patch21 -p1
+%patch22 -p1
+%ifarch s390x
+%patch23 -p1
+%patch24 -p1
+%patch25 -p1
+%patch26 -p1
+%patch27 -p1
+%patch28 -p1
+%endif
 # Firefox
 %patch101 -p1
 %patch102 -p1
@@ -414,7 +430,13 @@ ac_add_options --enable-default-toolkit=cairo-gtk3
 %endif
 # gcc7 (boo#104105)
 %if 0%{?suse_version} > 1320
+%ifarch s390x
+# Possible bug in gcc: https://github.com/openSUSE/firefox-maintenance/issues/15
+# This is a mildly ugly workaround
+ac_add_options --enable-optimize="-g -O1"
+%else
 ac_add_options --enable-optimize="-g -O2"
+%endif
 %endif
 %ifarch %ix86 %arm aarch64
 %if 0%{?suse_version} > 1230
