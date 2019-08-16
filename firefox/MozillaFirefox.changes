@@ -1,5 +1,23 @@
 -------------------------------------------------------------------
-Fri Jul 19 07:07:11 UTC 2019 - Martin Sirringhaus <martin.sirringhaus@suse.com>
+Fri Aug 16 05:51:52 UTC 2019 - Martin Sirringhaus <martin.sirringhaus@suse.com>
+
+- Firefox Extended Support Release 68.0.2esr ESR
+  * Fixed: Fixed a bug causing some special characters to be cut
+    off from the end of the search terms when searching from the
+    URL bar (bmo#1560228)
+  * Fixed: Allow fonts to be loaded via file:// URLs when opening
+    a page locally (bmo#1565942)
+  * Fixed: Printing emails from the Outlook web app no longer
+    prints only the header and footer (bmo#1567105)
+  * Fixed: Fixed a bug causing some images not to be displayed on
+    reload, including on Google Maps (bmo#1565542)
+  * Fixed: Fixed an error when starting external applications
+    configured as URI handlers (bmo#1567614)
+  * Fixed: Security fixes
+- MFSA 2019-24 (bsc#1145665)
+  * CVE-2019-11733 (bmo#1565780)
+    Stored passwords in 'Saved Logins' can be copied without
+    master password entry 
 
 - Mozilla Firefox 68.0.1
   * macOS releases are now signed by the Apple notary service, 

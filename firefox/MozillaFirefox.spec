@@ -19,7 +19,7 @@
 
 # changed with every update
 %define major 68
-%define mainver %major.0.1
+%define mainver %major.0.2
 %define version_postfix esr
 %define update_channel esr
 %define branding 1
