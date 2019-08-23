@@ -1,56 +1,38 @@
 # HG changeset patch
-# Parent  8f367d4a806d4163351386841777c926c6332304
+# Parent  aecb4600e5da17443b224c79eee178c1d8e155e3
 For FF68, AntiAliasing of XULTexts seem to be broken on big endian (s390x). Text and icons of the sandwich-menu to the
 right of the address bar, as well as plugin-windows appears transparant, which usually means unreadable (white on white).
 
-This is a hacky workaround to deactivate AA only for those elements and not every text, until a real fix is worked out.
-The resulting text is correctly colored, but pixely.
-
-diff -r 8f367d4a806d -r 65ad01b418d2 gfx/2d/DrawTargetSkia.cpp
---- a/gfx/2d/DrawTargetSkia.cpp	Thu Jul 25 14:27:58 2019 +0200
-+++ b/gfx/2d/DrawTargetSkia.cpp	Wed Jul 31 09:08:31 2019 +0200
-@@ -578,7 +578,11 @@
+diff -r aecb4600e5da -r 49f25e4c2fd1 gfx/skia/skia/include/private/SkNx.h
+--- a/gfx/skia/skia/include/private/SkNx.h	Tue Aug 20 09:46:55 2019 +0200
++++ b/gfx/skia/skia/include/private/SkNx.h	Fri Aug 23 15:00:43 2019 +0200
+@@ -238,7 +238,14 @@
+     AI SkNx operator*(const SkNx& y) const { return fVal * y.fVal; }
+     AI SkNx operator/(const SkNx& y) const { return fVal / y.fVal; }
  
-     // TODO: Can we set greyscale somehow?
-     if (aOptions.mAntialiasMode != AntialiasMode::NONE) {
--      mPaint.setAntiAlias(true);
-+      // AA is broken for Big Endian (black text is 100% transparent).
-+      // This function seems to place that deals with
-+      // menu icons and symbols (e.g. printing symbol, search symbol, ..)
-+      // Deactivating AA here makes those icons and symbols visible (albeit pixely)
-+      mPaint.setAntiAlias(false);
-     } else {
-       mPaint.setAntiAlias(false);
-     }
-diff -r 8f367d4a806d -r 65ad01b418d2 gfx/thebes/gfxFont.cpp
---- a/gfx/thebes/gfxFont.cpp	Thu Jul 25 14:27:58 2019 +0200
-+++ b/gfx/thebes/gfxFont.cpp	Wed Jul 31 09:08:31 2019 +0200
-@@ -2230,8 +2230,12 @@
+-    AI SkNx operator&(const SkNx& y) const { return FromBits(ToBits(fVal) & ToBits(y.fVal)); }
++    // On Big endian the commented out variant doesn't work,
++    // and honestly, I have no idea why it exists in the first place.
++    // The reason its broken is, I think, that it defaults to the double-variant of ToBits()
++    // which gets a 64-bit integer, and FromBits returns 32-bit,
++    // cutting off the wrong half again.
++    // Overall, I see no reason to have ToBits and FromBits at all (even for floats/doubles).
++    // AI SkNx operator&(const SkNx& y) const { return FromBits(ToBits(fVal) & ToBits(y.fVal)); }
++    AI SkNx operator&(const SkNx& y) const { return fVal & y.fVal; }
+     AI SkNx operator|(const SkNx& y) const { return FromBits(ToBits(fVal) | ToBits(y.fVal)); }
+     AI SkNx operator^(const SkNx& y) const { return FromBits(ToBits(fVal) ^ ToBits(y.fVal)); }
  
-   Matrix mat;
-   Matrix oldMat = aRunParams.dt->GetTransform();
--
--  fontParams.drawOptions.mAntialiasMode = Get2DAAMode(mAntialiasOption);
-+  // Changing this here to NONE deactivates AA for _all_ text
-+  // AA is broken for XULText on Big Endian, while normal text works fine.
-+  // I can't find a way to differentiate a call from XULText from "normal" text here,
-+  // so I set ctx->antialismode to NONE for XULText and check it here to deactivate AA for only them.
-+  fontParams.drawOptions.mAntialiasMode = aRunParams.context->CurrentAntialiasMode() == AntialiasMode::NONE ?
-+                                                        AntialiasMode::NONE : Get2DAAMode(mAntialiasOption);
- 
-   if (mStyle.baselineOffset != 0.0) {
-     baseline +=
-diff -r 8f367d4a806d -r 65ad01b418d2 layout/xul/nsTextBoxFrame.cpp
---- a/layout/xul/nsTextBoxFrame.cpp	Thu Jul 25 14:27:58 2019 +0200
-+++ b/layout/xul/nsTextBoxFrame.cpp	Wed Jul 31 09:08:31 2019 +0200
-@@ -287,6 +287,10 @@
-                                  mFrame->StyleColor()->mColor.ToColor(),
-                                  PaintTextShadowCallback, (void*)this);
- 
-+  // AA is broken for XULText on Big Endian, while normal text works fine.
-+  // I can't find a way to differentiate a call from XULText from "normal" text further down the call-stack,
-+  // so I set ctx->antialismode to NONE here and use that to check whether to deactivate AA further down.
-+  aCtx->SetAntialiasMode(AntialiasMode::NONE);
-   PaintTextToContext(aCtx, nsPoint(0, 0), nullptr);
- }
- 
+diff -r aecb4600e5da -r 49f25e4c2fd1 gfx/skia/skia/src/opts/SkBlitMask_opts.h
+--- a/gfx/skia/skia/src/opts/SkBlitMask_opts.h	Tue Aug 20 09:46:55 2019 +0200
++++ b/gfx/skia/skia/src/opts/SkBlitMask_opts.h	Fri Aug 23 15:00:43 2019 +0200
+@@ -203,7 +203,9 @@
+             //   ~~~>
+             // a = 1*aa + d(1-1*aa) = aa + d(1-aa)
+             // c = 0*aa + d(1-1*aa) =      d(1-aa)
+-            return Sk4px(Sk16b(aa) & Sk16b(0,0,0,255, 0,0,0,255, 0,0,0,255, 0,0,0,255))
++
++            // For big endian we have to swap the alpha-mask from 0,0,0,255 to 255,0,0,0
++            return Sk4px(Sk16b(aa) & Sk16b(255,0,0,0, 255,0,0,0, 255,0,0,0, 255,0,0,0))
+                  + d.approxMulDiv255(aa.inv());
+         };
+         while (h --> 0) {
