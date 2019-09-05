@@ -1,15 +1,18 @@
 # HG changeset patch
 # User Petr Cerny <pcerny@novell.com>
-# Date 1558442920 -7200
-#      Tue May 21 14:48:40 2019 +0200
-# Node ID a9195ad0464a3d1797630bca010dfbb53fe12027
-# Parent  c2aa7198fb925e7fde96abf65b6f68b9b755f112
+# Parent 7308e4a7c1f769f4bbbc90870b849cadd99495a6
+# Parent  6ab277cf616dc2748e9855101100a97a6cec10a6
 Bug 634334 - call to the ntlm_auth helper fails
 
-diff -r c2aa7198fb92 -r a9195ad0464a extensions/auth/nsAuthSambaNTLM.cpp
---- a/extensions/auth/nsAuthSambaNTLM.cpp	Fri May 31 11:28:11 2019 +0200
-+++ b/extensions/auth/nsAuthSambaNTLM.cpp	Tue May 21 14:48:40 2019 +0200
-@@ -161,7 +161,7 @@
+diff --git a/extensions/auth/nsAuthSambaNTLM.cpp b/extensions/auth/nsAuthSambaNTLM.cpp
+--- a/extensions/auth/nsAuthSambaNTLM.cpp
++++ b/extensions/auth/nsAuthSambaNTLM.cpp
+@@ -156,17 +156,17 @@ static uint8_t* ExtractMessage(const nsA
+   *aLen = (length / 4) * 3 - numEquals;
+   return reinterpret_cast<uint8_t*>(PL_Base64Decode(s, length, nullptr));
+ }
+ 
+ nsresult nsAuthSambaNTLM::SpawnNTLMAuthHelper() {
    const char* username = PR_GetEnv("USER");
    if (!username) return NS_ERROR_FAILURE;
  
@@ -18,3 +21,8 @@ diff -r c2aa7198fb92 -r a9195ad0464a extensions/auth/nsAuthSambaNTLM.cpp
                                "--helper-protocol",
                                "ntlmssp-client-1",
                                "--use-cached-creds",
+                               "--username",
+                               username,
+                               nullptr};
+ 
+   bool isOK = SpawnIOChild(const_cast<char* const*>(args), &mChildPID,

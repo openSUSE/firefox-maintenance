@@ -18,19 +18,19 @@
 
 
 # changed with every update
-%define major 68
-%define mainver %major.0.2
-%define version_postfix esr
-%define update_channel esr
-%define branding 1
-%define releasedate 20190718152132
-%define source_prefix firefox-%{mainver}
+%define major          68
+%define mainver        %major.1.0
+%define orig_version   68.1.0
+%define orig_suffix    esr
+%define update_channel esr68
+%define branding       1
+%define releasedate    20190826132627
+%define source_prefix  firefox-%{orig_version}
 
-# https://bugzilla.suse.com/show_bug.cgi?id=1138688
 # always build with GCC as SUSE Security Team requires that
 %define clang_build 0
 
-# PIE, full relro (x86_64 for now)
+# PIE, full relro
 %define build_hardened 1
 
 %bcond_with only_print_mozconfig
@@ -64,6 +64,7 @@ BuildRequires:  Mesa-devel
 BuildRequires:  alsa-devel
 BuildRequires:  autoconf213
 BuildRequires:  dbus-1-glib-devel
+BuildRequires:  dejavu-fonts
 BuildRequires:  fdupes
 BuildRequires:  memory-constraints
 %if 0%{?suse_version} <= 1320
@@ -71,28 +72,28 @@ BuildRequires:  gcc7-c++
 %else
 BuildRequires:  gcc-c++
 %endif
-BuildRequires:  cargo >= 1.32
+BuildRequires:  cargo >= 1.34
 BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
 BuildRequires:  libidl-devel
+BuildRequires:  libiw-devel
 BuildRequires:  libnotify-devel
+BuildRequires:  libproxy-devel
+BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.21
 BuildRequires:  mozilla-nss-devel >= 3.44.1
 BuildRequires:  nasm >= 2.13
-BuildRequires:  nodejs10 >= 8.11
+BuildRequires:  nodejs >= 8.11
 BuildRequires:  python-devel
 BuildRequires:  python2-xml
 BuildRequires:  python3 >= 3.5
-# Rust version bump for packaging changes only, Firefox can build with older rust
-# Upstream Firefox ESR 60.x presumes rust-1.24
-# openSUSE and SLE use improved packaging in rust >= 1.30
-# Use RUSTFLAGS="--cap-lints allow" to allow building, see below
 BuildRequires:  rust >= 1.34
-BuildRequires:  rust-cbindgen >= 0.8.2
+BuildRequires:  rust-cbindgen >= 0.8.7
 BuildRequires:  startup-notification-devel
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
 BuildRequires:  xorg-x11-libXt-devel
+BuildRequires:  xvfb-run
 BuildRequires:  yasm
 BuildRequires:  zip
 %if 0%{?suse_version} < 1550
@@ -107,9 +108,6 @@ BuildRequires:  pkgconfig(gtk+-unix-print-2.0)
 BuildRequires:  pkgconfig(gtk+-unix-print-3.0)
 BuildRequires:  pkgconfig(libffi)
 BuildRequires:  pkgconfig(libpulse)
-BuildRequires:  libiw-devel
-BuildRequires:  libproxy-devel
-BuildRequires:  makeinfo
 %if 0%{?suse_version} > 1320
 BuildRequires:  llvm-clang-devel >= 3.9.0
 %else
@@ -124,7 +122,7 @@ Recommends:     libavcodec-full >= 0.10.16
 Version:        %{mainver}
 Release:        0
 %if "%{name}" == "MozillaFirefox"
-Provides:       firefox = %{version}
+Provides:       firefox = %{mainver}
 Provides:       firefox = %{version}-%{release}
 %endif
 Provides:       web_browser
@@ -139,20 +137,21 @@ License:        MPL-2.0
 Group:          Productivity/Networking/Web/Browsers
 Url:            http://www.mozilla.org/
 %if !%{with only_print_mozconfig}
-Source:         http://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{version_postfix}/source/%{progname}-%{version}%{version_postfix}.source.tar.xz
+Source:         http://ftp.mozilla.org/pub/firefox/releases/%{version}%{orig_suffix}/source/firefox-%{orig_version}%{orig_suffix}.source.tar.xz
 Source1:        MozillaFirefox.desktop
 Source2:        MozillaFirefox-rpmlintrc
 Source3:        mozilla.sh.in
+Source4:        tar_stamps
 Source5:        source-stamp.txt
 Source6:        kde.js
-Source7:        l10n-%{version}%{version_postfix}.tar.xz
+Source7:        l10n-%{orig_version}%{orig_suffix}.tar.xz
 Source8:        firefox-mimeinfo.xml
 Source9:        firefox.js
 Source10:       compare-locales.tar.xz
 Source11:       firefox.1
 Source12:       mozilla-get-app-id
 Source13:       spellcheck.js
-Source14:       tar_stamp
+Source14:       https://github.com/openSUSE/firefox-scripts/raw/master/create-tar.sh
 Source15:       firefox-appdata.xml
 Source16:       MozillaFirefox.changes
 # Set up API keys, see http://www.chromium.org/developers/how-tos/api-keys
@@ -160,40 +159,41 @@ Source16:       MozillaFirefox.changes
 # please get your own set of keys.
 Source18:       mozilla-api-key
 Source19:       google-api-key
-#Source20:       https://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{version_postfix}/source/%{progname}-%{version}%{version_postfix}.source.tar.xz.asc
-Source21:       https://ftp.mozilla.org/pub/%{progname}/releases/%{version}/KEY#/mozilla.keyring
+Source20:       https://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{orig_suffix}/source/%{progname}-%{orig_version}%{orig_suffix}.source.tar.xz.asc
+Source21:       https://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{orig_suffix}/KEY#/mozilla.keyring
 # Gecko/Toolkit
 Patch1:         mozilla-nongnome-proxies.patch
 Patch2:         mozilla-kde.patch
 Patch3:         mozilla-ntlm-full-path.patch
 Patch4:         mozilla-openaes-decl.patch
-Patch6:         mozilla-reduce-files-per-UnifiedBindings.patch
-Patch7:         mozilla-aarch64-startup-crash.patch
-Patch8:         mozilla-bmo1555530.patch
-Patch9:         mozilla-gcc-internal-compiler-error.patch
-Patch10:        mozilla-cubeb-noreturn.patch
-Patch15:        mozilla-bmo1005535.patch
-Patch18:        mozilla-s390-bigendian.patch
-Patch19:        mozilla-s390-context.patch
-Patch20:        mozilla-ppc-altivec_static_inline.patch
-Patch21:        mozilla-reduce-rust-debuginfo.patch
-Patch22:        mozilla-bmo1564900.patch
-Patch23:        mozilla-media-mime-type.patch
-Patch24:        mozilla-bmo1504834-part1.patch
-Patch25:        mozilla-bmo1504834-part2.patch
-Patch26:        mozilla-bmo1504834-part3.patch
-Patch27:        mozilla-bmo1511604.patch
-Patch28:        mozilla-bmo1554971.patch
-Patch29:        mozilla-nestegg-big-endian.patch
+Patch5:         mozilla-aarch64-startup-crash.patch
+Patch6:         mozilla-bmo1463035.patch
+Patch7:         mozilla-cubeb-noreturn.patch
+Patch8:         mozilla-fix-aarch64-libopus.patch
+Patch9:         mozilla-disable-wasm-emulate-arm-unaligned-fp-access.patch
+Patch10:        mozilla-s390-context.patch
+Patch11:        mozilla-s390-bigendian.patch
+Patch12:        mozilla-reduce-rust-debuginfo.patch
+Patch13:        mozilla-ppc-altivec_static_inline.patch
+Patch14:        mozilla-bmo1005535.patch
+Patch15:        mozilla-bmo1568145.patch
+Patch16:        mozilla-bmo1573381.patch
+Patch17:        mozilla-bmo1504834-part1.patch
+Patch18:        mozilla-bmo1504834-part2.patch
+Patch19:        mozilla-bmo1504834-part3.patch
+Patch20:        mozilla-bmo1511604.patch
+Patch21:        mozilla-bmo1554971.patch
+Patch22:        mozilla-nestegg-big-endian.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
+Patch103:       firefox-add-kde.js-in-order-to-survive-PGO-build.patch
 %endif # only_print_mozconfig
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post):   coreutils shared-mime-info desktop-file-utils
 Requires(postun): shared-mime-info desktop-file-utils
 %if %branding
-Requires:       %{name}-branding >= 60
+Requires:       %{name}-branding > 44.0
 %endif
 Requires:       mozilla-nspr >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 Requires:       mozilla-nss >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nss)
@@ -229,7 +229,6 @@ Summary:        Common translations for %{appname}
 Group:          System/Localization
 Provides:       locale(%{name}:ar;ca;cs;da;de;el;en_GB;es_AR;es_CL;es_ES;fi;fr;hu;it;ja;ko;nb_NO;nl;pl;pt_BR;pt_PT;ru;sv_SE;zh_CN;zh_TW)
 Requires:       %{name} = %{version}
-Provides:       %{name}-translations
 Obsoletes:      %{name}-translations < %{version}-%{release}
 
 %description translations-common
@@ -300,53 +299,40 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%ifarch %ix86
+%patch5 -p1
 %patch6 -p1
-%endif
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
-%ifarch %ix86
-#%patch9 -p1
-%endif
 %ifarch s390x
+%patch11 -p1
+%endif
+%patch12 -p1
+%patch13 -p1
+%patch14 -p1
 %patch15 -p1
-#%patch16 -p1
+%patch16 -p1
+%patch17 -p1
 %patch18 -p1
 %patch19 -p1
-%endif
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
-%ifarch s390x
-%patch23 -p1
-%patch24 -p1
-%patch25 -p1
-%patch26 -p1
-%patch27 -p1
-%patch28 -p1
-%endif
-%patch29 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
+%patch103 -p1
 %endif # only_print_mozconfig
 
 %build
 %if !%{with only_print_mozconfig}
-%ifarch x86_64
-# x86_64 has often problems of too many concurrent jobs
-# it seems 1.epsilon GB per build job is enough
-%limit_build -m 1100
-%endif
-
 # no need to add build time to binaries
 modified="$(sed -n '/^----/n;s/ - .*$//;p;q' "%{_sourcedir}/%{name}.changes")"
 DATE="\"$(date -d "${modified}" "+%%b %%e %%Y")\""
 TIME="\"$(date -d "${modified}" "+%%R")\""
 find . -regex ".*\.c\|.*\.cpp\|.*\.h" -exec sed -i "s/__DATE__/${DATE}/g;s/__TIME__/${TIME}/g" {} +
-
+#
 kdehelperversion=$(cat toolkit/xre/nsKDEUtils.cpp | grep '#define KMOZILLAHELPER_VERSION' | cut -d ' ' -f 3)
 if test "$kdehelperversion" != %{kde_helper_version}; then
   echo fix kde helper version in the .spec file
@@ -371,22 +357,12 @@ export CC=gcc
 export CXX=g++
 %endif
 %endif
-export CFLAGS="%{optflags} -fno-strict-aliasing"
-%if 0%{?suse_version} > 1320
-export CFLAGS="$CFLAGS -fno-delete-null-pointer-checks"
-%endif
-%ifarch %arm aarch64
-# no debug symbols on ARM to speed up build
-export CFLAGS="${CFLAGS/-g / }"
-%endif
-%ifarch %arm aarch64 %ix86
+%ifarch %arm %ix86
 # Limit RAM usage during link
 export LDFLAGS="${LDFLAGS} -Wl,--no-keep-memory -Wl,--reduce-memory-overheads"
 %endif
 %if 0%{?build_hardened}
-%ifarch x86_64
-export LDFLAGS="${LDFLAGS} -Wl,-z,relro,-z,now"
-%endif
+export LDFLAGS="${LDFLAGS} -fPIC -Wl,-z,relro,-z,now"
 %endif
 %ifarch ppc64 ppc64le
 %if 0%{?clang_build} == 0
@@ -394,16 +370,6 @@ export CFLAGS="$CFLAGS -mminimal-toc"
 %endif
 %endif
 export CXXFLAGS="$CFLAGS"
-# Set RUSTFLAGS to fix building with rust >= 1.33
-# boo#1130694 rust 1.33.0 breaks Firefox and Thunderbird
-# bmo#1539901 ESR 60 build fails with Rust 1.33 due to missing documentation on macros in stylo
-# bmo#1519629 Stylo fails with --enable-warnings-as-errors using Rust 1.33
-# Preferred alternative to patching and revendoring stylo rust crates
-# Revisit with intent to remove in next Firefox ESR 68.0 2019-07-09
-export RUSTFLAGS="--cap-lints allow"
-%ifarch %{arm} aarch64
-export RUSTFLAGS="-Cdebuginfo=0 --cap-lints allow"
-%endif
 export MOZCONFIG=$RPM_BUILD_DIR/mozconfig
 %if %{with only_print_mozconfig}
 echo "export CC=$CC"
@@ -414,6 +380,7 @@ echo "export RUSTFLAGS=\"$RUSTFLAGS\""
 echo ""
 cat << EOF
 %else
+%limit_build -m 2000
 cat << EOF > $MOZCONFIG
 %endif
 mk_add_options MOZILLA_OFFICIAL=1
@@ -426,27 +393,19 @@ ac_add_options --libdir=%{_libdir}
 ac_add_options --includedir=%{_includedir}
 ac_add_options --enable-release
 ac_add_options --enable-default-toolkit=cairo-gtk3
-%if 0%{?build_hardened}
-# TODO: Unknown option. Is there an alternative?
-#ac_add_options --enable-pie
+%if 0%{?suse_version} >= 1550
+ac_add_options --disable-gconf
 %endif
-# gcc7 (boo#104105)
-%if 0%{?suse_version} > 1320
-%ifarch s390x
-# Possible bug in gcc: https://github.com/openSUSE/firefox-maintenance/issues/15
-# This is a mildly ugly workaround
-ac_add_options --enable-optimize="-g -O1"
+# bmo#1441155 - Disable the generation of Rust debug symbols on Linux32
+%ifarch %ix86 %arm
+ac_add_options --disable-debug-symbols
 %else
-ac_add_options --enable-optimize="-g -O2"
+ac_add_options --enable-debug-symbols
 %endif
-%endif
-%ifarch %ix86 %arm aarch64
-%if 0%{?suse_version} > 1230
-ac_add_options --disable-optimize
-%endif
-%endif
-%ifarch %arm
+%if 0%{?suse_version} > 1549
+%ifnarch aarch64 ppc64 ppc64le s390x
 ac_add_options --disable-elf-hack
+%endif
 %endif
 ac_add_options --with-system-nspr
 ac_add_options --with-system-nss
@@ -456,14 +415,6 @@ ac_add_options --with-l10n-base=$RPM_BUILD_DIR/l10n
 #ac_add_options --with-system-jpeg    # libjpeg-turbo is used internally
 #ac_add_options --with-system-png     # doesn't work because of missing APNG support
 ac_add_options --with-system-zlib
-%ifarch %power64 s390x s390
-# jemalloc is broken on (some) secondary architectures, definitely on ppc64le
-ac_add_options --disable-jemalloc
-# NOTE: Currently, system-icu is too old, so we can't build with that,
-#       but have to generate the .dat-file freshly. This seems to be a
-#       less fragile approach anyways. See below (next line with echo)
-# ac_add_options --with-system-icu
-%endif
 ac_add_options --disable-updater
 ac_add_options --disable-tests
 ac_add_options --enable-alsa
@@ -491,11 +442,21 @@ ac_add_options --with-arch=armv6
 ac_add_options --with-arch=armv7-a
 %endif
 %endif
-%ifarch %arm aarch64 s390x %power64
+%ifarch aarch64 %arm s390x
 ac_add_options --disable-webrtc
 %endif
+# mitigation/workaround for bmo#1512162
+%ifarch ppc64le
+ac_add_options --enable-optimize="-O1"
+%endif
+%ifarch x86_64
+# LTO needs newer toolchain stack only (at least GCC 8.2.1 (r268506)
+%if 0%{?suse_version} > 1500
+ac_add_options --enable-lto
+ac_add_options MOZ_PGO=1
+%endif
+%endif
 EOF
-
 %if !%{with only_print_mozconfig}
 %ifarch ppc64 s390x s390
 # NOTE: Currently, system-icu is too old, so we can't build with that,
@@ -507,8 +468,7 @@ echo "Generate big endian version of config/external/icu/data/icud58l.dat"
 ls -l config/external/icu/data
 rm -f config/external/icu/data/icudt*l.dat
 %endif
-
-./mach build
+xvfb-run --server-args="-screen 0 1920x1080x24" ./mach build
 %endif # only_print_mozconfig
 
 %install
@@ -538,7 +498,7 @@ install -m 644 %{SOURCE9} %{buildroot}%{progdir}/browser/defaults/preferences/fi
 mkdir -p %{buildroot}%{progdir}/browser/extensions
 truncate -s 0 %{_tmppath}/translations.{common,other}
 sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{source_prefix}/browser/locales/shipped-locales \
-    | xargs -P 8 -n 1 -I {} /bin/sh -c '
+    | xargs -n 1 -I {} /bin/sh -c '
         locale=$1
         pushd $RPM_BUILD_DIR/compare-locales
         PYTHONPATH=lib \
@@ -625,7 +585,6 @@ rm -f %{buildroot}%{progdir}/old-homepage-default.properties
 rm -f %{buildroot}%{progdir}/run-mozilla.sh
 rm -f %{buildroot}%{progdir}/LICENSE
 rm -f %{buildroot}%{progdir}/precomplete
-rm -f %{buildroot}%{progdir}/dictionaries/en-US*
 rm -f %{buildroot}%{progdir}/update-settings.ini
 # devel
 mkdir -p %{buildroot}%{_bindir}
@@ -745,6 +704,7 @@ exit 0
 %config %{_sysconfdir}/rpm/macros.%{progname}
 
 %if %localize
+
 %files translations-common -f %{_tmppath}/translations.common
 %defattr(-,root,root)
 %dir %{progdir}

@@ -1,9 +1,0 @@
-PRODUCT="firefox" # "firefox" or "thunderbird"
-CHANNEL="esr68"
-VERSION="68.0.2"
-VERSION_SUFFIX="esr"
-FF_RELEASE_TAG="FIREFOX_68_0_2esr_RELEASE" # Needs only to be set if no tar-ball can be downloaded
-TB_RELEASE_TAG="" # Only relevant for Thunderbird
-PREV_VERSION="68.0.1" # Prev. version only needed for locales (leave empty to force l10n-generation)
-PREV_VERSION_SUFFIX="esr"
-#SKIP_LOCALES="" # Uncomment to skip l10n and compare-locales-generation

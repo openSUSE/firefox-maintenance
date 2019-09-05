@@ -1,0 +1,10 @@
+PRODUCT="firefox"
+CHANNEL="esr68"
+VERSION="68.1.0"
+VERSION_SUFFIX="esr"
+FF_RELEASE_TAG="380fedbb18002297f1b233bd9c09764e59ddaa86"
+TB_RELEASE_TAG=""
+PREV_VERSION=""
+PREV_VERSION_SUFFIX=""
+#SKIP_LOCALES="" # Uncomment to skip l10n and compare-locales-generation
+

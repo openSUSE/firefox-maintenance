@@ -1,15 +1,17 @@
 # HG changeset patch
+# Parent 33024abb3c58dab7239e32388df58e14f99defd5
 # User Wolfgang Rosenauer <wr@rosenauer.org>
-# Date 1558442924 -7200
-#      Tue May 21 14:48:44 2019 +0200
-# Node ID beca42e6765b14ff0f69bb056678b65fedd7a39e
-# Parent  a9195ad0464a3d1797630bca010dfbb53fe12027
-imported patch mozilla-openaes-decl.patch
+# Parent  0cfd693fdbbb0635787f1aeacee2dda43b01c495
 
-diff -r a9195ad0464a -r beca42e6765b media/gmp-clearkey/0.1/openaes/oaes_lib.c
---- a/media/gmp-clearkey/0.1/openaes/oaes_lib.c	Tue May 21 14:48:40 2019 +0200
-+++ b/media/gmp-clearkey/0.1/openaes/oaes_lib.c	Tue May 21 14:48:44 2019 +0200
-@@ -29,6 +29,7 @@
+diff --git a/media/gmp-clearkey/0.1/openaes/oaes_lib.c b/media/gmp-clearkey/0.1/openaes/oaes_lib.c
+--- a/media/gmp-clearkey/0.1/openaes/oaes_lib.c
++++ b/media/gmp-clearkey/0.1/openaes/oaes_lib.c
+@@ -24,16 +24,17 @@
+  * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  * POSSIBILITY OF SUCH DAMAGE.
+  * ---------------------------------------------------------------------------
   */
  
  #include <stdlib.h>
@@ -17,3 +19,8 @@ diff -r a9195ad0464a -r beca42e6765b media/gmp-clearkey/0.1/openaes/oaes_lib.c
  #include <stddef.h>
  #include <time.h> 
  #include <string.h>
+ 
+ #include "mozilla/Sprintf.h"
+ 
+ #ifdef WIN32
+ #include <process.h>

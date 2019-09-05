@@ -1,41 +1,121 @@
 -------------------------------------------------------------------
-Fri Aug 16 05:51:52 UTC 2019 - Martin Sirringhaus <martin.sirringhaus@suse.com>
+Wed Sep  4 15:38:40 UTC 2019 - Wolfgang Rosenauer <wr@rosenauer.org>
 
-- Firefox Extended Support Release 68.0.2esr ESR
-  * Fixed: Fixed a bug causing some special characters to be cut
-    off from the end of the search terms when searching from the
-    URL bar (bmo#1560228)
-  * Fixed: Allow fonts to be loaded via file:// URLs when opening
-    a page locally (bmo#1565942)
-  * Fixed: Printing emails from the Outlook web app no longer
-    prints only the header and footer (bmo#1567105)
-  * Fixed: Fixed a bug causing some images not to be displayed on
-    reload, including on Google Maps (bmo#1565542)
-  * Fixed: Fixed an error when starting external applications
-    configured as URI handlers (bmo#1567614)
-  * Fixed: Security fixes
-- MFSA 2019-24 (bsc#1145665)
-  * CVE-2019-11733 (bmo#1565780)
-    Stored passwords in 'Saved Logins' can be copied without
-    master password entry 
+- added a bunch of patches mainly for big endian platforms
+  * mozilla-bmo1504834-part1.patch
+  * mozilla-bmo1504834-part2.patch
+  * mozilla-bmo1504834-part3.patch
+  * mozilla-bmo1511604.patch
+  * mozilla-bmo1554971.patch
+  * mozilla-bmo1573381.patch
+  * mozilla-nestegg-big-endian.patch
+
+-------------------------------------------------------------------
+Fri Aug 30 20:49:11 UTC 2019 - Wolfgang Rosenauer <wr@rosenauer.org>
+
+- Mozilla Firefox 68.1.0
+  MFSA 2019-26
+  * CVE-2019-11751 (bmo#1572838; Windows only)
+    Malicious code execution through command line parameters
+  * CVE-2019-11746 (bmo#1564449)
+    Use-after-free while manipulating video
+  * CVE-2019-11744 (bmo#1562033)
+    XSS by breaking out of title and textarea elements using innerHTML
+  * CVE-2019-11742 (bmo#1559715)
+    Same-origin policy violation with SVG filters and canvas to steal
+    cross-origin images
+  * CVE-2019-11736 (bmo#1551913, bmo#1552206; Windows only))
+    File manipulation and privilege escalation in Mozilla Maintenance Service
+  * CVE-2019-11753 (bmo#1574980; Windows only)
+    Privilege escalation with Mozilla Maintenance Service in custom
+    Firefox installation location
+  * CVE-2019-11752 (bmo#1501152)
+    Use-after-free while extracting a key value in IndexedDB
+  * CVE-2019-9812 (bmo#1538008, bmo#1538015)
+    Sandbox escape through Firefox Sync
+  * CVE-2019-11743 (bmo#1560495)
+    Cross-origin access to unload event attributes
+  * CVE-2019-11748 (bmo#1564588)
+    Persistence of WebRTC permissions in a third party context
+  * CVE-2019-11749 (bmo#1565374)
+    Camera information available without prompting using getUserMedia
+  * CVE-2019-11750 (bmo#1568397)
+    Type confusion in Spidermonkey
+  * CVE-2019-11738 (bmo#1452037)
+    Content security policy bypass through hash-based sources in directives
+  * CVE-2019-11747 (bmo#1564481)
+    'Forget about this site' removes sites from pre-loaded HSTS list
+  * CVE-2019-11735i (bmo#1561404,bmo#1561484,bmo#1568047,bmo#1561912,
+    bmo#1565744,bmo#1568858,bmo#1570358)
+    Memory safety bugs fixed in Firefox 69 and Firefox ESR 68.1
+  * CVE-2019-11740 (bmo#1563133,bmo#1573160)
+    Memory safety bugs fixed in Firefox 69, Firefox ESR 68.1, and Firefox ESR 60.9
+- switched package to ESR branch
+- added mozilla-bmo1568145.patch to make builds reproducible
+- removed upstreamed patch mozilla-gcc-internal-compiler-error.patch
+
+-------------------------------------------------------------------
+Sun Aug 18 17:29:25 UTC 2019 - Andreas Stieger <andreas.stieger@gmx.de>
+
+- Mozilla Firefox 68.0.2:
+  * Fixed a bug causing some special characters to be cut off from
+    the end of the search terms when searching from the URL bar
+    (bmo#1560228)
+  * Allow fonts to be loaded via file:// URLs when opening a page
+    locally (bmo#1565942)
+  * Printing emails from the Outlook web app no longer prints only
+    the header and footer (bmo#1567105)
+  * Fixed a bug causing some images not to be displayed on reload,
+    including on Google Maps (bmo# 1565542)
+  * Fixed an error when starting external applications configured
+    as URI handlers (bmo#1567614)
+  MFSA 2019-24 (boo#1145665)
+  * CVE-2019-11733: Stored passwords in 'Saved Logins' can be
+    copied without master password entry (bmo#1565780)
+- drop fix-build-after-y2038-changes-in-glibc.patch, upstream
+
+-------------------------------------------------------------------
+Fri Aug 16 16:49:24 UTC 2019 - Jonathan Brielmaier <jbrielmaier@suse.de>
+
+- Fix crash when typing in the URL bar on ppc64le (bmo#1512162).
+  The upstream patch doesn't resolve the issue on TW, but compiling
+  with -O1 does. Do this until we have a proper fix.
+
+-------------------------------------------------------------------
+Thu Aug  1 14:25:02 UTC 2019 - Guillaume GARDET <guillaume.gardet@opensuse.org>
+
+- Update build constraints to fix arm builds
+
+-------------------------------------------------------------------
+Fri Jul 19 08:11:27 UTC 2019 - Wolfgang Rosenauer <wr@rosenauer.org>
 
 - Mozilla Firefox 68.0.1
-  * macOS releases are now signed by the Apple notary service, 
-    allowing Firefox to properly run on macOS 10.15 Beta releases
-  * Fixed missing Full Screen button when watching videos in full 
+  * Fixed missing Full Screen button when watching videos in full
     screen mode on HBO GO (bmo#1562837)
-  * Fixed a bug causing incorrect messages to appear for some 
-    locales when sites try to request the use of the Storage 
+  * Fixed a bug causing incorrect messages to appear for some
+    locales when sites try to request the use of the Storage
     Access API (bmo#1558503)
-  * Users in Russian regions may have their default search engine 
+  * Users in Russian regions may have their default search engine
     changed (bmo#1565315)
-  * Built-in search engines in some locales do not function 
+  * Built-in search engines in some locales do not function
     correctly (bmo#1565779)
   * SupportMenu policy doesn't always work (bmo#1553290)
-  * Allow the new ExtensionSettings policy to work with GPO on 
-    Windows (bmo#1553586)
-  * Allow the privacy.file_unique_origin pref to be controlled by 
+  * Allow the privacy.file_unique_origin pref to be controlled by
     policy (bmo#1563759)
+
+-------------------------------------------------------------------
+Thu Jul 11 10:51:39 UTC 2019 - Jiri Slaby <jslaby@suse.com>
+
+- add fix-build-after-y2038-changes-in-glibc.patch
+
+-------------------------------------------------------------------
+Wed Jul 10 13:47:41 UTC 2019 - Bernhard Wiedemann <bwiedemann@suse.com>
+
+- Generate langpacks sequentially to avoid file corruption
+  from racy file writes (boo#1137970)
+
+-------------------------------------------------------------------
+Mon Jul  8 13:30:35 UTC 2019 - Wolfgang Rosenauer <wr@rosenauer.org>
 
 - Mozilla Firefox 68.0
   * Dark mode in reader view
@@ -44,9 +124,8 @@ Fri Aug 16 05:51:52 UTC 2019 - Martin Sirringhaus <martin.sirringhaus@suse.com>
     content blocking settings in Privacy & Security preferences
   * Camera and microphone access now require an HTTPS connection
   MFSA 2019-21 (bsc#1140868)
-  * CVE-2019-9811 (bmo#1523741, bmo#1538007, bmo#1539598,
-    bmo#1539759, bmo#1563327)
-    Sandbox escape via installation of malicious language pack
+  * CVE-2019-9811 (bmo#1538007, bmo#1539598, bmo#1563327)
+    Sandbox escape via installation of malicious languagepack
   * CVE-2019-11711 (bmo#1552541)
     Script injection within domain through inner window reuse
   * CVE-2019-11712 (bmo#1543804)
@@ -57,8 +136,7 @@ Fri Aug 16 05:51:52 UTC 2019 - Martin Sirringhaus <martin.sirringhaus@suse.com>
   * CVE-2019-11714 (bmo#1542593)
     NeckoChild can trigger crash when accessed off of main thread
   * CVE-2019-11729 (bmo#1515342)
-    Empty or malformed p256-ECDH public keys may trigger a
-    segmentation fault
+    Empty or malformed p256-ECDH public keys may trigger a segmentation fault
   * CVE-2019-11715 (bmo#1555523)
     HTML parsing error can contribute to content XSS
   * CVE-2019-11716 (bmo#1552632)
@@ -74,193 +152,465 @@ Fri Aug 16 05:51:52 UTC 2019 - Martin Sirringhaus <martin.sirringhaus@suse.com>
   * CVE-2019-11721 (bmo#1256009)
     Domain spoofing through unicode latin 'kra' character
   * CVE-2019-11730 (bmo#1558299)
-    Same-origin policy treats all files in a directory as having
-    the same-origin
+    Same-origin policy treats all files in a directory as having the
+    same-origin
   * CVE-2019-11723 (bmo#1528335)
-    Cookie leakage during add-on fetching across private browsing
-    boundaries
+    Cookie leakage during add-on fetching across private browsing boundaries
   * CVE-2019-11724 (bmo#1512511)
-    Retired site input.mozilla.org has remote troubleshooting
-    permissions
+    Retired site input.mozilla.org has remote troubleshooting permissions
   * CVE-2019-11725 (bmo#1483510)
     Websocket resources bypass safebrowsing protections
   * CVE-2019-11727 (bmo#1552208)
     PKCS#1 v1.5 signatures can be used for TLS 1.3
   * CVE-2019-11728 (bmo#1552993)
     Port scanning through Alt-Svc header
-  * CVE-2019-11710 (bmo#1507696, bmo#1510345, bmo#1533842,
-    bmo#1535482, bmo#1535848, bmo#1537692, bmo#1540590,
-    bmo#1544180, bmo#1547472, bmo#1547760, bmo#1548611,
-    bmo#1549768, bmo#1551907)
+  * CVE-2019-11710 (bmo#1549768, bmo#1548611, bmo#1533842, bmo#1537692,
+    bmo#1540590, bmo#1551907, bmo#1510345, bmo#1535482, bmo#1535848,
+    bmo#1547472, bmo#1547760, bmo#1507696, bmo#1544180)
     Memory safety bugs fixed in Firefox 68
-  * CVE-2019-11709 (bmo#1515052, bmo#1533522, bmo#1539219,
-    bmo#1540759, bmo#1547266, bmo#1547757, bmo#1548822,
-    bmo#1550498, bmo#1550498)
+  * CVE-2019-11709 (bmo#1547266, bmo#1540759, bmo#1548822, bmo#1550498
+    bmo#1515052, bmo#1539219, bmo#1547757, bmo#1550498, bmo#1533522)
     Memory safety bugs fixed in Firefox 68 and Firefox ESR 60.8
+- requires
+  * NSS 3.44.1
+  * rust/cargo 1.34
+  * rust-cbindgen 0.8.7
+- rebased patches
+  * mozilla-aarch64-startup-crash.patch
+  * mozilla-kde.patch
+  * mozilla-nongnome-proxies.patch
+  * firefox-kde.patch
+- use new create-tar.sh and add tar_stamps for package definitions
+- added patches imported from SLE flavour
+  * mozilla-gcc-internal-compiler-error.patch
+  * mozilla-bmo1005535.patch
+  * mozilla-ppc-altivec_static_inline.patch
+  * mozilla-reduce-rust-debuginfo.patch
+  * mozilla-s390-bigendian.patch
+  * mozilla-s390-context.patch
 
 -------------------------------------------------------------------
-Wed Jun 19 12:35:12 UTC 2019 - Martin Sirringhaus <martin.sirringhaus@suse.com>
+Mon Jul  2 14:15:17 UTC 2019 - Martin Liška <mliska@suse.cz>
 
-- Build Firefox with gcc instead of clang (bsc#1138688)
-
--------------------------------------------------------------------
-Tue May 14 17:23:34 UTC 2019 - Charles Robertson <cgrobertson@suse.com>
-
-- Enable Firefox to build with Rust >= 1.30 with fix. See below.
+- Enable PGO for x86_64.
+  * added firefox-add-kde.js-in-order-to-survive-PGO-build.patch
 
 -------------------------------------------------------------------
-Thu May  9 22:26:20 UTC 2019 - Charles Robertson <cgrobertson@suse.com>
+Thu Jun 20 06:20:59 UTC 2019 - Wolfgang Rosenauer <wr@rosenauer.org>
 
-- update to 60.6.3 (bmo#1549249)
-  * Further improvements to re-enable web extensions which had been
-    disabled for users with a master password set.
-
--------------------------------------------------------------------
-Mon May  6 07:26:43 UTC 2019 - Peter Simons <psimons@suse.com>
-
-- update to 60.6.2 (bsc#1134126)
-  * Repaired certificate chain to re-enable web extensions that
-    had been disabled.
+- Mozilla Firefox 67.0.4
+  MFSA 2019-19 (boo#1138872)
+  * CVE-2019-11708 (bmo#1559858)
+    sandbox escape using Prompt:Open
 
 -------------------------------------------------------------------
-Fri Apr 18 19:59:46 UTC 2019 - Jeff Kowalczyk <jkowalczyk@suse.com>
+Tue Jun 18 18:36:15 UTC 2019 - Wolfgang Rosenauer <wr@rosenauer.org>
 
-- Update BuildRequires rust >= 1.30 from 1.24
-  * Upstream Firefox ESR presumes rust version stable at release (1.24).
-    SUSE currently uses improved packaging for rust >= 1.30.
-  * boo#1130694 rust 1.33.0 breaks Firefox and Thunderbird
-    due to missing macro comment docs in Firefox rust sources
-    bmo#1539901 ESR 60 build fails with Rust 1.33 due to missing documentation on macros in stylo
-    bmo#1519629 Stylo fails with --enable-warnings-as-errors using Rust 1.33
-  * Fix build using RUSTFLAGS="--cap-lints allow"
-    Preferred alternative to patching and revendoring stylo rust crates
-    Revisit with intent to remove in next Firefox ESR 68.0 2019-07-09
+- Mozilla Firefox 67.0.3
+  MFSA 2019-18 (boo#1138614)
+  * CVE-2019-11707 (bmo#1544386)
+    Type confusion in Array.pop
 
 -------------------------------------------------------------------
-Wed Mar 27 11:32:18 UTC 2019 - cgrobertson@suse.com
+Thu Jun 12 14:56:32 UTC 2019 - Manfred Hollstein <manfred.h@gmx.net>
 
-- Fixed translations provides
+- Mozilla Firefox 67.0.2
+  * Fixed: Fix JavaScript error ("TypeError: data is null in
+    PrivacyFilter.jsm") in console which may significantly degrade
+    sessionstore reliability and performance (bmo#1553413)
+  * Fixed: Proxy authentication dialog box repeatedly pops up
+    asking to authenticate after upgrading to Firefox 67 (bmo#1548804)
+  * Fixed: Pearson MyCloud breaks if FIDO U2F is not Chrome's
+    implementation (bmo#1551282)
+  * Fixed: Starting in safe mode on Linux or macOS causes Firefox
+    to think on the subsequent launch that the profile is too
+    recent to be used with this version of Firefox (bmo#1556612)
+  * Fixed: Linux distribution users can't easily install/use
+    additional/different languages using the built-in preferences
+    UI (bmo#1554744)
+  * Fixed: Developer tools users can't copy the href/src content
+    from various HTML tags via the context menu in the Inspector
+    markup view (bmo#1552275)
+  * Fixed: Custom home page is broken with clearing data on shutdown
+    settings applied (bmo#1554167)
+  * Fixed: Performance-regression for eclipse RAP based applications
+    (bmo#1555962)
+  * Fixed: macOS 10.15 crash fix (bmo#1556076)
+  * Fixed: Can't start two downloads in parallel via <a download>
+    anymore (bmo#1542912)
 
 -------------------------------------------------------------------
-Fri Mar 22 17:24:25 UTC 2019 - cgrobertson@suse.com
+Thu Jun  6 06:49:51 UTC 2019 - Manfred Hollstein <manfred.h@gmx.net>
 
-- update to Firefox ESR 60.6.1 (bsc#1130262)
-  * MFSA 2019-10/CVE-2019-9813
-    (bmo#1538006)
-    Ionmonkey type confusion with __proto__ mutations
-  * MFSA 2019-10/CVE-2019-9810
-    (bmo#1537924)
+- Mozilla Firefox 67.0.1
+  * enable enhanced tracking protection by default for new users
+  * upgrade of Facebook container to version 2.0
+  * new version of Firefox Lockwise (password management)
+  * new version of Firefox Monitor
+  * Firefox Send improvements
+
+-------------------------------------------------------------------
+Sun May 19 20:40:30 UTC 2019 - Wolfgang Rosenauer <wr@rosenauer.org>
+
+- Mozilla Firefox 67.0
+  * Firefox 67 will be able to run different Firefox installs side by side
+    https://blog.nightly.mozilla.org/2019/01/14/moving-to-a-profile-per-install-architecture/
+  * Tabs can now be pinned from the Page Actions menu in the address bar
+  * Users can block known cryptominers and fingerprinters in the
+    Custom settings or their Content Blocking preferences
+  * The Import Data from Another Browser feature is now also available
+    from the File menu
+  * Firefox will now protect you against running older versions which
+    can lead to data corruption and stability issues
+  * Easier access to your list of saved logins from the main menu and
+    login autocomplete
+  * We’ve added a toolbar menu for your Firefox Account to provide more
+    transparency for when you are synced, sharing data across devices
+    and with Firefox. Personalize the appearance of the menu with your
+    own avatar
+  * Enable FIDO U2F API, and permit registrations for Google Accounts
+  * Enabled AV1 support on Linux
+  MFSA 2019-13 (boo#1135824)
+  * CVE-2019-9815 (bmo#1546544)
+    Disable hyperthreading on content JavaScript threads on macOS
+  * CVE-2019-9816 (bmo#1536768)
+    Type confusion with object groups and UnboxedObjects
+  * CVE-2019-9817 (bmo#1540221)
+    Stealing of cross-domain images using canvas
+  * CVE-2019-9818 (bmo#1542581) (Windows only)
+    Use-after-free in crash generation server
+  * CVE-2019-9819 (bmo#1532553)
+    Compartment mismatch with fetch API
+  * CVE-2019-9820 (bmo#1536405)
+    Use-after-free of ChromeEventHandler by DocShell
+  * CVE-2019-9821 (bmo#1539125)
+    Use-after-free in AssertWorkerThread
+  * CVE-2019-11691 (bmo#1542465)
+    Use-after-free in XMLHttpRequest
+  * CVE-2019-11692 (bmo#1544670)
+    Use-after-free removing listeners in the event listener manager
+  * CVE-2019-11693 (bmo#1532525)
+    Buffer overflow in WebGL bufferdata on Linux
+  * CVE-2019-7317 (bmo#1542829)
+    Use-after-free in png_image_free of libpng library
+  * CVE-2019-11694 (bmo#1534196) (Windows only)
+    Uninitialized memory memory leakage in Windows sandbox
+  * CVE-2019-11695 (bmo#1445844)
+    Custom cursor can render over user interface outside of web content
+  * CVE-2019-11696 (bmo#1392955)
+    Java web start .JNLP files are not recognized as executable files
+    for download prompts
+  * CVE-2019-11697 (bmo#1440079)
+    Pressing key combinations can bypass installation prompt delays and
+    install extensions
+  * CVE-2019-11698 (bmo#1543191)
+    Theft of user history data through drag and drop of hyperlinks
+    to and from bookmarks
+  * CVE-2019-11700 (bmo#1549833) (Windows only)
+    res: protocol can be used to open known local files
+  * CVE-2019-11699 (bmo#1528939)
+    Incorrect domain name highlighting during page navigation
+  * CVE-2019-11701 (bmo#1518627)
+    webcal: protocol default handler loads vulnerable web page
+  * CVE-2019-9814 (bmo#1527592, bmo#1534536, bmo#1520132, bmo#1543159,
+    bmo#1539393, bmo#1459932, bmo#1459182, bmo#1516425)
+    Memory safety bugs fixed in Firefox 67
+  * CVE-2019-9800 (bmo#1540166, bmo#1534593, bmo#1546327, bmo#1540136,
+    bmo#1538736, bmo#1538042, bmo#1535612, bmo#1499719, bmo#1499108,
+    bmo#1538619, bmo#1535194, bmo#1516325, bmo#1542324, bmo#1542097,
+    bmo#1532465, bmo#1533554, bmo#1541580)
+    Memory safety bugs fixed in Firefox 67 and Firefox ESR 60.7
+- requires
+  * rust/cargo >= 1.32
+  * mozilla-nspr >= 4.21
+  * mozilla-nss >= 3.43
+  * rust-cbindgen >= 0.8.2
+- rebased patches
+- KDE integration for default browser detection is broken in this revision
+
+-------------------------------------------------------------------
+Fri May 17 12:04:49 UTC 2019 - Guillaume GARDET <guillaume.gardet@opensuse.org>
+
+- Fix armv7 build with:
+  * mozilla-disable-wasm-emulate-arm-unaligned-fp-access.patch
+
+-------------------------------------------------------------------
+Fri May 10 10:30:05 UTC 2019 - Manfred Hollstein <manfred.h@gmx.net>
+
+- Mozilla Firefox 66.0.5
+  * Fixed: Further improvements to re-enable web extensions which
+    had been disabled for users with a master password set (bmo#1549249)
+
+-------------------------------------------------------------------
+Sun May  5 20:21:02 UTC 2019 - Wolfgang Rosenauer <wr@rosenauer.org>
+
+- Mozilla Firefox 66.0.4 (boo#1134126)
+  * fix extension certificate chain
+    https://blog.mozilla.org/addons/2019/05/04/update-regarding-add-ons-in-firefox/
+
+-------------------------------------------------------------------
+Thu Apr 11 09:16:17 UTC 2019 - Manfred Hollstein <manfred.h@gmx.net>
+
+- Mozilla Firefox 66.0.3
+  * Fixed: Address bar on tablets running Windows 10 now behaves
+    correctly (bmo#1498973)
+  * Fixed: Performance issues with some HTML5 games (bmo#1537609)
+  * Fixed a bug with keypress events in IBM cloud applications
+    (bmo#1538970)
+  * Fix for keypress events in some Microsoft cloud applications
+    (bmo#1539618)
+  * Changed: Updated Baidu search plugin
+
+-------------------------------------------------------------------
+Thu Mar 28 19:01:41 UTC 2019 - Manfred Hollstein <manfred.h@gmx.net>
+
+- Mozilla Firefox 66.0.2
+  * Fixed Web compatibility issues with Office 365, iCloud and
+    IBM WebMail caused by recent changes to the handling of
+    keyboard events (bmo#1538966)
+  * Crash fixes (bmo#1521370, bmo#1539118)
+
+-------------------------------------------------------------------
+Thu Mar 28 09:58:36 UTC 2019 - Guillaume GARDET <guillaume.gardet@opensuse.org>
+
+- Add patch to fix aarch64 build:
+  * mozilla-fix-aarch64-libopus.patch (bmo#1539737)
+
+-------------------------------------------------------------------
+Fri Mar 22 22:22:08 UTC 2019 - Wolfgang Rosenauer <wr@rosenauer.org>
+
+- Mozilla Firefox 66.0.1
+  MFSA 2019-09 (bsc#1130262)
+  * CVE-2019-9810 (bmo#1537924)
     IonMonkey MArraySlice has incorrect alias information
+  * CVE-2019-9813 (bmo#1538006)
+    Ionmonkey type confusion with __proto__ mutations
 
 -------------------------------------------------------------------
-Tue Mar 19 13:17:46 UTC 2019 - cgrobertson@suse.com
+Sun Mar 17 10:08:51 UTC 2019 - Wolfgang Rosenauer <wr@rosenauer.org>
 
-- update to Firefox ESR 60.6 (bsc#1129821)
-  * MFSA 2019-08/CVE-2018-18506
-    (bmo#1503393)
-    Proxy Auto-Configuration file can define localhost access to
-    be proxied
-  * MFSA 2019-08/CVE-2019-9801
-    (bmo#1527717)
-    Windows programs that are not 'URL Handlers' are exposed to
-    web content
-  * MFSA 2019-08/CVE-2019-9788
-    (bmo#1506665, bmo#1516834, bmo#1518001, bmo#1518774,
-     bmo#1521214, bmo#1521304, bmo#1523362, bmo#1524214,
-     bmo#1524755, bmo#1529203)
-    Memory safety bugs fixed in Firefox 66 and Firefox ESR 60.6
-  * MFSA 2019-08/CVE-2019-9790
-    (bmo#1525145)
+- Mozilla Firefox 66.0
+  * Increased content processes to 8
+  * Added capability to search through open tabs from the tab overflow menu
+  * New backend for the storage.local WebExtensions API, providing
+    I/O performance improvements when the extension updates a small
+    subset of the stored data
+  * WebExtension keyboard shortcuts can now be managed or overridden
+    from about:addons
+  * Improved scrolling behavior: Firefox will now attempt to keep content
+    from jumping around while a page is loading by supporting scroll
+    anchoring
+  * New about:privatebrowsing with search
+  * A certificate error page now notifies the user of the name of the
+    certificate issuer that breaks HTTPs connections on intercepted
+    connections to help troubleshooting possible anti-virus software
+    issues.
+  * Fixed an performance issue some Linux users experienced with the
+    Downloads panel (bmo#1517101)
+  * Firefox now blocks all autoplay media with sound by default. Users
+    can add individual sites to an exceptions list or turn the blocking
+    off.
+  * System title bar is hidden by default to match Gnome guideline
+  MFSA 2019-07 (bsc#1129821)
+  * CVE-2019-9790 (bmo#1525145)
     Use-after-free when removing in-use DOM elements
-  * MFSA 2019-08/CVE-2019-9791
-    (bmo#1530958)
-    Type inference is incorrect for constructors entered through
-    on-stack replacement with IonMonkey
-  * MFSA 2019-08/CVE-2019-9792
-    (bmo#1532599)
+  * CVE-2019-9791 (bmo#1530958)
+    Type inference is incorrect for constructors entered through on-stack
+    replacement with IonMonkey
+  * CVE-2019-9792 (bmo#1532599)
     IonMonkey leaks JS_OPTIMIZED_OUT magic value to script
-  * MFSA 2019-08/CVE-2019-9793
-    (bmo#1528829)
+  * CVE-2019-9793 (bmo#1528829)
     Improper bounds checks when Spectre mitigations are disabled
-  * MFSA 2019-08/CVE-2019-9794
-    (bmo#1530103)
+  * CVE-2019-9794 (bmo#1530103) (Windows only)
     Command line arguments not discarded during execution
-  * MFSA 2019-08/CVE-2019-9795
-    (bmo#1514682)
+  * CVE-2019-9795 (bmo#1514682)
     Type-confusion in IonMonkey JIT compiler
-  * MFSA 2019-08/CVE-2019-9796
-    (bmo#1531277)
+  * CVE-2019-9796 (bmo#1531277)
     Use-after-free with SMIL animation controller
-
-- Fix for [bsc#1127987] MozillaFirefox-translations-common causing
-    error on update
+  * CVE-2019-9797 (bmo#1528909)
+    Cross-origin theft of images with createImageBitmap
+  * CVE-2019-9798 (bmo#1527534) (Android only)
+    Library is loaded from world writable APITRACE_LIB location
+  * CVE-2019-9799 (bmo#1505678)
+    Information disclosure via IPC channel messages
+  * CVE-2019-9801 (bmo#1527717) (Windows only)
+    Windows programs that are not 'URL Handlers' are exposed to web content
+  * CVE-2019-9802 (bmo#1415508)
+    Chrome process information leak
+  * CVE-2019-9803 (bmo#1515863, bmo#1437009)
+    Upgrade-Insecure-Requests incorrectly enforced for same-origin navigation
+  * CVE-2019-9804 (bmo#1518026) (MacOS only)
+    Code execution through 'Copy as cURL' in Firefox Developer Tools on macOS
+  * CVE-2019-9805 (bmo#1521360)
+    Potential use of uninitialized memory in Prio
+  * CVE-2019-9806 (bmo#1525267)
+    Denial of service through successive FTP authorization prompts
+  * CVE-2019-9807 (bmo#1362050)
+    Text sent through FTP connection can be incorporated into alert messages
+  * CVE-2019-9809 (bmo#1282430, bmo#1523249)
+    Denial of service through FTP modal alert error messages
+  * CVE-2019-9808 (bmo#1434634)
+    WebRTC permissions can display incorrect origin with data: and blob: URLs
+  * CVE-2019-9789 bmo#1520483, bmo#1522987, bmo#1528199, bmo#1519337,
+    bmo#1525549, bmo#1516179, bmo#1518524, bmo#1518331, bmo#1526579,
+    bmo#1512567, bmo#1524335, bmo#1448505, bmo#1518821
+    Memory safety bugs fixed in Firefox 66
+  * CVE-2019-9788 bmo#1518001, bmo#1521304, bmo#1521214, bmo#1506665,
+    bmo#1516834, bmo#1518774, bmo#1524755, bmo#1523362, bmo#1524214, bmo#1529203
+    Memory safety bugs fixed in Firefox 66 and Firefox ESR 60.6
+- updated build/runtime requirements
+  * mozilla-nss >= 3.42.1
+  * cargo/rust >= 1.31
+  * rust-cbindgen >= 0.6.8
+  * nasm >= 2.13 (new)
+- removed obsolete patch
+  * mozilla-bmo256180.patch
 
 -------------------------------------------------------------------
-Tue Feb 26 17:14:33 UTC 2019 - cgrobertson@suse.com
+Tue Mar  5 10:17:01 UTC 2019 - Stephan Kulow <coolo@suse.com>
 
-- Mozilla Firefox 60.5.2esr:
-  * Fix a frequent crash when reading various Reuters news articles
-      (bmo#1505844)
-
--------------------------------------------------------------------
-Wed Feb 13 09:09:18 UTC 2019 - alarrosa@suse.com
-
-- Update to Firefox ESR 60.5.1
-  MFSA-2019-05 (bsc#1125330)
-  * CVE-2018-18356 (bmo#1525817)
-    A use-after-free vulnerability in the Skia library can occur when
-    creating a path, leading to a potentially exploitable crash.
-  * CVE-2019-5785 (bmo#1525433)
-    An integer overflow vulnerability in the Skia library can occur
-    after specific transform operations, leading to a potentially
-    exploitable crash.
-  * CVE-2018-18335 (bmo#1525815)
-    A buffer overflow vulnerability in the Skia library can occur with
-    Canvas 2D acceleration on macOS. This issue was addressed by
-    disabling Canvas 2D acceleration in Firefox ESR.  Note: this does
-    not affect other versions and platforms where Canvas 2D
-    acceleration is already disabled by default.
+- Do not hardcode nodejs8 but leave the prefer to the distribution
+  (Tumbleweed staging wants to switch to nodejs10)
 
 -------------------------------------------------------------------
-Wed Jan 30 12:53:24 UTC 2019 - cgrobertson@suse.com
+Fri Feb 15 13:45:57 UTC 2019 - Guillaume GARDET <guillaume.gardet@opensuse.org>
 
-- Update to Firefox ESR 60.5
-  MFSA 2019-02 (bsc#1122983)
-  * CVE-2018-18501 (bmo#1460619, bmo#1502871, bmo#1512450,
-    bmo#1513201, bmo#1516514, bmo#1516738, bmo#1517542)
-    Memory safety bugs fixed in Firefox 65 and Firefox ESR 60.5
-  * CVE-2018-18500 (bmo#1510114)
+- Update _constraints to avoid 'no space left' error seen on aarch64
+
+-------------------------------------------------------------------
+Wed Feb 13 07:17:28 UTC 2019 - Wolfgang Rosenauer <wr@rosenauer.org>
+
+- Mozilla Firefox 65.0.1
+  * Fixed accidental requests to addons.mozilla.org when an addon
+    recommendation doorhanger is shown (bmo#1526387)
+  * Improved playback of interactive Netflix videos (bmo#1524500)
+  * Fixed incorrect sizing of the "Clear Recent History" window in
+    some situations (bmo#1523696)
+  * Fixed audio & video delays while making WebRTC calls
+    (bmo#1521577, bmo#1523817)
+  * Fixed video sizing problems during some WebRTC calls (bmo#1520200)
+  * Fixed looping CONNECT requests when using WebSockets over HTTP/2
+    from behind a proxy server (bmo#1523427)
+  * Fixed the "Enter" key not working on password entry fields for
+    certain Linux distributions (bmo#1523635)
+  MFSA 2019-04 (bsc#1125330)
+  * CVE-2018-18356 bmo#1525817
+    Use-after-free in Skia
+  * CVE-2019-5785 bmo#1525433
+    Integer overflow in Skia
+  * CVE-2018-18511 bmo#1526218
+    Cross-origin theft of images with ImageBitmapRenderingContext
+
+-------------------------------------------------------------------
+Wed Feb 13 06:12:43 UTC 2019 - Martin Liška <mliska@suse.cz>
+
+- Enable LTO only for latest new toolchain (boo#1125038) for x86_64
+  (with increased memory constraints)
+
+-------------------------------------------------------------------
+Sat Jan 26 22:37:01 UTC 2019 - Wolfgang Rosenauer <wr@rosenauer.org>
+
+- Mozilla Firefox 65.0
+  * Enhanced tracking protection
+  * allow switching of UI locales within preferences
+  * support for the WebP image format
+  * "top"-like about:performance
+  MFSA 2019-01 (bsc#1122983)
+  * CVE-2018-18500 bmo#1510114
     Use-after-free parsing HTML5 stream
-  * CVE-2018-18505 (bmo#1087565, bmo#1497749)
+  * CVE-2018-18503 bmo#1509442
+    Memory corruption with Audio Buffer
+  * CVE-2018-18504 bmo#1496413
+    Memory corruption and out-of-bounds read of texture client
+  * CVE-2018-18505 bmo#1497749
     Privilege escalation through IPC channel messages
-
-- Removed obsolete patches:
-    [mozilla-no-stdcxx-check.patch] Applied upstream
-    [mozilla-s390-nojit.patch] Applied upstream
-
--------------------------------------------------------------------
-Thu Jan 17 17:27:06 UTC 2019 - cgrobertson@suse.com
-
-- Fix for language pack build error (bsc#1120374)
-
--------------------------------------------------------------------
-Thu Dec 20 12:32:17 UTC 2018 - Karol Babioch <kbabioch@suse.de>
-
-- Revert dependency for branding package back to >= 60 due to dependency
-  issues. 
-
--------------------------------------------------------------------
-Fri Dec 14 19:05:21 UTC 2018 - cgrobertson@suse.com
-
-- Depend on branding package version >= 60.0
+  * CVE-2018-18506 bmo#1503393
+    Proxy Auto-Configuration file can define localhost access to be proxied
+  * CVE-2018-18502 bmo#1499426 bmo#1480090 bmo#1472990 bmo#1514762
+    bmo#1501482 bmo#1505887 bmo#1508102 bmo#1508618 bmo#1511580
+    bmo#1493497 bmo#1510145 bmo#1516289 bmo#1506798 bmo#1512758
+    Memory safety bugs fixed in Firefox 65
+  * CVE-2018-18501 bmo#1512450 bmo#1517542 bmo#1513201 bmo#1460619
+    bmo#1502871 bmo#1516738 bmo#1516514
+    Memory safety bugs fixed in Firefox 65 and Firefox ESR 60.5
+- requires
+  NSS 3.41
+  rust/carge 1.30
+  rust-cbindgen 0.6.7
+- rebased patches
+- remove workaround for build memory consumption on i586; other
+  mitigations meanwhile introduced (mainly parallelity) will be
+  sufficient
+  mozilla-reduce-files-per-UnifiedBindings.patch
 
 -------------------------------------------------------------------
-Wed Dec 12 19:20:33 UTC 2018 - cgrobertson@suse.com
+Tue Jan 15 14:32:03 UTC 2019 - Martin Liška <mliska@suse.cz>
 
-- Mozilla Firefox 60.4.0esr:
-  * Updated list of currency codes to include Unidad Previsional (UYW)
-    (bmo#1499028)
-  MFSA 2018-30 (bsc#1119105)
+- Increase disk constraint.
+
+-------------------------------------------------------------------
+Mon Jan 14 12:12:12 UTC 2019 - Martin Liška <mliska@suse.cz>
+
+- Remove -v from mach build in order to work-around bmo#1500436.
+
+-------------------------------------------------------------------
+Fri Jan 11 15:07:14 UTC 2019 - Martin Liška <mliska@suse.cz>
+
+- Set %clang_build to false on all architectures
+- Do not use -fno-delete-null-pointer-checks and -fno-strict-aliasing:
+  it should not be needed anymore
+- Do not overwrite enable-optimize and when possible
+  enable --enable-debug-symbols.
+- Add -v to mach in order to make build verbose.
+
+-------------------------------------------------------------------
+Wed Jan  9 22:40:14 UTC 2019 - astieger@suse.com
+
+- Mozilla Firefox 64.0.2:
+  * Update the Japanese translation for missing strings (bmo#1513259)
+  * Properly restore column sizes in developer tools inspector (bmo#1503175)
+  * Fixed video stuttering on Youtube (bmo#1513511)
+  * Fix updates for some lightweight themes (bmo#1508777)
+
+-------------------------------------------------------------------
+Tue Dec 18 14:46:41 UTC 2018 - Guillaume GARDET <guillaume.gardet@opensuse.org>
+
+- Enable build_hardened for all architectures
+- Switch back aarch64 to clang as '-fPIC' fixes bmo#1513605
+- Remove obolete '--enable-pie' as -pie is always enabled for
+  gcc and clang
+
+-------------------------------------------------------------------
+Wed Dec 12 17:33:29 UTC 2018 - Guillaume GARDET <guillaume.gardet@opensuse.org>
+
+- Switch aarch64 builds back to gcc, not clang (bmo#1513605)
+- Switch %arm builds back to gcc, not clang to avoid OOM
+- Fix build flags when clang is not used
+- Fix flags for clang ppc64 builds
+
+-------------------------------------------------------------------
+Tue Dec 11 08:45:56 UTC 2018 - Wolfgang Rosenauer <wr@rosenauer.org>
+
+- update to Firefox 64.0
+  * Better recommendations: You may see suggestions in regular browsing
+    mode for new and relevant Firefox features, services, and extensions
+    based on how you use the web (for US users only)
+  * Enhanced tab management: You can now select multiple tabs from the
+    tab bar and close, move, bookmark, or pin them quickly and easily
+  * Easier performance management: The new Task Manager page found at
+    about:performance lets you see how much energy each open tab consumes
+    and provides access to close tabs to conserve power
+  * Improved performance for Mac and Linux users, by enabling link time
+    optimization (Clang LTO).
+  * Added option to remove add-ons using the context menu on their
+    toolbar buttons
+  * RSS feed preview and live bookmarks are available only via add-ons
+  * TLS certificates issued by Symantec are no longer trusted by Firefox.
+    Website operators are strongly encouraged to replace any remaining
+    Symantec TLS certificates as soon as possible
+  MFSA 2018-29 (bsc#1119105)
+  * CVE-2018-12407 bmo#1505973
+    Buffer overflow with ANGLE library when using VertexBuffer11 module
   * CVE-2018-17466 bmo#1488295
     Buffer overflow and out-of-bounds read in ANGLE library with
     TextureStorage11
@@ -271,59 +621,135 @@ Wed Dec 12 19:20:33 UTC 2018 - cgrobertson@suse.com
   * CVE-2018-18494 bmo#1487964
     Same-origin policy violation using location attribute and
     performance.getEntries to steal cross-origin URLs
+  * CVE-2018-18495 bmo#1427585
+    WebExtension content scripts can be loaded in about: pages
+  * CVE-2018-18496 bmo#1422231 (Windows only)
+    Embedded feed preview page can be abused for clickjacking
+  * CVE-2018-18497 bmo#1488180
+    WebExtensions can load arbitrary URLs through pipe separators
   * CVE-2018-18498 bmo#1500011
     Integer overflow when calculating buffer sizes for images
+  * CVE-2018-12406 bmo#1456947 bmo#1475669 bmo#1504816 bmo#1502886
+    bmo#1500064 bmo#1500310 bmo#1500696 bmo#1498765 bmo#1499198 bmo#1434490
+    bmo#1481745 bmo#1458129
+    Memory safety bugs fixed in Firefox 64
   * CVE-2018-12405 bmo#1494752 bmo#1503326 bmo#1505181 bmo#1500759
     bmo#1504365 bmo#1506640 bmo#1503082 bmo#1502013 bmo#1510471
     Memory safety bugs fixed in Firefox 64 and Firefox ESR 60.4
-- requires NSS >= 3.36.6
-
-- Removed obsolete patch:
-    [mozilla-update-cc-crate.patch] Applied upstream
+- requires
+  * rust/cargo >= 1.29
+  * mozilla-nss >= 3.40.1
+  * rust-cbindgen >= 0.6.4
+- rebased patches
+- removed obsolete patch
+  * mozilla-bmo1491289.patch
+- now uses clang primarily for compilation
 
 -------------------------------------------------------------------
-Tue Oct 23 20:35:31 UTC 2018 - alarrosa@suse.com
+Wed Nov 28 11:07:18 UTC 2018 - Guillaume GARDET <guillaume.gardet@opensuse.org>
 
-- Mozilla Firefox 60.3.0esr:
-  * Various stability and regression fixes
-  MFSA 2018-27 bsc#1112852
-  * CVE-2018-12392 bmo#1492823
+- Remove --disable-elf-hack when not available: on aarch64 and ppc64*
+
+-------------------------------------------------------------------
+Mon Nov 26 09:46:02 UTC 2018 - Guillaume GARDET <guillaume.gardet@opensuse.org>
+
+- Clean-up %arm build
+
+-------------------------------------------------------------------
+Sun Nov 18 11:01:21 UTC 2018 - manfred.h@gmx.net
+
+- update to Firefox 63.0.3
+  * Games using WebGL (created in Unity) get stuck after very short
+    time of gameplay (bmo#1502748)
+  * Slow page loading for some users with specific proxy configurations
+    (bmo#1495024)
+  * Disable HTTP response throttling by default for causing bugs with
+    videos in background tabs (bmo#1503354)
+  * Opening magnet links no longer works (bmo#1498934)
+  * Crash fixes (bmo#1498510, bmo#1503424)
+- removed mozilla-newer-cbindgen.patch; no longer needed
+
+-------------------------------------------------------------------
+Thu Nov  8 14:59:13 UTC 2018 - wr@rosenauer.org
+
+- update to Firefox 63.0.1
+  * Snippets are not loaded due to missing element (bmo#1503047)
+  * Print preview always shows 30& scale when it is actually
+    Shrink To Fit (bmo#1501952)
+  * Dialog displayed when closing multiple windows shows unreplaced
+    %1$S placeholder in Japanese and potentially other locales
+    (bmo#1500823)
+
+-------------------------------------------------------------------
+Mon Oct 29 14:07:51 UTC 2018 - wr@rosenauer.org
+
+- update to Firefox 63.0
+  * WebExtensions now run in their own process on Linux
+  * The Ctrl+Tab shortcut now displays thumbnail previews of your
+    tabs and cycles through tabs in recently used order. This new
+    default behavior is activated only in new profiles and can be
+    changed in preferences.
+  * Added support for Web Components custom elements and shadow DOM
+  MFSA 2018-26 (bsc#1112852)
+  * CVE-2018-12391 (bmo#1478843) (Android-only)
+    HTTP Live Stream audio data is accessible cross-origin
+  * CVE-2018-12392 (bmo#1492823)
     Crash with nested event loops
-  * CVE-2018-12393 bmo#1495011
-    Integer overflow during Unicode conversion while loading
-    JavaScript
-  * CVE-2018-12395 bmo#1467523
-    WebExtension bypass of domain restrictions through header
-    rewriting
-  * CVE-2018-12396 bmo#1483602
-    WebExtension content scripts can execute in disallowed
-    contexts
-  * CVE-2018-12397 bmo#1487478
-    WebExtension local file access vulnerability
-  * CVE-2018-12389 bmo#1498460, bmo#1499198
-    Memory safety bugs fixed in Firefox ESR 60.3
-  * CVE-2018-12390 bmo#1487098 bmo#1487660 bmo#1490234 bmo#1496159
-    bmo#1443748 bmo#1496340 bmo#1483905 bmo#1493347 bmo#1488803
-    bmo#1498701 bmo#1498482 bmo#1442010 bmo#1495245 bmo#1483699
-    bmo#1469486 bmo#1484905 bmo#1490561 bmo#1492524 bmo#1481844 
+  * CVE-2018-12393 (bmo#1495011) (only affects non-64-bit archs)
+    Integer overflow during Unicode conversion while loading JavaScript
+  * CVE-2018-12395 (bmo#1467523)
+    WebExtension bypass of domain restrictions through header rewriting
+  * CVE-2018-12396 (bmo#1483602)
+    WebExtension content scripts can execute in disallowed contexts
+  * CVE-2018-12397 (bmo#1487478)
+    Missing warning prompt when WebExtension requests local file access
+  * CVE-2018-12398 (bmo#1460538, bmo#1488061)
+    CSP bypass through stylesheet injection in resource URIs
+  * CVE-2018-12399 (bmo#1490276)
+    Spoofing of protocol registration notification bar
+  * CVE-2018-12400 (bmo#1448305) (Android only)
+    Favicons are cached in private browsing mode on Firefox for Android
+  * CVE-2018-12401 (bmo#1422456)
+    DOS attack through special resource URI parsing
+  * CVE-2018-12402 (bmo#1469916)
+    SameSite cookies leak when pages are explicitly saved
+  * CVE-2018-12403 (bmo#1484753)
+    Mixed content warning is not displayed when HTTPS page loads a favicon over HTTP
+  * CVE-2018-12388 (bmo#1472639, bmo#1485698, bmo#1301547, bmo#1471427,
+    bmo#1379411, bmo#1482122, bmo#1486314, bmo#1487167)
+    Memory safety bugs fixed in Firefox 63
+  * CVE-2018-12390 (bmo#1487098, bmo#1487660, bmo#1490234, bmo#1496159,
+    bmo#1443748, bmo#1496340, bmo#1483905, bmo#1493347, bmo#1488803,
+    bmo#1498701, bmo#1498482, bmo#1442010, bmo#1495245, bmo#1483699,
+    bmo#1469486, bmo#1484905, bmo#1490561, bmo#1492524, bmo#1481844)
     Memory safety bugs fixed in Firefox 63 and Firefox ESR 60.3
-
-- Drop mozilla-bmo1472538-update-bindgen.patch which was already
-  merged upstream
-
-- Update mozilla-update-cc-crate.patch, since cc was updated to 1.0.9
-  upstream, but this patch still updates it to a newer version
+- requires NSPR 4.20, NSS 3.39 and Rust 1.28
+- latest rust does not provide rust-std so stop requiring it
+- requires rust-cbindgen >= 0.6.2 to build
+- requires nodejs >= 8.11 to build
+- added mozilla-bmo1491289.patch to fix system NSS build (bmo#1491289)
+- added mozilla-cubeb-noreturn.patch to fix non-return function
+- added mozilla-newer-cbindgen.patch to fix build with cbindgen 0.6.7
+- disable elfhack for TW and newer due to build errors
+- removed obsolete patches
+  * mozilla-no-return.patch
+  * mozilla-no-stdcxx-check.patch
 
 -------------------------------------------------------------------
-Thu Oct 11 15:42:40 UTC 2018 - alarrosa@suse.com
+Thu Oct 25 14:39:04 UTC 2018 - guillaume.gardet@opensuse.org
 
-- Update create-tar.sh and source-stamp.txt as should be done
-  with every version update.
+- Update _constraints for armv6/7
 
 -------------------------------------------------------------------
-Tue Oct  9 08:00:29 UTC 2018 - alarrosa@suse.com
+Thu Oct 25 08:50:24 UTC 2018 - guillaume.gardet@opensuse.org
 
-- Mozilla Firefox 60.2.2esr:
+- Add patch to fix build on armv7:
+  * mozilla-bmo1463035.patch
+
+-------------------------------------------------------------------
+Tue Oct  2 21:28:31 UTC 2018 - astieger@suse.com
+
+- Mozilla Firefox 62.0.3:
   MFSA 2018-24
   * CVE-2018-12386 (bsc#1110506, bmo#1493900)
     Type confusion in JavaScript allowed remote code execution
@@ -331,141 +757,228 @@ Tue Oct  9 08:00:29 UTC 2018 - alarrosa@suse.com
     Array.prototype.push stack pointer vulnerability may enable
     exploits in the sandboxed content process
 
-- Avoid undefined behavior in IPC fd-passing code with
-  mozilla-bmo1436242.patch (boo#1094767, bmo#1436242)
+-------------------------------------------------------------------
+Sat Sep 22 09:03:53 UTC 2018 - astieger@suse.com
 
-- Mozilla Firefox 60.2.1esr:
-  MFSA 2018-23
+- Mozilla Firefox 62.0.2:
+  MFSA 2018-22
   * CVE-2018-12385 (boo#1109363, bmo#1490585)
     Crash in TransportSecurityInfo due to cached data
-  * CVE-2018-12383 (boo#1107343, bmo#1475775)
-    Setting a master password did not delete unencrypted
-    previously stored passwords
-  * Fixed a startup crash affecting users migrating from older ESR
-    releases
-  * Clean up old NSS DB files after upgrading
-
-- Fix typo in an old changelog entry which mentioned a wrong patch file
-  and really remove mozilla-glibc-getrandom.patch as should have
-  been done some weeks ago.
-
--------------------------------------------------------------------
-Wed Oct  3 23:35:43 UTC 2018 - cgrobertson@suse.com
-
-- bsc#1109465 - Add mozilla-bmo1472538-update-bindgen.patch and
-  mozilla-update-cc-crate.patch.  This fixes an endianness problem in
-  bindgen's handling of bitfields, which was causing Firefox to crash
-  on startup on big-endian machines.  Also, updates the cc crate,
-  which was buggy in the version that was originally vendored in.
-
-- added patch
-   [mozilla-bigendian_bit_flags_alias.patch] (bmo#1488552)
+  * Unvisited bookmarks can once again be autofilled in the address
+    bar
+  * Fix WebGL rendering issues
+  * Fix fallback on startup when a language pack is missing
+  * Avoid crash when sharing a profile with newer (as yet
+    unreleased) versions of Firefox
+  * Do not undo removal of search engines when using a language
+    pack
+  * Fixed rendering of some web sites
+  * Restored compatibility with some sites using deprecated TLS
+    settings
+- disable rust debug symbols to fix build on %ix86
 
 -------------------------------------------------------------------
-Fri Sep  7 01:01:19 UTC 2018 - pcerny@suse.com
+Mon Sep  3 10:47:43 UTC 2018 - wr@rosenauer.org
 
-- update to Firefox ESR 60.2 (bsc#1107343)
-  * MFSA 2018-20/CVE-2018-12381
-    (bmo#1435319)
-    Dragging and dropping Outlook email message results in page
-    navigation
-  * MFSA 2018-20/CVE-2017-16541
-    (bmo#1412081)
-    Proxy bypass using automount and autofs
-  * MFSA 2018-20/CVE-2018-12376
-    (bmo#1450989, bmo#1466577, bmo#1466991, bmo#1467363,
-     bmo#1467889, bmo#1468738, bmo#1469309, bmo#1469914,
-     bmo#1471953, bmo#1472925, bmo#1473161, bmo#1478575,
-     bmo#1478849, bmo#1480092, bmo#1480517, bmo#1480521,
-     bmo#1481093, bmo#1483120)
-    Memory safety bugs fixed in Firefox 62 and Firefox ESR 60.2
-  * MFSA 2018-20/CVE-2018-12377
-    (bmo#1470260)
+- update to Firefox 62.0
+  * Firefox Home (the default New Tab) now allows users to display
+    up to 4 rows of top sites, Pocket stories, and highlights
+  * "Reopen in Container" tab menu option appears for users with
+    Containers that lets them choose to reopen a tab in a different
+    container
+  * In advance of removing all trust for Symantec-issued certificates
+    in Firefox 63, a preference was added that allows users to distrust
+    certificates issued by Symantec. To use this preference, go to
+    about:config in the address bar and set the preference
+    "security.pki.distrust_ca_policy" to 2.
+  * Support for CSS Shapes, allowing for richer web page layouts.
+    This goes hand in hand with a brand new Shape Path Editor in the
+    CSS inspector.
+  * CSS Variable Fonts (OpenType Font Variations) support, which makes
+    it possible to create beautiful typography with a single font file
+  * Added Canadian English (en-CA) locale
+  MFSA 2018-20 (bsc#1107343)
+  * CVE-2018-12377 (bmo#1470260)
     Use-after-free in refresh driver timers
-  * MFSA 2018-20/CVE-2018-12378
-    (bmo#1459383)
+  * CVE-2018-12378 (bmo#1459383)
     Use-after-free in IndexedDB
-  * MFSA 2018-20/CVE-2018-12379
-    (bmo#1473113)
+  * CVE-2018-12379 (bmo#1473113) (updater is disabled for us)
     Out-of-bounds write with malicious MAR file
-- removed obsolete patches:
-    [mozilla-glibc-getrandom.patch]
-    [firefox-no-default-ualocale.patch]
-    [mozilla-bmo1005640.patch]
-    [mozilla-language.patch]
-    [mozilla-shared-nss-db.patch]
-- added patches
-  sync with openSUSE:
-    [mozilla-bmo1005535.patch]
-    [mozilla-bmo1375074.patch]
-    [mozilla-bmo1464766.patch]
-    [mozilla-bmo256180.patch]
-    [mozilla-i586-DecoderDoctorLogger.patch]
-    [mozilla-i586-domPrefs.patch]
-  additional architecture enablement:
-    [mozilla-ppc-altivec_static_inline.patch]
-    [mozilla-s390-context.patch]
+  * CVE-2017-16541 (bmo#1412081)
+    Proxy bypass using automount and autofs
+  * CVE-2018-12381 (bmo#1435319)
+    Dragging and dropping Outlook email message results in page navigation
+  * CVE-2018-12382 (bmo#1479311) (Android only)
+    Addressbar spoofing with javascript URI on Firefox for Android
+  * CVE-2018-12383 (bmo#1475775)
+    Setting a master password post-Firefox 58 does not delete
+    unencrypted previously stored passwords
+  * CVE-2018-12375
+    Memory safety bugs fixed in Firefox 62
+  * CVE-2018-12376
+    Memory safety bugs fixed in Firefox 62 and Firefox ESR 60.2
+- requires NSS >= 3.38
+- removed obsolete patch
+  mozilla-bmo1464766.patch
 
 -------------------------------------------------------------------
-Wed Jun 27 13:26:39 UTC 2018 - pcerny@suse.com
+Thu Aug  9 14:22:00 UTC 2018 - wr@rosenauer.org
 
-- update to Firefox ESR 52.9 (bsc#1098998)
-  * MFSA 2018-17/CVE-2018-5188
-    (bmo#1392739, bmo#1437842, bmo#1442722, bmo#1450688,
-     bmo#1451297, bmo#1452576, bmo#1456189, bmo#1456975,
-     bmo#1458048, bmo#1458264, bmo#1458270, bmo#1463494,
-     bmo#1464063, bmo#1464079, bmo#1464829, bmo#1465108,
-     bmo#1465898)
-    Memory safety bugs fixed in Firefox 60, Firefox ESR 60.1, and
-    Firefox ESR 52.9
-  * MFSA 2018-17/CVE-2018-12368
-    (bmo#1468217, bmo#https://posts.specterops.io/the-tale-of-
-     settingcontent-ms-files-f1ea253e4d39)
-    No warning when opening executable SettingContent-ms files
-  * MFSA 2018-17/CVE-2018-12366
-    (bmo#1464039)
-    Invalid data handling during QCMS transformations
-  * MFSA 2018-17/CVE-2018-12365
-    (bmo#1459206)
-    Compromised IPC child process can list local filenames
-  * MFSA 2018-17/CVE-2018-12364
-    (bmo#1436241)
-    CSRF attacks through 307 redirects and NPAPI plugins
-  * MFSA 2018-17/CVE-2018-12363
-    (bmo#1464784)
-    Use-after-free when appending DOM nodes
-  * MFSA 2018-17/CVE-2018-12362
-    (bmo#1452375)
-    Integer overflow in SSSE3 scaler
-  * MFSA 2018-17/CVE-2018-12360
-    (bmo#1459693)
-    Use-after-free when using focus()
-  * MFSA 2018-17/CVE-2018-5156
-    (bmo#1453127)
-    Media recorder segmentation fault when track type is changed
-    during capture
-  * MFSA 2018-17/CVE-2018-12359
-    (bmo#1459162)
+- update to Firefox 61.0.2
+  * Improved website rendering with the Retained Display List feature
+    enabled (bmo#1474402)
+  * Fixed broken DevTools panels with certain extensions installed
+    (bmo#1474379)
+  * Fixed a crash for users with some accessibility tools enabled
+    (bmo#1474007)
+
+-------------------------------------------------------------------
+Mon Jul  9 07:22:09 UTC 2018 - astieger@suse.com
+
+- Mozilla Firefox 61.0.1:
+  * Fix missing content on the New Tab Page and the Home section of
+    the Preferences page (bmo#1471375)
+  * Fixed loss of bookmarks under rare circumstances when upgrading
+    from Firefox 60 (bmo#1472127)
+  * Improved playback of Twitch 1080p video streams (bmo#1469257)
+  * Web pages no longer lose focus when a browser popup window is
+    opened (bmo#1471415)
+  * Re-allowed downloading files from FTP sites via the "Save Link
+    As" option when linked from HTTP pages (bmo#1470295)
+  * Fixed extensions being unable to override the default homepage
+    in certain situations (bmo#1466846)
+
+-------------------------------------------------------------------
+Sat Jun 23 07:25:51 UTC 2018 - wr@rosenauer.org
+
+- update to Firefox 61.0
+  * Performance enhancements
+  * Various improvements for dark theme support will provide a more
+    consistent experience across the entire Firefox UI
+  * OpenSearch plugins offered by web pages can now be added from the
+    page action menu for easier installation
+  * Improved support for allowing WebExtensions to manage and hide tabs
+  MFSA 2018-15 (bsc#1098998)
+  * CVE-2018-12359 (bmo#1459162)
     Buffer overflow using computed size of canvas element
+  * CVE-2018-12360 (bmo#1459693)
+    Use-after-free when using focus()
+  * CVE-2018-12361 (bmo#1463244)
+    Integer overflow in SwizzleData
+  * CVE-2018-12358 (bmo#1467852)
+    Same-origin bypass using service worker and redirection
+  * CVE-2018-12362 (bmo#1452375)
+    Integer overflow in SSSE3 scaler
+  * CVE-2018-5156 (bmo#1453127)
+    Media recorder segmentation fault when track type is changed during capture
+  * CVE-2018-12363 (bmo#1464784)
+    Use-after-free when appending DOM nodes
+  * CVE-2018-12364 (bmo#1436241)
+    CSRF attacks through 307 redirects and NPAPI plugins
+  * CVE-2018-12365 (bmo#1459206)
+    Compromised IPC child process can list local filenames
+  * CVE-2018-12371 (bmo#1465686) 
+    Integer overflow in Skia library during edge builder allocation
+  * CVE-2018-12366 (bmo#1464039)
+    Invalid data handling during QCMS transformations
+  * CVE-2018-12367 (bmo#1462891)
+    Timing attack mitigation of PerformanceNavigationTiming
+  * CVE-2018-12369 (bmo#1454909)
+    WebExtension security permission checks bypassed by embedded experiments
+  * CVE-2018-12370 (bmo#1456652)
+    SameSite cookie protections bypassed when exiting Reader View
+  * CVE-2018-5186 (bmo#1464872,bmo#1463329,bmo#1419373,bmo#1412882,
+    bmo#1413033,bmo#1444673,bmo#1454448,bmo#1453505,bmo#1438671)
+    Memory safety bugs fixed in Firefox 61
+  * CVE-2018-5187 (bmo#1461324,bmo#1414829,bmo#1395246,bmo#1467938,
+    bmo#1461619,bmo#1425930,bmo#1438556,bmo#1454285,bmo#1459568,
+    bmo#1463884)
+    Memory safety bugs fixed in Firefox 60 and Firefox ESR 60.1
+  * CVE-2018-5188 (bmo#1456189,bmo#1456975,bmo#1465898,bmo#1392739,
+    bmo#1451297,bmo#1464063,bmo#1437842,bmo#1442722,bmo#1452576,
+    bmo#1450688,bmo#1458264,bmo#1458270,bmo#1465108,bmo#1464829,
+    bmo#1464079,bmo#1463494,bmo#1458048)
+    Memory safety bugs fixed in Firefox 60, Firefox ESR 60.1, and Firefox ESR 52.9
+- requires NSS 3.37.3
+- requires python >= 3.5 to build
+- removed obsolete patches
+  mozilla-i586-DecoderDoctorLogger.patch
+  mozilla-i586-domPrefs.patch
+  mozilla-fix-skia-aarch64.patch
+  mozilla-bmo1375074.patch
+  mozilla-enable-csd.patch
+- patch for new no-return warnings (mozilla-no-return.patch)
+- do not disable system installed locales (mozilla-bmo1464766.patch)
 
 -------------------------------------------------------------------
-Thu Jun  7 12:42:46 UTC 2018 - pcerny@suse.com
+Fri Jun  8 10:52:13 UTC 2018 - bjorn.lie@gmail.com
 
-- update to Firefox 52.8.1 (bsc#1096449)
-  * MFSA 2018-14/CVE-2018-6126
-    (bmo#1462682)
+- Add conditional for pkgconfig(gconf-2.0) BuildRequires, and pass
+  conditional --disable-gconf to configure: no longer pull in
+  obsolete gconf2 for Tumbleweed.
+
+-------------------------------------------------------------------
+Thu Jun  7 12:11:06 UTC 2018 - wr@rosenauer.org
+
+- update to Firefox 60.0.2
+  * requires NSS 3.36.4
+  MFSA 2018-14 (bsc#1096449)
+  * CVE-2018-6126 (bmo#1462682)
     Heap buffer overflow rasterizing paths in SVG with Skia
 
 -------------------------------------------------------------------
-Wed May  9 11:36:33 UTC 2018 - wr@rosenauer.org
+Wed Jun  6 18:57:52 UTC 2018 - guillaume.gardet@opensuse.org
 
-- update to Firefox 52.8.0:
-  * Various stability and regression fixes
-  * Performance improvements to the Safe Browsing service to avoid
-   slowdowns while updating site classification data
-- Security fixes (bsc#1092548, MFSA 2018-12):
-  * CVE-2018-5183 (bmo#1454692)
-    Backport critical security fixes in Skia
+- Add upstream patch to fix boo#1093059 instead of '-ffixed-x28'
+  workaround:
+  * mozilla-bmo1375074.patch
+
+-------------------------------------------------------------------
+Sat May 26 15:53:25 UTC 2018 - wr@rosenauer.org
+
+- fixed "open with" option under KDE (boo#1094747)
+- workaround crash on startup on aarch64 (boo#1093059)
+  (contributed by guillaume.gardet@arm.com)
+
+-------------------------------------------------------------------
+Wed May 23 08:49:09 UTC 2018 - guillaume.gardet@opensuse.org
+
+- Disable webrtc for aarch64 due to bmo#1434589
+- Add patch to fix skia build on AArch64:
+  * mozilla-fix-skia-aarch64.patch
+
+-------------------------------------------------------------------
+Thu May 17 14:01:18 UTC 2018 - wr@rosenauer.org
+
+- update to Firefox 60.0.1
+  * Avoid overly long cycle collector pauses with some add-ons installed
+    (bmo#1449033)
+  * After unckecking the "Sponsored Stories" option, the New Tab page
+    now immediately stops displaying "Sponsored content" cards (bmo#1458906)
+  * On touchscreen devices, fixed momentum scrolling on non-zoomable pages
+    (bmo#1457743)
+  * Use the right default background when opening tabs or windows in
+    high contrast mode (bmo#1458956)
+  * Restored translations of the Preferences panels when using a
+    language pack (bmo#1461590)
+
+-------------------------------------------------------------------
+Mon May 14 13:37:38 UTC 2018 - pcerny@suse.com
+
+- parellelise locales building
+
+-------------------------------------------------------------------
+Mon May  7 08:32:28 UTC 2018 - wr@rosenauer.org
+
+- update to Firefox 60.0
+  * Added a policy engine that allows customized Firefox deployments
+    in enterprise environments, using Windows Group Policy or a
+    cross-platform JSON file
+  * Applied Quantum CSS to render browser UI
+  * Added support for Web Authentication, allowing the use of USB
+    tokens for authentication to web sites
+  * Locale added: Occitan (oc)
+  MFSA 2018-11 (bsc#1092548)
   * CVE-2018-5154 (bmo#1443092)
     Use-after-free with SVG animations and clip paths
   * CVE-2018-5155 (bmo#1448774)
@@ -476,155 +989,472 @@ Wed May  9 11:36:33 UTC 2018 - wr@rosenauer.org
     Malicious PDF can inject JavaScript into PDF Viewer
   * CVE-2018-5159 (bmo#1441941)
     Integer overflow and out-of-bounds write in Skia
+  * CVE-2018-5160 (bmo#1436117)
+    Uninitialized memory use by WebRTC encoder
+  * CVE-2018-5152 (bmo#1415644, bmo#1427289)
+    WebExtensions information leak through webRequest API
+  * CVE-2018-5153 (bmo#1436809)
+    Out-of-bounds read in mixed content websocket messages
+  * CVE-2018-5163 (bmo#1426353)
+    Replacing cached data in JavaScript Start-up Bytecode Cache
+  * CVE-2018-5164 (bmo#1416045)
+    CSP not applied to all multipart content sent with
+    multipart/x-mixed-replace
+  * CVE-2018-5166 (bmo#1437325)
+    WebExtension host permission bypass through filterReponseData
+  * CVE-2018-5167 (bmo#1447969)
+    Improper linkification of chrome: and javascript: content in
+    web console and JavaScript debugger
   * CVE-2018-5168 (bmo#1449548)
     Lightweight themes can be installed without user interaction
-  * CVE-2018-5178 (bmo#1443891)
-    Buffer overflow during UTF-8 to Unicode string conversion
-    through legacy extension
-  * CVE-2018-5150 (bmo#1388020,bmo#1433609,bmo#1409440,bmo#1448705,
-    bmo#1451376,bmo#1452202,bmo#1444668,bmo#1393367,bmo#1411415,
-    bmo#1426129)
+  * CVE-2018-5169 (bmo#1319157)
+    Dragging and dropping link text onto home button can set home page
+    to include chrome pages
+  * CVE-2018-5172 (bmo#1436482)
+    Pasted script from clipboard can run in the Live Bookmarks page
+    or PDF viewer
+  * CVE-2018-5173 (bmo#1438025)
+    File name spoofing of Downloads panel with Unicode characters
+  * CVE-2018-5174 (bmo#1447080) (Windows-only)
+    Windows Defender SmartScreen UI runs with less secure behavior
+    for downloaded files in Windows 10 April 2018 Update
+  * CVE-2018-5175 (bmo#1432358)
+    Universal CSP bypass on sites using strict-dynamic in their policies
+  * CVE-2018-5176 (bmo#1442840)
+    JSON Viewer script injection
+  * CVE-2018-5177 (bmo#1451908)
+    Buffer overflow in XSLT during number formatting
+  * CVE-2018-5165 (bmo#1451452)
+    Checkbox for enabling Flash protected mode is inverted in 32-bit
+    Firefox
+  * CVE-2018-5180 (bmo#1444086)
+    heap-use-after-free in mozilla::WebGLContext::DrawElementsInstanced
+  * CVE-2018-5181 (bmo#1424107)
+    Local file can be displayed in noopener tab through drag and
+    drop of hyperlink
+  * CVE-2018-5182 (bmo#1435908)
+    Local file can be displayed from hyperlink dragged and dropped
+    on addressbar
+  * CVE-2018-5151
+    Memory safety bugs fixed in Firefox 60
+  * CVE-2018-5150
     Memory safety bugs fixed in Firefox 60 and Firefox ESR 52.8
+- removed obsolete patches
+  0001-Bug-1435695-WebRTC-fails-to-build-with-GCC-8-r-dmino.patch
+  mozilla-bmo1005535.patch
+- requires NSPR 4.19 and NSS 3.36.1
+- requires rust 1.24 or higher
+- use upstream source archive and detached signature for
+  source verification
 
 -------------------------------------------------------------------
-Wed Mar 28 19:27:16 UTC 2018 - astieger@suse.com
+Thu May  3 14:33:37 UTC 2018 - guillaume.gardet@opensuse.org
 
-- fix release tag and tarball to correctly identify 52.7.3esr
+- Fix armv7 build by:
+  * adding RUSTFLAGS="-Cdebuginfo=0"
+  * updating _constraints for %arm
 
 -------------------------------------------------------------------
-Tue Mar 27 05:53:14 UTC 2018 - wr@rosenauer.org
+Wed May  2 20:46:37 UTC 2018 - wr@rosenauer.org
 
-- update to Firefox 52.7.3
+- do not try CSD on kwin (boo#1091592)
+- fix build in openSUSE:Leap:42.3:Update, use gcc7
+
+-------------------------------------------------------------------
+Tue May  1 14:26:24 UTC 2018 - astieger@suse.com
+
+- Mozilla Firefox 59.0.3:
+  * fixes for platforms other than GNU/Linux
+
+-------------------------------------------------------------------
+Fri Apr 20 12:31:52 UTC 2018 - mliska@suse.cz
+
+- Add 0001-Bug-1435695-WebRTC-fails-to-build-with-GCC-8-r-dmino.patch
+  in order to fix boo#1090362.
+
+-------------------------------------------------------------------
+Mon Apr  2 00:55:45 UTC 2018 - badshah400@gmail.com
+
+- Add back mozilla-enable-csd.patch: New rebased version from
+  Fedora for version 59.0.x.
+
+-------------------------------------------------------------------
+Tue Mar 27 14:07:11 UTC 2018 - schwab@suse.de
+
+- Reduce constraints on aarch64
+
+-------------------------------------------------------------------
+Tue Mar 27 06:40:25 UTC 2018 - wr@rosenauer.org
+
+- update to Firefox 59.0.2
+  * Invalid page rendering with hardware acceleration enabled (bmo#1435472)
+  * Browser keyboard shortcuts (eg copy Ctrl+C) don't work on sites
+    that use those keys with resistFingerprinting enabled (bmo#1433592)
+  * High CPU / memory churn caused by third-party software on some
+    computers (bmo#1446280)
+  * Users who have configured an "automatic proxy configuration URL"
+    and want to reload their proxy settings from the URL will find
+    the Reload button disabled in the Connection Settings dialog when
+    they select Preferences/Options>Network Proxy>Settings... (bmo#1445991)
+  * URL Fragment Identifiers Break Service Worker Responses (bmo#1443850)
+  * User's trying to cancel a print around the time it completes will
+    continue to get intermittent crashes (bmo#1441598)
   MFSA 2018-10 (bsc#1087059)
   * CVE-2018-5148 (bmo#1440717)
     Use-after-free in compositor
 - removed obsolete patch mozilla-bmo1446062.patch
 
 -------------------------------------------------------------------
-Fri Mar 16 11:27:21 UTC 2018 - wr@rosenauer.org
+Wed Mar 21 17:14:24 UTC 2018 - cgrobertson@suse.com
 
-- update to Firefox 52.7.2 (bsc#1085671)
-  MFSA 2018-08
-  * CVE-2018-5146 (bmo#1446062)
-    Out of bounds memory write in libvorbis
-  * CVE-2018-5147 (bmo#1446365)
-    Out of bounds memory write in libtremor
-    (in mozilla-bmo1446062.patch)
-- Firefox 52.7.1 fixes
-  - issues with the IT locale (bmo#1445278)
+- Added patches:
+  * mozilla-i586-DecoderDoctorLogger.patch - bmo#1447070
+    fixes non-unified build error
+  * mozilla-i586-domPrefs.patch - DOMPrefs.h
+    fixes 32bit build error
 
 -------------------------------------------------------------------
-Tue Mar 13 18:30:52 UTC 2018 - astieger@suse.com
+Fri Mar 16 06:40:11 UTC 2018 - wr@rosenauer.org
 
-- update to Firefox 52.7esr (bsc#1085130, MFSA 2018-07):
+- update to Firefox 59.0.1 (bsc#1085671)
+  MFSA 2018-08
+  * CVE-2018-5146 (bmo#1446062)
+    Vorbis audio processing out of bounds write
+  * CVE-2018-5147 (bmo#1446365)
+    Out of bounds memory write in libtremor
+    (mozilla-bmo1446062.patch)
+
+-------------------------------------------------------------------
+Wed Mar 14 19:27:07 UTC 2018 - cgrobertson@suse.com
+
+- Added patch:
+  * mozilla-bmo1005535.patch:
+    Enable skia_gpu on big endian platforms.
+
+-------------------------------------------------------------------
+Sun Mar 11 22:12:12 UTC 2018 - wr@rosenauer.org
+
+- update to Firefox 59.0
+  * Performance enhancements
+  * Drag-and-drop to rearrange Top Sites on the Firefox Home page
+  * added features for Firefox Screenshots
+  * Enhanced WebExtensions API
+  * Improved RTC capabilities
+  MFSA 2018-06 (bsc#1085130)
   * CVE-2018-5127 (bmo#1430557)
     Buffer overflow manipulating SVG animatedPathSegList
+  * CVE-2018-5128 (bmo#1431336)
+    Use-after-free manipulating editor selection ranges
   * CVE-2018-5129 (bmo#1428947)
     Out-of-bounds write with malformed IPC messages
   * CVE-2018-5130 (bmo#1433005)
     Mismatched RTP payload type can trigger memory corruption
   * CVE-2018-5131 (bmo#1440775)
-    Fetch API improperly returns cached copies of no-store/no-cache
-    resources
-  * CVE-2018-5144 (bmo#1440926)
-    Integer overflow during Unicode conversion
-  * CVE-2018-5125 (bmo1416529,bmo#1434580,bmo#1434384,bmo#1437450,
-    bmo#1437507,bmo#1426988,bmo#1438425,bmo#1324042,bmo#1437087,
-    bmo#1443865,bmo#1425520)
+    Fetch API improperly returns cached copies of no-store/no-cache resources
+  * CVE-2018-5132 (bmo#1408194)
+    WebExtension Find API can search privileged pages
+  * CVE-2018-5133 (bmo#1430511, bmo#1430974)
+    Value of the app.support.baseURL preference is not properly sanitized
+  * CVE-2018-5134 (bmo#1429379)
+    WebExtensions may use view-source: URLs to bypass content restrictions
+  * CVE-2018-5135 (bmo#1431371)
+    WebExtension browserAction can inject scripts into unintended contexts
+  * CVE-2018-5136 (bmo#1419166)
+    Same-origin policy violation with data: URL shared workers
+  * CVE-2018-5137 (bmo#1432870)
+    Script content can access legacy extension non-contentaccessible resources
+  * CVE-2018-5138 (bmo#1432624) (Android only)
+    Android Custom Tab address spoofing through long domain names
+  * CVE-2018-5140 (bmo#1424261)
+    Moz-icon images accessible to web content through moz-icon: protocol
+  * CVE-2018-5141 (bmo#1429093)
+    DOS attack through notifications Push API
+  * CVE-2018-5142 (bmo#1366357)
+    Media Capture and Streams API permissions display incorrect origin
+    with data: and blob: URLs
+  * CVE-2018-5143 (bmo#1422643)
+    Self-XSS pasting javascript: URL with embedded tab into addressbar
+  * CVE-2018-5126
+    Memory safety bugs fixed in Firefox 59
+  * CVE-2018-5125
     Memory safety bugs fixed in Firefox 59 and Firefox ESR 52.7
-  * CVE-2018-5145 (bmo#1261175,bmo#1348955)
-    Memory safety bugs fixed in Firefox ESR 52.7
+- requires NSPR 4.18 and NSS 3.35
+- requires rust >= 1.22.1
+- removed obsolete patches:
+  mozilla-alsa-sandbox.patch
+  mozilla-enable-csd.patch
+  firefox-no-default-ualocale.patch
+- removed l10n_changesets.txt since same information is now in
+  Firefox source tree (updated create-tar.sh now requires jq)
 
 -------------------------------------------------------------------
-Fri Feb  9 12:12:08 UTC 2018 - wr@rosenauer.org
+Fri Feb  9 13:37:46 UTC 2018 - astieger@suse.com
+
+- Mozilla Firefox 58.0.2:
+  * Blocklisted graphics drivers related to off main thread painting
+    crashes
+  * Fix tab crash during printing
+  * Fix clicking links and scrolling emails on Microsoft Hotmail
+    and Outlook (OWA) webmail
+
+-------------------------------------------------------------------
+Fri Feb  9 12:06:31 UTC 2018 - wr@rosenauer.org
 
 - correct requires and provides handling (boo#1076907)
 
 -------------------------------------------------------------------
-Tue Jan 23 19:04:46 UTC 2018 - wr@rosenauer.org
+Tue Feb  6 07:03:42 UTC 2018 - fstrba@suse.com
 
-- update to Firefox 52.6esr (bsc#1077291)
-  MFSA 2018-01
-  * Speculative execution side-channel attack ("Spectre")
-  MFSA 2018-03
+- Added patch:
+  * mozilla-alsa-sandbox.patch: Fix bmo#1430274, ALSA sound (still
+    or again?) not working in Firefox 58 due to sandboxing.
+
+-------------------------------------------------------------------
+Mon Jan 29 22:32:21 UTC 2018 - wr@rosenauer.org
+
+- update to Firefox 58.0.1
+  MFSA 2018-05
+  * Arbitrary code execution through unsanitized browser UI (bmo#1432966)
+- use correct language packs
+- readd mozilla-enable-csd.patch as it only lands for FF59 upstream
+- allow larger number of nested elements (mozilla-bmo256180.patch)
+
+-------------------------------------------------------------------
+Tue Jan 23 20:40:57 UTC 2018 - wr@rosenauer.org
+
+- update to Firefox 58.0 (bsc#1077291)
+  * Added Nepali (ne-NP) locale
+  * Added support for form autofill for credit card
+  * Optimize page load by caching JavaScript internal representation
+  MFSA 2018-02
   * CVE-2018-5091 (bmo#1423086)
     Use-after-free with DTMF timers
+  * CVE-2018-5092 (bmo#1418074)
+    Use-after-free in Web Workers
+  * CVE-2018-5093 (bmo#1415291)
+    Buffer overflow in WebAssembly during Memory/Table resizing
+  * CVE-2018-5094 (bmo#1415883)
+    Buffer overflow in WebAssembly with garbage collection on
+    uninitialized memory
   * CVE-2018-5095 (bmo#1418447)
     Integer overflow in Skia library during edge builder allocation
-  * CVE-2018-5096 (bmo#1418922)
-    Use-after-free while editing form elements
   * CVE-2018-5097 (bmo#1387427)
     Use-after-free when source document is manipulated during XSLT
   * CVE-2018-5098 (bmo#1399400)
     Use-after-free while manipulating form input elements
   * CVE-2018-5099 (bmo#1416878)
     Use-after-free with widget listener
+  * CVE-2018-5100 (bmo#1417405)
+    Use-after-free when IsPotentiallyScrollable arguments are freed
+    from memory
+  * CVE-2018-5101 (bmo#1417661)
+    Use-after-free with floating first-letter style elements
   * CVE-2018-5102 (bmo#1419363)
     Use-after-free in HTML media elements
   * CVE-2018-5103 (bmo#1423159)
     Use-after-free during mouse event handling
   * CVE-2018-5104 (bmo#1425000)
     Use-after-free during font face manipulation
+  * CVE-2018-5105 (bmo#1390882)
+    WebExtensions can save and execute files on local file system
+    without user prompts
+  * CVE-2018-5106 (bmo#1408708)
+    Developer Tools can expose style editor information cross-origin
+    through service worker
+  * CVE-2018-5107 (bmo#1379276)
+    Printing process will follow symlinks for local file access
+  * CVE-2018-5108 (bmo#1421099)
+    Manually entered blob URL can be accessed by subsequent private browsing tabs
+  * CVE-2018-5109 (bmo#1405599)
+    Audio capture prompts and starts with incorrect origin attribution
+  * CVE-2018-5110 (bmo#1423275) (affects only OS X)
+    Cursor can be made invisible on OS X
+  * CVE-2018-5111 (bmo#1321619)
+    URL spoofing in addressbar through drag and drop
+  * CVE-2018-5112 (bmo#1425224)
+    Extension development tools panel can open a non-relative URL in the panel
+  * CVE-2018-5113 (bmo#1425267)
+    WebExtensions can load non-HTTPS pages with browser.identity.launchWebAuthFlow
+  * CVE-2018-5114 (bmo#1421324)
+    The old value of a cookie changed to HttpOnly remains accessible to scripts
+  * CVE-2018-5115 (bmo#1409449)
+    Background network requests can open HTTP authentication in unrelated foreground tabs
+  * CVE-2018-5116 (bmo#1396399)
+    WebExtension ActiveTab permission allows cross-origin frame content access
   * CVE-2018-5117 (bmo#1395508)
     URL spoofing with right-to-left text aligned left-to-right
+  * CVE-2018-5118 (bmo#1420049)
+    Activity Stream images can attempt to load local content through file:
+  * CVE-2018-5119 (bmo#1420507)
+    Reader view will load cross-origin content in violation of CORS headers
+  * CVE-2018-5121 (bmo#1402368) (affects only OS X)
+    OS X Tibetan characters render incompletely in the addressbar
+  * CVE-2018-5122 (bmo#1413841)
+    Potential integer overflow in DoCrypt
+  * CVE-2018-5090
+    Memory safety bugs fixed in Firefox 58
   * CVE-2018-5089
     Memory safety bugs fixed in Firefox 58 and Firefox ESR 52.6
-- remove obsolete patch mozilla-ucontext.patch
-- official NSS requirement is >= 3.28.6 therefore putting 3.29.5
-  into an ifarch
+- requires NSS 3.34.1
+- requires rust 1.21
+- removed obsolete patches:
+  mozilla-bindgen-systemlibs.patch
+  mozilla-bmo1360278.patch
+  mozilla-bmo1399611-csd.patch
+  mozilla-rust-1.23.patch
+- rebased patches
+- updated man-page
 
 -------------------------------------------------------------------
-Wed Jan 17 17:07:25 UTC 2018 - wbauer@tmo.at
+Tue Jan  9 18:48:02 UTC 2018 - wr@rosenauer.org
 
-- Escape the usage of %{VERSION} when calling out to rpm.
-  RPM 4.14 has %{VERSION} defined as 'the main package's version'.
+- fixed build with latest rust (mozilla-rust-1.23.patch)
 
 -------------------------------------------------------------------
-Tue Jan 16 17:03:01 UTC 2018 - cgrobertson@suse.com
+Thu Jan  4 12:23:41 UTC 2018 - wr@rosenauer.org
 
-- Added additional patches and configurations to fix
-  builds on s390 and PowerPC.
-  * Added firefox-glibc-getrandom.patch effecting builds on
-    s390 and PowerPC
-  * Added mozilla-s390-bigendian.patch along with icudt58b.dat
-    bigendian ICU data file for running Firefox on bigendian
-    architectures (bmo#1322212 and bmo#1264836)
-  * Added mozilla-s390-nojit.patch to enable atomic operations
-    used by the JS engine when JIT is disabled on s390
-  * Build configuration options specific to s390
-  * Requires NSS >= 3.29.5
+- update to Firefox 57.0.4
+  MFSA 2018-1: Speculative execution side-channel attack ("Spectre")
+  (boo#1074723)
+
+-------------------------------------------------------------------
+Wed Jan  3 08:29:38 UTC 2018 - wr@rosenauer.org
+
+- fixed regression introduced Oct 10th which made Firefox crash
+  when cancelling the KDE file dialog (boo#1069962)
 
 -------------------------------------------------------------------
 Fri Dec 29 19:52:34 UTC 2017 - astieger@suse.com
 
-- Update to Firefox 52.5.3esr:
+- Mozilla Firefox 57.0.3:
   * Fix a crash reporting issue that inadvertently sends background
-   tab crash reports to Mozilla without user opt-in (bmo#1427111,
-   bsc#1074235)
+    tab crash reports to Mozilla without user opt-in (bmo#1427111,
+    bsc#1074235)
+- Includes changes from 57.0.2:
+  * fixes for platforms other than GNU/Linux
 
 -------------------------------------------------------------------
-Fri Dec 15 09:00:55 UTC 2017 - fcrozat@suse.com
+Fri Dec  8 15:52:17 UTC 2017 - dimstar@opensuse.org
 
-- Add BuildRequires python-xml to fix build on TW/SLE15.
-
--------------------------------------------------------------------
-Sat Dec  9 20:49:28 UTC 2017 - security@suse.com
-
-- update to Firefox 52.5.2esr (MFSA 2017-28):
-  * CVE-2017-7843 (bsc#1072034, bmo#1410106)
-    Web worker in Private Browsing mode can write IndexedDB data
+- Explicitly buildrequires python2-xml: The build system relies on
+  it. We wrongly relied on other packages pulling it in for us.
 
 -------------------------------------------------------------------
-Tue Nov 14 21:22:11 UTC 2017 - wr@rosenauer.org
+Thu Dec  7 11:12:31 UTC 2017 - dimstar@opensuse.org
 
-- update to Firefox 52.5.0esr (boo#1068101)
-  MFSA 2017-25
+- Escape the usage of %{VERSION} when calling out to rpm.
+  RPM 4.14 has %{VERSION} defined as 'the main packages version'.
+
+-------------------------------------------------------------------
+Wed Nov 29 23:45:03 UTC 2017 - wr@rosenauer.org
+
+- update to Firefox 57.0.1
+  * CVE-2017-7843: Web worker in Private Browsing mode can write
+    IndexedDB data (bsc#1072034, bmo#1410106)
+  * CVE-2017-7844: Visited history information leak through SVG
+    image (bsc#1072036, bmo#1420001)
+  * Fix a video color distortion issue on YouTube and other video
+    sites with some AMD devices (bmo#1417442)
+  * Fix an issue with prefs.js when the profile path has non-ascii
+    characters (bmo#1420427)
+
+-------------------------------------------------------------------
+Tue Nov 21 09:00:48 UTC 2017 - christophe@krop.fr
+
+- Add mozilla-bmo1360278.patch
+  Starting with Firefox 57, the context menu appears on key press.
+  This patch creates a config entry to restore the
+  old behaviour. Without the patch, the mouse gesture extensions
+  require 2 clicks to work (bmo#1360278).
+  The new config entry is named ui.context_menus.after_mouseup
+  (default : false).
+
+-------------------------------------------------------------------
+Sat Nov 18 08:35:21 UTC 2017 - wr@rosenauer.org
+
+- Allow experimental CSD for Gtk3 (bmo#1399611) if available and enabled
+  widget.allow-client-side-decoration=true
+  (mozilla-bmo1399611-csd.patch)
+
+-------------------------------------------------------------------
+Wed Nov 15 06:46:06 UTC 2017 - wr@rosenauer.org
+
+- update to Firefox 57.0 (boo#1068101)
+  * Firefox Quantum
+  * Photon UI
+  * Unified address and search bar
+  * AMD VP9 hardware video decoder support
+  * Added support for Date/Time input
+  * stricter security sandbox blocking filesystem reading and
+    writing on Linux systems
+  * middle mouse paste in the content area no longer navigates to
+    URLs by default on Unix systems
+  MFSA 2017-24
   * CVE-2017-7828 (bmo#1406750. bmo#1412252)
     Use-after-free of PressShell while restyling layout
   * CVE-2017-7830 (bmo#1408990)
     Cross-origin URL information leak through Resource Timing API
+  * CVE-2017-7831 (bmo#1392026)
+    Information disclosure of exposed properties on JavaScript proxy
+    objects
+  * CVE-2017-7832 (bmo#1408782)
+    Domain spoofing through use of dotless 'i' character followed
+    by accent markers
+  * CVE-2017-7833 (bmo#1370497)
+    Domain spoofing with Arabic and Indic vowel marker characters
+  * CVE-2017-7834 (bmo#1358009)
+    data: URLs opened in new tabs bypass CSP protections
+  * CVE-2017-7835 (bmo#1402363)
+    Mixed content blocking incorrectly applies with redirects
+  * CVE-2017-7836 (bmo#1401339)
+    Pingsender dynamically loads libcurl on Linux and OS X
+  * CVE-2017-7837 (bmo#1325923)
+    SVG loaded as <img> can use meta tags to set cookies
+  * CVE-2017-7838 (bmo#1399540)
+    Failure of individual decoding of labels in international domain
+    names triggers punycode display of entire IDN
+  * CVE-2017-7839 (bmo#1402896)
+    Control characters before javascript: URLs defeats self-XSS
+    prevention mechanism
+  * CVE-2017-7840 (bmo#1366420)
+    Exported bookmarks do not strip script elements from user-supplied
+    tags
+  * CVE-2017-7842 (bmo#1397064)
+    Referrer Policy is not always respected for <link> elements
+  * CVE-2017-7827
+    Memory safety bugs fixed in Firefox 57
   * CVE-2017-7826
     Memory safety bugs fixed in Firefox 57 and Firefox ESR 52.5
+- requires NSPR 4.17, NSS 3.33 and rustc 1.19
+- rebased patches
+- added mozilla-bindgen-systemlibs.patch to allow stylo build
+  with system libs (bmo#1341234)
+- removed mozilla-language.patch since the whole locale code
+  changed in Firefox and is relying on ICU now
+- removed obsolete mozilla-ucontext.patch
+
+-------------------------------------------------------------------
+Sat Oct 28 06:30:37 UTC 2017 - wr@rosenauer.org
+
+- update to Firefox 56.0.2
+  * Disable Form Autofill completely on user request (bmo#1404531)
+  * Fix for video-related crashes on Windows 7 (bmo#1409141)
+  * Correct detection for 64-bit GSSAPI authentication (bmo#1409275)
+  * Fix for shutdown crash (bmo#1404105)
+
+-------------------------------------------------------------------
+Tue Oct 10 11:47:49 UTC 2017 - wr@rosenauer.org
+
+- update to Firefox 56.0.1
+  * Block D3D11 when using Intel drivers on Windows 7 systems with
+    partial AVX support (bmo#1403353)
+  -> just to sync the version number
+- enable stylo for TW (requires LLVM >= 3.9)
+- queue KDE filepicker requests to avoid non-opening file dialogs
+  happening in certain situations (contributed by Ignaz Forster)
+- the placeholder dot in KDE file dialog in case of empty filenames
+  was removed, apparently not required (anymore)
+  (contributed by Ignaz Forster)
 
 -------------------------------------------------------------------
 Sun Oct  1 18:25:16 UTC 2017 - stefan.bruens@rwth-aachen.de
@@ -643,13 +1473,18 @@ Sat Sep 30 20:10:50 UTC 2017 - zaitor@opensuse.org
   looks for.
 
 -------------------------------------------------------------------
-Fri Sep 29 08:56:27 UTC 2017 - wr@rosenauer.org
+Thu Sep 28 08:28:29 UTC 2017 - wr@rosenauer.org
 
-- update to Firefox 52.4esr (boo#1060445)
-  * requires NSS >= 3.28.6
-  MFSA 2017-22
+- update to Firefox 56.0 (boo#1060445)
+  * Firefox Screenshots
+  * Find Options/Preferences more quickly with new search function
+  * Media is no longer auto-played when opened in a background tab
+  * Enable CSS Grid Layout View
+  MFSA 2017-21
   * CVE-2017-7793 (bmo#1371889)
     Use-after-free with Fetch API
+  * CVE-2017-7817 (bmo#1356596) (Android-only)
+    Firefox for Android address bar spoofing through fullscreen mode
   * CVE-2017-7818 (bmo#1363723)
     Use-after-free during ARIA array manipulation
   * CVE-2017-7819 (bmo#1380292)
@@ -658,16 +1493,32 @@ Fri Sep 29 08:56:27 UTC 2017 - wr@rosenauer.org
     Buffer overflow when drawing and validating elements with ANGLE
   * CVE-2017-7805 (bmo#1377618) (fixed via NSS requirement)
     Use-after-free in TLS 1.2 generating handshake hashes
+  * CVE-2017-7812 (bmo#1379842)
+    Drag and drop of malicious page content to the tab bar can open locally stored files
   * CVE-2017-7814 (bmo#1376036)
     Blob and data URLs bypass phishing and malware protection warnings
+  * CVE-2017-7813 (bmo#1383951)
+    Integer truncation in the JavaScript parser
   * CVE-2017-7825 (bmo#1393624, bmo#1390980) (OSX-only)
     OS X fonts render some Tibetan and Arabic unicode characters as spaces
+  * CVE-2017-7815 (bmo#1368981)
+    Spoofing attack with modal dialogs on non-e10s installations
+  * CVE-2017-7816 (bmo#1380597)
+    WebExtensions can load about: URLs in extension UI
+  * CVE-2017-7821 (bmo#1346515)
+    WebExtensions can download and open non-executable files without user interaction
   * CVE-2017-7823 (bmo#1396320)
     CSP sandbox directive did not create a unique origin
+  * CVE-2017-7822 (bmo#1368859)
+    WebCrypto allows AES-GCM with 0-length IV
+  * CVE-2017-7820 (bmo#1378207)
+    Xray wrapper bypass with new tab and web console
+  * CVE-2017-7811
+    Memory safety bugs fixed in Firefox 56
   * CVE-2017-7810
     Memory safety bugs fixed in Firefox 56 and Firefox ESR 52.4
-- fixed language accept header to use correct locale
-  (mozilla-bmo1005640.patch, boo#1029917)
+- requires NSPR 4.16 and NSS 3.32.1
+- rebased patches
 
 -------------------------------------------------------------------
 Thu Sep 28 07:53:13 UTC 2017 - dimstar@opensuse.org
@@ -680,21 +1531,68 @@ Thu Sep 28 07:53:13 UTC 2017 - dimstar@opensuse.org
   no longer require esound-devel.
 
 -------------------------------------------------------------------
-Wed Aug  9 09:47:39 UTC 2017 - schwab@suse.de
+Mon Sep  4 18:27:44 UTC 2017 - wr@rosenauer.org
 
-- mozilla-ucontext.patch: use ucontext_t instead of struct ucontext
+- update to Firefox 55.0.3
+  * Fix an issue with addons when using a path containing non-ascii
+    characters (bmo#1389160)
+  * Fix file uploads to some websites, including YouTube (bmo#1383518)
+- fix Google API key build integration
+- add mozilla-ucontext.patch to fix Tumbleweed build
+- do not enable XINPUT2 for now (boo#1053959)
 
 -------------------------------------------------------------------
-Tue Aug  8 18:13:34 UTC 2017 - wr@rosenauer.org
+Fri Aug 11 08:32:30 UTC 2017 - wr@rosenauer.org
 
-- update to Firefox 52.3esr (boo#1052829)
-  MFSA 2017-19
+- update to Firefox 55.0.1
+  * Fix a regression the tab restoration process (bmo#1388160)
+  * Fix a problem causing What's new pages not to be displayed (bmo#1386224)
+  * Fix a rendering issue with some PKCS#11 libraries (bmo#1388370)
+  * Disable the predictor prefetch (bmo#1388160)
+
+-------------------------------------------------------------------
+Sat Aug  5 13:22:16 UTC 2017 - wr@rosenauer.org
+
+- update to Firefox 55.0 (boo#1052829)
+  * Browsing sessions with a high number of tabs are now restored
+    in an instant
+  * Sidebar (bookmarks, history, synced tabs) can now be moved to
+    the right edge of the window
+  * Fine-tune your browser performance from the Preferences/Options page.
+  * Make screenshots of webpages, and save them locally or upload
+    them to the cloud. This feature will undergo A/B testing and
+    will not be visible for some users.
+  * Added Belarusian (be) locale
+  * Simplify print jobs from within print preview
+  * Use virtual reality devices with the web with the introduction
+    of WebVR
+  * Search suggestions are now enabled by default for users who
+    haven't explicitly opted-out
+  * Search with any installed search engine directly from the
+    location bar
+  * IMPORTANT: Breaking profile changes - do not downgrade Firefox
+    and use a profile that has been opened with Firefox 55+.
+  * The Adobe Flash plugin is now click-to-activate by default and
+    only allowed on http:// and https:// URL schemes. This change
+    will be rolled out progressively and so will not be visible to
+    all users immediately. For more information see the Firefox
+    plugin roadmap
+  * Modernized application update UI to be less intrusive and more
+    aligned with the rest of the browser. Only users who have not
+    restarted their browser 8 days after downloading an update or
+    users who opted out of automatic updates will see this change.
+  * Insecure sites can no longer access the Geolocation APIs to get
+    access to your physical location
+  * requires NSPR 4.15 and NSS 3.31
+  MFSA 2017-18
   * CVE-2017-7798 (bmo#1371586, bmo#1372112)
     XUL injection in the style editor in devtools
   * CVE-2017-7800 (bmo#1374047)
     Use-after-free in WebSockets during disconnection
   * CVE-2017-7801 (bmo#1371259)
     Use-after-free with marquee during window resizing
+  * CVE-2017-7809 (bmo#1380284)
+    Use-after-free while deleting attached editor DOM node
   * CVE-2017-7784 (bmo#1376087)
     Use-after-free with image observers
   * CVE-2017-7802 (bmo#1378147)
@@ -703,6 +1601,8 @@ Tue Aug  8 18:13:34 UTC 2017 - wr@rosenauer.org
     Buffer overflow manipulating ARIA attributes in DOM
   * CVE-2017-7786 (bmo#1365189)
     Buffer overflow while painting non-displayable SVG
+  * CVE-2017-7806 (bmo#1378113)
+    Use-after-free in layer manager with SVG
   * CVE-2017-7753 (bmo#1353312)
     Out-of-bounds read with cached style data and pseudo-elements#
   * CVE-2017-7787 (bmo#1322896)
@@ -715,88 +1615,75 @@ Tue Aug  8 18:13:34 UTC 2017 - wr@rosenauer.org
     Memory protection bypass through WindowsDllDetourPatcher
   * CVE-2017-7791 (bmo#1365875)
     Spoofing following page navigation with data: protocol and modal alerts
+  * CVE-2017-7808 (bmo#1367531)
+    CSP information leak with frame-ancestors containing paths
   * CVE-2017-7782 (bmo#1344034)
     WindowsDllDetourPatcher allocates memory without DEP protections
+  * CVE-2017-7781 (bmo#1352039)
+    Elliptic curve point addition error when using mixed Jacobian-affine coordinates
+  * CVE-2017-7794 (bmo#1374281)
+    Linux file truncation via sandbox broker
   * CVE-2017-7803 (bmo#1377426)
     CSP containing 'sandbox' improperly applied
+  * CVE-2017-7799 (bmo#1372509)
+    Self-XSS XUL injection in about:webrtc
+  * CVE-2017-7783 (bmo#1360842)
+    DOS attack through long username in URL
+  * CVE-2017-7788 (bmo#1073952)
+    Sandboxed about:srcdoc iframes do not inherit CSP directives
+  * CVE-2017-7789 (bmo#1074642)
+    Failure to enable HSTS when two STS headers are sent for a connection
+  * CVE-2017-7790 (bmo#1350460) (Windows-only)
+    Windows crash reporter reads extra memory for some non-null-terminated registry values
+  * CVE-2017-7796 (bmo#1234401) (Windows-only)
+    Windows updater can delete any file named update.log
+  * CVE-2017-7797 (bmo#1334776)
+    Response header name interning leaks across origins
+  * CVE-2017-7780
+    Memory safety bugs fixed in Firefox 55
   * CVE-2017-7779
     Memory safety bugs fixed in Firefox 55 and Firefox ESR 52.3
+- updated mozilla-kde.patch:
+  * removed "downloadfinished" alert as Firefox reimplemented the
+    whole thing (TODO: check if there is another function we should
+    hook in)
 
 -------------------------------------------------------------------
-Wed Jul  5 07:26:32 UTC 2017 - astieger@suse.com
+Tue Jul  4 20:08:47 UTC 2017 - wr@rosenauer.org
 
-- Mozilla Firefox 52.2.1esr:
-  * Printing text does not work on Windows when Direct2D is
-    disabled (bmo#1318845)
-
--------------------------------------------------------------------
-Wed Jun 14 07:08:29 UTC 2017 - wr@rosenauer.org
-
-- update to Firefox 52.2esr (boo#1043960)
-  MFSA 2017-16
-  * CVE-2017-5472 (bmo#1365602)
-    Use-after-free using destroyed node when regenerating trees
-  * CVE-2017-7749 (bmo#1355039)
-    Use-after-free during docshell reloading
-  * CVE-2017-7750 (bmo#1356558)
-    Use-after-free with track elements
-  * CVE-2017-7751 (bmo#1363396)
-    Use-after-free with content viewer listeners
-  * CVE-2017-7752 (bmo#1359547)
-    Use-after-free with IME input
-  * CVE-2017-7754 (bmo#1357090)
-    Out-of-bounds read in WebGL with ImageInfo object
-  * CVE-2017-7755 (bmo#1361326)
-    Privilege escalation through Firefox Installer with same
-    directory DLL files (Windows only)
-  * CVE-2017-7756 (bmo#1366595)
-    Use-after-free and use-after-scope logging XHR header errors
-  * CVE-2017-7757 (bmo#1356824)
-    Use-after-free in IndexedDB
-  * CVE-2017-7778, CVE-2017-7778, CVE-2017-7771, CVE-2017-7772,
-    CVE-2017-7773, CVE-2017-7774, CVE-2017-7775, CVE-2017-7776,
-    CVE-2017-7777
-    Vulnerabilities in the Graphite 2 library
-  * CVE-2017-7758 (bmo#1368490)
-    Out-of-bounds read in Opus encoder
-  * CVE-2017-7760 (bmo#1348645)
-    File manipulation and privilege escalation via callback parameter
-    in Mozilla Windows Updater and Maintenance Service (Windows only)
-  * CVE-2017-7761 (bmo#1215648)
-    File deletion and privilege escalation through Mozilla Maintenance
-    Service helper.exe application (Windows only)
-  * CVE-2017-7764 (bmo#1364283)
-    Domain spoofing with combination of Canadian Syllabics and other
-    unicode blocks
-  * CVE-2017-7765 (bmo#1273265)
-    Mark of the Web bypass when saving executable files (Windows only)
-  * CVE-2017-7766 (bmo#1342742)
-    File execution and privilege escalation through updater.ini,
-    Mozilla Windows Updater, and Mozilla Maintenance Service
-    (Windows only)
-  * CVE-2017-7767 (bmo#1336964)
-    Privilege escalation and arbitrary file overwrites through Mozilla
-    Windows Updater and Mozilla Maintenance Service (Windows only)
-  * CVE-2017-7768 (bmo#1336979)
-    32 byte arbitrary file read through Mozilla Maintenance Service
-    (Windows only)
-  * CVE-2017-5470
-    Memory safety bugs fixed in Firefox 54 and Firefox ESR 52.2
-- requires NSS 3.28.5
+- update to Firefox 54.0.1
+  * Fix a display issue of tab title (bmo#1357656)
+  * Fix a display issue of opening new tab (bmo#1371995)
+  * Fix a display issue when opening multiple tabs (bmo#1371962)
+  * Fix a tab display issue when downloading files (bmo#1373109)
+  * Fix a PDF printing issue (bmo#1366744)
+  * Fix a Netflix issue on Linux (bmo#1375708)
 
 -------------------------------------------------------------------
-Tue May 23 14:00:40 UTC 2017 - wr@rosenauer.org
+Thu Jun 15 13:56:05 UTC 2017 - wr@rosenauer.org
+
+- update to Firefox 54.0
+  * Clearer and more detailed information for download items in the
+    download panel
+  * Added Burmese (my) locale
+  * Bookmarks created on mobile devices are now shown in
+    "Mobile Bookmarks” folder in the drop down list from the toolbar
+    and Bookmarks option in the menu bar in Desktop Firefox
+  * added support for multiple content processes (e10s-multi)
+- requires NSPR 4.14 and NSS 3.30.2
+- requires rust 1.15.1
+- removed mozilla-shared-nss-db.patch as it seems to be a rather
+  unused feature
+
+-------------------------------------------------------------------
+Thu Jun  1 04:25:05 UTC 2017 - kah0922@gmail.com
 
 - remove -fno-inline-small-functions and explicitely optimize with
   -O2 for openSUSE > 13.2/Leap 42 to work with gcc7 (boo#1040105)
 
 -------------------------------------------------------------------
-Mon May  8 08:28:17 UTC 2017 - wr@rosenauer.org
+Wed Apr 26 12:37:38 UTC 2017 - wr@rosenauer.org
 
-- update to Firefox 52.1.1
-  MFSA 2017-14
-  * CVE-2017-5031: Use after free in ANGLE (bmo#1328762)
-                   (Windows only, Linux not affected)
 - switch to Mozilla's geolocation service (boo#1026989)
 - removed mozilla-preferences.patch obsoleted by overriding via
   firefox.js
@@ -804,10 +1691,27 @@ Mon May  8 08:28:17 UTC 2017 - wr@rosenauer.org
   (boo#1015998)
 
 -------------------------------------------------------------------
-Wed Apr 12 21:43:16 UTC 2017 - wr@rosenauer.org
+Mon Apr 17 12:52:10 UTC 2017 - wr@rosenauer.org
 
-- update to Firefox 52.1.0esr (boo#1035082)
-  MFSA 2017-12
+- update to Firefox 53.0
+  * requires NSS 3.29.5
+  * Lightweight themes are now applied in private browsing windows
+  * Reader Mode now displays estimated reading time for the page
+  * Two new 'compact' themes available in Firefox, dark and light,
+    based on the Firefox Developer Edition theme
+  * Ended Firefox Linux support for processors older than Pentium 4
+    and AMD Opteron
+  * Refresh of the media controls user interface
+  * Shortened titles on tabs are faded out instead of using ellipsis
+    for improved readability
+  * Media playback on new tabs is blocked until the tab is visible
+  * Permission notifications have a cleaner design and cannot be
+    easily missed
+  MFSA 2017-10
+  * CVE-2017-5456 (bmo#1344415)
+    Sandbox escape allowing local file system access
+  * CVE-2017-5442 (bmo#1347979)
+    Use-after-free during style changes
   * CVE-2017-5443 (bmo#1342661)
     Out-of-bounds write during BinHex decoding
   * CVE-2017-5429 (bmo#1341096, bmo#1342823, bmo#1343261, bmo#1348894,
@@ -839,8 +1743,8 @@ Wed Apr 12 21:43:16 UTC 2017 - wr@rosenauer.org
   * CVE-2017-5445 (bmo#1344467)
     Uninitialized values used while parsing application/http-index-format
     content
-  * CVE-2017-5442 (bmo#1347979)
-    Use-after-free during style changes
+  * CVE-2017-5468 (bmo#1329521)
+    Incorrect ownership model for Private Browsing information
   * CVE-2017-5469 (bmo#1292534)
     Potential Buffer overflow in flex-generated code
   * CVE-2017-5440 (bmo#1336832)
@@ -864,34 +1768,31 @@ Wed Apr 12 21:43:16 UTC 2017 - wr@rosenauer.org
   * CVE-2017-5432 (bmo#1346654)
     Use-after-free in text input selection
   * CVE-2017-5430 (bmo#1329796, bmo#1337418, bmo#1339722, bmo#1340482,
-     bmo#1342101, bmo#1344081, bmo#1344305, bmo#1344686, bmo#1346140,
-     bmo#1346419, bmo#1348143, bmo#1349621, bmo#1349719, bmo#1353476)
+     bmo#1342101, bmo#1344081, bmo#1344305, bmo#1344686,
+     bmo#1346140, bmo#1346419, bmo#1348143, bmo#1349621,
+     bmo#1349719, bmo#1353476)
     Memory safety bugs fixed in Firefox 53 and Firefox ESR 52.1
   * CVE-2017-5459 (bmo#1333858)
     Buffer overflow in WebGL
-  * CVE-2017-5462 (bmo#1345089)
-    DRBG flaw in NSS
+  * CVE-2017-5458 (bmo#1229426)
+    Drag and drop of javascript: URLs can allow for self-XSS
   * CVE-2017-5455 (bmo#1341191)
     Sandbox escape through internal feed reader APIs
   * CVE-2017-5454 (bmo#1349276)
-    Sandbox escape allowing file system read access through file
-    picker
-  * CVE-2017-5456 (bmo#1344415)
-    Sandbox escape allowing local file system access
+    Sandbox escape allowing file system read access through file picker
   * CVE-2017-5451 (bmo#1273537)
     Addressbar spoofing with onblur event
-- requires NSS 3.28.4
-- rebased patches
-
--------------------------------------------------------------------
-Mon Apr  3 06:28:34 UTC 2017 - wr@rosenauer.org
-
-- switch package to use ESR52 branch
-  * enables plugin support by default
-  * service workers are disabled by default
-  * push notifications are disabled by default
-  * WebAssembly (wasm) is disabled
-  * Less use of multiprocess architecture Electrolysis (e10s)
+  * CVE-2017-5453 (bmo#1321247)
+    HTML injection into RSS Reader feed preview page through
+    TITLE element
+  * CVE-2017-5462 (bmo#1345089)
+    DRBG flaw in NSS
+- removed browser(npapi) provides as these plugins are deprecated
+- switch used compiler to gcc5 (FF requires gcc >= 4.9 now) for
+  Leap 42
+- Gtk2 is not longer an option; switched to Gtk3
+- apply MOZ_USE_XINPUT2=1 for better touchpad and touchscreen support
+  (boo#1032003)
 
 -------------------------------------------------------------------
 Mon Apr  3 06:16:26 UTC 2017 - wr@rosenauer.org
@@ -1973,7 +2874,7 @@ Sat Sep 19 20:23:29 UTC 2015 - wr@rosenauer.org
 - removed obsolete patches
   * mozilla-arm64-libjpeg-turbo.patch
 
--------------------------------------------------------------------
+------------------------------------------------------------------
 Thu Aug 27 06:03:51 UTC 2015 - wr@rosenauer.org
 
 - update to Firefox 40.0.3 (bnc#943550)
