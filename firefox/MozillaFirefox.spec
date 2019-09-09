@@ -83,7 +83,7 @@ BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.21
 BuildRequires:  mozilla-nss-devel >= 3.44.1
 BuildRequires:  nasm >= 2.13
-BuildRequires:  nodejs >= 8.11
+BuildRequires:  nodejs8 >= 8.11
 BuildRequires:  python-devel
 BuildRequires:  python2-xml
 BuildRequires:  python3 >= 3.5
@@ -305,7 +305,7 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
-%ifarch s390x
+%ifarch s390x ppc64
 %patch11 -p1
 %endif
 %patch12 -p1
@@ -446,7 +446,7 @@ ac_add_options --with-arch=armv7-a
 ac_add_options --disable-webrtc
 %endif
 # mitigation/workaround for bmo#1512162
-%ifarch ppc64le
+%ifarch ppc64le s390x
 ac_add_options --enable-optimize="-O1"
 %endif
 %ifarch x86_64
