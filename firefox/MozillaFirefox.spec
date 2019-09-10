@@ -27,6 +27,7 @@
 %define releasedate    20190826132627
 %define source_prefix  firefox-%{orig_version}
 
+# https://bugzilla.suse.com/show_bug.cgi?id=1138688
 # always build with GCC as SUSE Security Team requires that
 %define clang_build 0
 
@@ -137,7 +138,7 @@ License:        MPL-2.0
 Group:          Productivity/Networking/Web/Browsers
 Url:            http://www.mozilla.org/
 %if !%{with only_print_mozconfig}
-Source:         http://ftp.mozilla.org/pub/firefox/releases/%{version}%{orig_suffix}/source/firefox-%{orig_version}%{orig_suffix}.source.tar.xz
+Source:         http://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{orig_suffix}/source/%{progname}-%{orig_version}%{orig_suffix}.source.tar.xz
 Source1:        MozillaFirefox.desktop
 Source2:        MozillaFirefox-rpmlintrc
 Source3:        mozilla.sh.in
@@ -184,6 +185,7 @@ Patch19:        mozilla-bmo1504834-part3.patch
 Patch20:        mozilla-bmo1511604.patch
 Patch21:        mozilla-bmo1554971.patch
 Patch22:        mozilla-nestegg-big-endian.patch
+Patch23:        mozilla-bmo1512162.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -319,6 +321,7 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
+%patch23 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
