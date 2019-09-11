@@ -18,6 +18,13 @@
 
 
 # changed with every update
+# orig_version vs. mainver: To have beta-builds
+# FF70beta3 would be released as FF69.99
+# orig_version would be the upstream tar ball
+# orig_version 70.0
+# orig_suffix b3
+# major 69
+# mainver %major.99
 %define major          68
 %define mainver        %major.1.0
 %define orig_version   68.1.0
@@ -488,7 +495,7 @@ make -C browser/installer STRIP=/bin/true MOZ_PKG_FATAL_WARNINGS=0
 grep amazondotcom dist/firefox/browser/omni.ja
 # copy tree into RPM_BUILD_ROOT
 mkdir -p %{buildroot}%{progdir}
-cp -rf $RPM_BUILD_DIR/obj/dist/firefox/* %{buildroot}%{progdir}
+cp -rf $RPM_BUILD_DIR/obj/dist/%{progname}/* %{buildroot}%{progdir}
 mkdir -p %{buildroot}%{progdir}/distribution/extensions
 mkdir -p %{buildroot}%{progdir}/browser/defaults/preferences/
 # install gre prefs

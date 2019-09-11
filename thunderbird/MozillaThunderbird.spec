@@ -18,20 +18,21 @@
 
 
 # changed with every update
-%define major 68
-%define mainver %major.0
-%define version_postfix b2
+%define major          68
+%define mainver        %major.1.0
+%define orig_version   68.1.0
+%define orig_suffix    %{nil}
 %define update_channel release
-%define branding 1
-%define releasedate 20190522150740
-%define source_prefix thunderbird-%{mainver}
+%define branding       1
+%define releasedate    20190522150740
+%define source_prefix  thunderbird-%{orig_version}
 
 # https://bugzilla.suse.com/show_bug.cgi?id=1138688
 # always build with GCC as SUSE Security Team requires that
 # TODO: Deactivate this as the next step
-%define clang_build 1
+%define clang_build 0
 
-# PIE, full relro (x86_64 for now)
+# PIE, full relro
 %define build_hardened 1
 
 %bcond_with only_print_mozconfig
@@ -71,28 +72,26 @@ BuildRequires:  gcc7-c++
 %else
 BuildRequires:  gcc-c++
 %endif
-BuildRequires:  cargo >= 1.32
+BuildRequires:  cargo >= 1.34
 BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
 BuildRequires:  libidl-devel
 BuildRequires:  libnotify-devel
+BuildRequires:  libproxy-devel
 BuildRequires:  mozilla-nspr-devel >= 4.21
 BuildRequires:  mozilla-nss-devel >= 3.44.1
 BuildRequires:  nasm >= 2.13
-BuildRequires:  nodejs10 >= 8.11
+BuildRequires:  nodejs8 >= 8.11
 BuildRequires:  python-devel
 BuildRequires:  python2-xml
 BuildRequires:  python3 >= 3.5
-# Rust version bump for packaging changes only, Firefox can build with older rust
-# Upstream Firefox ESR 60.x presumes rust-1.24
-# openSUSE and SLE use improved packaging in rust >= 1.30
-# Use RUSTFLAGS="--cap-lints allow" to allow building, see below
 BuildRequires:  rust >= 1.34
-BuildRequires:  rust-cbindgen >= 0.8.2
+BuildRequires:  rust-cbindgen >= 0.8.7
 BuildRequires:  startup-notification-devel
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
 BuildRequires:  xorg-x11-libXt-devel
+BuildRequires:  xvfb-run
 BuildRequires:  yasm
 BuildRequires:  zip
 %if 0%{?suse_version} < 1550
@@ -138,40 +137,51 @@ Provides:       mozilla-kde4-version = %{kde_helper_version}
 Summary:        The Stand-Alone Mozilla Mail Component
 License:        MPL-2.0
 Group:          Productivity/Networking/Email/Clients
-Url:            http://www.mozilla.org/products/thunderbird/
+Url:            https://www.thunderbird.net/
 %if !%{with only_print_mozconfig}
-Source:         http://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{version_postfix}/source/%{progname}-%{version}%{version_postfix}.source.tar.xz
+Source:         http://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{orig_suffix}/source/%{progname}-%{orig_version}%{orig_suffix}.source.tar.xz
 Source1:        thunderbird.desktop
 Source2:        thunderbird-rpmlintrc
 Source3:        mozilla.sh.in
+Source4:        tar_stamps
 Source6:        kde.js
-Source7:        l10n-%{version}%{version_postfix}.tar.xz
+Source7:        l10n-%{orig_version}%{orig_suffix}.tar.xz
 Source9:        suse-default-prefs.js
 Source10:       compare-locales.tar.xz
 Source13:       spellcheck.js
-Source14:       create-tar.sh
+Source14:       https://github.com/openSUSE/firefox-scripts/raw/master/create-tar.sh
 Source15:       thunderbird.appdata.xml
 Source16:       MozillaThunderbird.changes
-Source20:       https://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{version_postfix}/source/%{progname}-%{version}%{version_postfix}.source.tar.xz.asc
-Source21:       https://ftp.mozilla.org/pub/%{progname}/releases/%{version}/KEY#/%{name}.keyring
+Source20:       https://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{orig_suffix}/source/%{progname}-%{orig_version}%{orig_suffix}.source.tar.xz.asc
+Source21:       https://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{orig_suffix}/KEY#/mozilla.keyring
 # Gecko/Toolkit
 Patch1:         mozilla-nongnome-proxies.patch
 Patch2:         mozilla-kde.patch
 Patch3:         mozilla-ntlm-full-path.patch
 Patch4:         mozilla-openaes-decl.patch
-Patch6:         mozilla-reduce-files-per-UnifiedBindings.patch
-Patch7:         mozilla-aarch64-startup-crash.patch
-Patch8:         mozilla-bmo1555530.patch
-Patch9:         mozilla-gcc-internal-compiler-error.patch
-Patch10:        mozilla-cubeb-noreturn.patch
-Patch15:        mozilla-bmo1005535.patch
-Patch18:        mozilla-s390-bigendian.patch
-Patch19:        mozilla-s390-context.patch
-Patch20:        mozilla-ppc-altivec_static_inline.patch
-Patch21:        mozilla-reduce-rust-debuginfo.patch
+Patch5:         mozilla-aarch64-startup-crash.patch
+Patch6:         mozilla-bmo1463035.patch
+Patch7:         mozilla-cubeb-noreturn.patch
+Patch8:         mozilla-fix-aarch64-libopus.patch
+Patch9:         mozilla-disable-wasm-emulate-arm-unaligned-fp-access.patch
+Patch10:        mozilla-s390-context.patch
+Patch11:        mozilla-s390-bigendian.patch
+Patch12:        mozilla-reduce-rust-debuginfo.patch
+Patch13:        mozilla-ppc-altivec_static_inline.patch
+Patch14:        mozilla-bmo1005535.patch
+Patch15:        mozilla-bmo1568145.patch
+Patch16:        mozilla-bmo1573381.patch
+Patch17:        mozilla-bmo1504834-part1.patch
+Patch18:        mozilla-bmo1504834-part2.patch
+Patch19:        mozilla-bmo1504834-part3.patch
+Patch20:        mozilla-bmo1511604.patch
+Patch21:        mozilla-bmo1554971.patch
+Patch22:        mozilla-nestegg-big-endian.patch
+Patch23:        mozilla-bmo1512162.patch
 %endif # only_print_mozconfig
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-PreReq:         coreutils fileutils textutils /bin/sh
+Requires(post):   coreutils shared-mime-info desktop-file-utils
+Requires(postun): shared-mime-info desktop-file-utils
 Requires:       mozilla-nspr >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 Requires:       mozilla-nss >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nss)
 Recommends:     libcanberra0
@@ -200,7 +210,7 @@ of %{appname}.
 %package translations-other
 Summary:        Extra translations for %{appname}
 Group:          System/Localization
-Provides:       locale(%{name}:ast;be;bg;bn_BD;br;et;eu;fy_NL;ga_IE;gd;gl;he;hr;hy_AM;id;is;lt;nn_NO;pa_IN;rm;ro;si;sk;sl;sq;sr;ta_LK;tr;uk;vi)
+Provides:       locale(%{name}:ach;af;an;as;ast;az;bg;bn_BD;bn_IN;br;bs;cak;cy;dsb;en_ZA;eo;es_MX;et;eu;fa;ff;fy_NL;ga_IE;gd;gl;gn;gu_IN;he;hi_IN;hr;hsb;hy_AM;id;is;ka;kab;kk;km;kn;lij;lt;lv;mai;mk;ml;mr;ms;ne-NP;nn_NO;oc;or;pa_IN;rm;ro;si;sk;sl;son;sq;sr;ta;te;th;tr;uk;uz;vi;xh)
 Requires:       %{name} = %{version}
 Obsoletes:      %{name}-translations < %{version}-%{release}
 
@@ -235,38 +245,38 @@ fi
 %else
 %setup -q -n %{source_prefix}
 %endif
+#cd $RPM_BUILD_DIR/%{source_prefix}
 %patch1 -p1
-%patch2 -p1
 %if %{with mozilla_tb_kde4}
+%patch2 -p1
+%endif
 %patch3 -p1
-%endif
 %patch4 -p1
-%ifarch %ix86
+%patch5 -p1
 %patch6 -p1
-%endif
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
-%ifarch %ix86
-#%patch9 -p1
+%ifarch s390x ppc64
+%patch11 -p1
 %endif
-%ifarch ppc ppc64 s390 s390x
+%patch12 -p1
+%patch13 -p1
+%patch14 -p1
 %patch15 -p1
-#%patch16 -p1
+%patch16 -p1
+%patch17 -p1
 %patch18 -p1
 %patch19 -p1
-%endif
 %patch20 -p1
 %patch21 -p1
+%patch22 -p1
+%patch23 -p1
 %endif # only_print_mozconfig
 
 %build
 %if !%{with only_print_mozconfig}
-#
-# Limit RAM usage to avoid OOM
-%limit_build -m 1500
-
 # no need to add build time to binaries
 modified="$(sed -n '/^----/n;s/ - .*$//;p;q' "%{_sourcedir}/%{name}.changes")"
 DATE="\"$(date -d "${modified}" "+%%b %%e %%Y")\""
@@ -286,6 +296,7 @@ export SUSE_ASNEEDED=0
 export MOZ_BUILD_DATE=%{releasedate}
 export MOZILLA_OFFICIAL=1
 export BUILD_OFFICIAL=1
+export MOZ_TELEMETRY_REPORTING=1
 %if %{update_channel} == "esr"
 export MOZ_ESR=1
 %endif
@@ -297,22 +308,12 @@ export CC=gcc
 export CXX=g++
 %endif
 %endif
-export CFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
-%if 0%{?suse_version} > 1320
-export CFLAGS="$CFLAGS -fno-delete-null-pointer-checks"
-%endif
-%ifarch %arm aarch64
-# no debug symbols on ARM to speed up build
-export CFLAGS="${CFLAGS/-g / }"
-%endif
-%ifarch %arm aarch64 %ix86
+%ifarch %arm %ix86
 # Limit RAM usage during link
 export LDFLAGS="${LDFLAGS} -Wl,--no-keep-memory -Wl,--reduce-memory-overheads"
 %endif
 %if 0%{?build_hardened}
-%ifarch x86_64
-export LDFLAGS="${LDFLAGS} -Wl,-z,relro,-z,now"
-%endif
+export LDFLAGS="${LDFLAGS} -fPIC -Wl,-z,relro,-z,now"
 %endif
 %ifarch ppc64 ppc64le
 %if 0%{?clang_build} == 0
@@ -320,21 +321,7 @@ export CFLAGS="$CFLAGS -mminimal-toc"
 %endif
 %endif
 export CXXFLAGS="$CFLAGS"
-# Set RUSTFLAGS to fix building with rust >= 1.33
-# boo#1130694 rust 1.33.0 breaks Firefox and Thunderbird
-# bmo#1539901 ESR 60 build fails with Rust 1.33 due to missing documentation on macros in stylo
-# bmo#1519629 Stylo fails with --enable-warnings-as-errors using Rust 1.33
-# Preferred alternative to patching and revendoring stylo rust crates
-# Revisit with intent to remove in next Firefox ESR 68.0 2019-07-09
-export RUSTFLAGS="--cap-lints allow"
-%ifarch %{arm} aarch64
-export RUSTFLAGS="-Cdebuginfo=0 --cap-lints allow"
-%endif
 export MOZCONFIG=$RPM_BUILD_DIR/mozconfig
-# -g might be part of RPM_OPT_FLAGS, depending on the debuginfo setting in prj config
-# gcc lacks a an explicit -noop, so use something similar to make sure -g
-# is not forced into CFLAGS
-export MOZ_DEBUG_FLAGS="-pipe"
 %if %{with only_print_mozconfig}
 echo "export CC=$CC"
 echo "export CXX=$CXX"
@@ -344,18 +331,12 @@ echo "export RUSTFLAGS=\"$RUSTFLAGS\""
 echo ""
 cat << EOF
 %else
+%limit_build -m 2000
 cat << EOF > $MOZCONFIG
 %endif
 mk_add_options MOZILLA_OFFICIAL=1
 mk_add_options BUILD_OFFICIAL=1
-mk_add_options MOZ_MILESTONE_RELEASE=1
-%if 0%{?suse_version} > 1320
-%ifarch i586
-mk_add_options MOZ_MAKE_FLAGS=-j1
-%else
 mk_add_options MOZ_MAKE_FLAGS=%{?jobs:-j%jobs}
-%endif
-%endif
 mk_add_options MOZ_OBJDIR=$RPM_BUILD_DIR/obj
 ac_add_options --prefix=%{_prefix}
 ac_add_options --libdir=%{_libdir}
@@ -364,25 +345,19 @@ ac_add_options --enable-application=comm/mail
 ac_add_options --enable-calendar
 ac_add_options --enable-release
 ac_add_options --enable-default-toolkit=cairo-gtk3
-# gcc7 (boo#104105)
-%if 0%{?suse_version} > 1320
-ac_add_options --enable-optimize="-g -O2"
-%endif
-%ifarch %ix86 %arm aarch64
-%if 0%{?suse_version} > 1230
-#ac_add_options --disable-optimize
-%endif
-%endif
-%ifarch %arm
-ac_add_options --disable-elf-hack
-%endif
-%ifarch x86_64
-%if 0%{?suse_version} >= 1550
-ac_add_options --disable-elf-hack
-%endif
-%endif
 %if 0%{?suse_version} >= 1550
 ac_add_options --disable-gconf
+%endif
+# bmo#1441155 - Disable the generation of Rust debug symbols on Linux32
+%ifarch %ix86 %arm
+ac_add_options --disable-debug-symbols
+%else
+ac_add_options --enable-debug-symbols
+%endif
+%if 0%{?suse_version} > 1549
+%ifnarch aarch64 ppc64 ppc64le s390x
+ac_add_options --disable-elf-hack
+%endif
 %endif
 ac_add_options --with-system-nspr
 ac_add_options --with-system-nss
@@ -392,14 +367,6 @@ ac_add_options --with-l10n-base=$RPM_BUILD_DIR/l10n
 #ac_add_options --with-system-jpeg    # libjpeg-turbo is used internally
 #ac_add_options --with-system-png     # doesn't work because of missing APNG support
 ac_add_options --with-system-zlib
-%ifarch %power64 s390x s390
-# jemalloc is broken on (some) secondary architectures, definitely on ppc64le
-ac_add_options --disable-jemalloc
-# NOTE: Currently, system-icu is too old, so we can't build with that,
-#       but have to generate the .dat-file freshly. This seems to be a
-#       less fragile approach anyways. See below (next line with echo)
-# ac_add_options --with-system-icu
-%endif
 ac_add_options --disable-updater
 ac_add_options --disable-tests
 ac_add_options --enable-alsa
@@ -414,15 +381,39 @@ ac_add_options --with-unsigned-addon-scopes=app
 %if %branding
 ac_add_options --enable-official-branding
 %endif
+ac_add_options --enable-libproxy
 %if ! %crashreporter
 ac_add_options --disable-crashreporter
 %endif
+%ifarch %arm
+ac_add_options --with-fpu=vfpv3-d16
+ac_add_options --with-float-abi=hard
+%ifarch armv6l armv6hl
+ac_add_options --with-arch=armv6
+%else
+ac_add_options --with-arch=armv7-a
+%endif
+%endif
+%ifarch aarch64 %arm s390x
+ac_add_options --disable-webrtc
+%endif
+# mitigation/workaround for bmo#1512162
+%ifarch ppc64le s390x
+ac_add_options --enable-optimize="-O1"
+%endif
+%ifarch x86_64
+# LTO needs newer toolchain stack only (at least GCC 8.2.1 (r268506)
+%if 0%{?suse_version} > 1500
+ac_add_options --enable-lto
+ac_add_options MOZ_PGO=1
+%endif
+%endif
+
 %if %{with mozilla_tb_valgrind}
 ac_add_options --disable-jemalloc
 ac_add_options --enable-valgrind
 %endif
 EOF
-
 %if !%{with only_print_mozconfig}
 %ifarch ppc64 s390x s390
 # NOTE: Currently, system-icu is too old, so we can't build with that,
@@ -434,8 +425,7 @@ echo "Generate big endian version of config/external/icu/data/icud58l.dat"
 ls -l config/external/icu/data
 rm -f config/external/icu/data/icudt*l.dat
 %endif
-
-./mach build
+xvfb-run --server-args="-screen 0 1920x1080x24" ./mach build
 %endif # only_print_mozconfig
 
 %install
@@ -443,7 +433,7 @@ cd $RPM_BUILD_DIR/obj
 make -C comm/mail/installer STRIP=/bin/true MOZ_PKG_FATAL_WARNINGS=0
 # copy tree into RPM_BUILD_ROOT
 mkdir -p %{buildroot}%{progdir}
-cp -rf $RPM_BUILD_DIR/obj/dist/thunderbird/* %{buildroot}%{progdir}
+cp -rf $RPM_BUILD_DIR/obj/dist/%{progname}/* %{buildroot}%{progdir}
 install -m 644 %{SOURCE13} %{buildroot}%{progdir}/defaults/pref/
 %if %{with mozilla_tb_kde4}
 # install kde.js
@@ -484,10 +474,12 @@ find %{buildroot}%{progdir} \
      -name "*.rdf" -o \
      -name "*.properties" -o \
      -name "*.dtd" -o \
+     -name "*.txt" -o \
+     -name "*.xml" -o \
      -name "*.css" \
      -exec chmod a-x {} +
 # remove mkdir.done files from installed base
-find $RPM_BUILD_ROOT%{progdir} -type f -name ".mkdir.done" -delete -print
+find %{buildroot}%{progdir} -type f -name ".mkdir.done" -delete
 # overwrite the mozilla start-script and link it to /usr/bin
 mkdir --parents %{buildroot}%{_bindir}/
 sed "s:%%PREFIX:%{_prefix}:g
@@ -499,7 +491,10 @@ chmod 755 %{buildroot}%{progdir}/%{progname}.sh
 ln -sf ../..%{progdir}/%{progname}.sh %{buildroot}%{_bindir}/%{progname}
 # desktop file
 mkdir -p %{buildroot}%{_datadir}/applications
-install -m 644 %{SOURCE1} %{buildroot}%{_datadir}/applications/%{desktop_file_name}.desktop
+sed "s:%%NAME:%{appname}:g
+s:%%EXEC:%{progname}:g
+s:%%ICON:%{progname}:g" \
+  %{SOURCE1} > %{buildroot}%{_datadir}/applications/%{desktop_file_name}.desktop
 %suse_update_desktop_file %{desktop_file_name} Network Email GTK
 # appdata
 mkdir -p %{buildroot}%{_datadir}/appdata
@@ -535,10 +530,12 @@ rm -f %{buildroot}%{progdir}/nspr-config
 %fdupes %{buildroot}%{progdir}
 %fdupes %{buildroot}%{_libdir}/mozilla
 %fdupes %{buildroot}%{_datadir}
+# create breakpad debugsymbols
 %if %crashreporter
 SYMBOLS_NAME="thunderbird-%{version}-%{release}.%{_arch}-%{suse_version}-symbols"
 make buildsymbols \
   SYMBOL_INDEX_NAME="$SYMBOLS_NAME.txt" \
+  SYMBOL_FULL_ARCHIVE_BASENAME="$SYMBOLS_NAME-full" \
   SYMBOL_ARCHIVE_BASENAME="$SYMBOLS_NAME"
 if [ -e dist/*symbols.zip ]; then
   mkdir -p %{buildroot}%{_datadir}/mozilla/
@@ -553,11 +550,16 @@ rm -rf %{_tmppath}/translations.*
 %endif
 
 %post
+# update mime and desktop database
+%mime_database_post
+%desktop_database_post
 %icon_theme_cache_post
 exit 0
 
 %postun
 %icon_theme_cache_postun
+%desktop_database_postun
+%mime_database_postun
 exit 0
 
 %files
