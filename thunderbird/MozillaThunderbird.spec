@@ -50,8 +50,8 @@
 %define desktop_file_name %{progname}
 %define __provides_exclude ^lib.*\\.so.*$
 %define __requires_exclude ^(libmoz.*|liblgpllibs.*|libxul.*|libldap.*|libldif.*|libprldap.*)$
-# TODO: Reactivate this!
-%define localize 0
+
+%define localize 1
 %ifarch %ix86 x86_64
 %define crashreporter 1
 %else
@@ -178,6 +178,8 @@ Patch20:        mozilla-bmo1511604.patch
 Patch21:        mozilla-bmo1554971.patch
 Patch22:        mozilla-nestegg-big-endian.patch
 Patch23:        mozilla-bmo1512162.patch
+# Thunderbird
+Patch101:       thunderbird-broken-locales-build.patch
 %endif # only_print_mozconfig
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post):   coreutils shared-mime-info desktop-file-utils
@@ -273,6 +275,7 @@ fi
 %patch21 -p1
 %patch22 -p1
 %patch23 -p1
+%patch101 -p1
 %endif # only_print_mozconfig
 
 %build
@@ -442,6 +445,7 @@ install -m 644 %{SOURCE9} %{buildroot}%{progdir}/defaults/pref/all-thunderbird.j
 %endif
 # build additional locales
 %if %localize
+mkdir -p %{buildroot}%{progdir}/extensions/
 truncate -s 0 %{_tmppath}/translations.{common,other}
 sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{source_prefix}/comm/mail/locales/shipped-locales \
     | xargs -P 8 -n 1 -I {} /bin/sh -c '
@@ -599,9 +603,11 @@ exit 0
 %if %localize
 %files translations-common -f %{_tmppath}/translations.common
 %defattr(-,root,root)
+%dir %{progdir}/extensions/
 
 %files translations-other -f %{_tmppath}/translations.other
 %defattr(-,root,root)
+%dir %{progdir}/extensions/
 %endif
 
 %if %crashreporter
