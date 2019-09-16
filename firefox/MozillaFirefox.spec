@@ -90,18 +90,25 @@ BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.21
 BuildRequires:  mozilla-nss-devel >= 3.44.1
+%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000 && !0%{?is_opensuse}
+BuildRequires:  firefox-nasm >= 2.13
+BuildRequires:  nodejs8 >= 8.11
+#BuildRequires:  python2-xml
+BuildRequires:  firefox-python3 >= 3.5
+%else
 BuildRequires:  nasm >= 2.13
 BuildRequires:  nodejs8 >= 8.11
-BuildRequires:  python-devel
 BuildRequires:  python2-xml
 BuildRequires:  python3 >= 3.5
+BuildRequires:  xvfb-run
+%endif
+BuildRequires:  python-devel
 BuildRequires:  rust >= 1.34
 BuildRequires:  rust-cbindgen >= 0.8.7
 BuildRequires:  startup-notification-devel
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
 BuildRequires:  xorg-x11-libXt-devel
-BuildRequires:  xvfb-run
 BuildRequires:  yasm
 BuildRequires:  zip
 %if 0%{?suse_version} < 1550
@@ -478,7 +485,14 @@ echo "Generate big endian version of config/external/icu/data/icud58l.dat"
 ls -l config/external/icu/data
 rm -f config/external/icu/data/icudt*l.dat
 %endif
+%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000 && !0%{?is_opensuse}
+export PATH=/usr/%_lib/firefox/bin:$PATH
+export LD_LIBRARY_PATH=/usr/%_lib/firefox/%_lib:$LD_LIBRARY_PATH
+export PKG_CONFIG_PATH=/usr/%_lib/firefox/%_lib/pkgconfig/
+./mach build
+%else
 xvfb-run --server-args="-screen 0 1920x1080x24" ./mach build
+%endif
 %endif # only_print_mozconfig
 
 %install
