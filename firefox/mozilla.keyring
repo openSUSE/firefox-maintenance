@@ -1,17 +1,6 @@
-This file contains the PGP keys of various developers that work on
-Mozilla and its subprojects (such as Firefox and Thunderbird).
-
-Please realize that this file itself or the public key servers may be
-compromised.  You are encouraged to validate the authenticity of these keys in
-an out-of-band manner.
-
-Mozilla users: pgp < KEY
-
 pub   rsa4096 2015-07-17 [SC]
       14F26682D0916CDD81E37B6D61B7B526D98F0353
-uid           [  full  ] Mozilla Software Releases <release@mozilla.com>
-sub   rsa4096 2015-07-17 [S] [expires: 2017-07-16]
-sub   rsa4096 2017-06-22 [S] [expires: 2019-06-22]
+uid           [ unknown] Mozilla Software Releases <release@mozilla.com>
 sub   rsa4096 2019-05-30 [S] [expires: 2021-05-29]
 
 -----BEGIN PGP PUBLIC KEY BLOCK-----

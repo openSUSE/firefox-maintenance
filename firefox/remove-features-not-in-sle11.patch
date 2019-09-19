@@ -1,0 +1,561 @@
+# HG changeset patch
+# Parent  5d3469aabe61961ad8e6506c2910e36efb80f340
+
+diff -r 5d3469aabe61 config/system-headers.mozbuild
+--- a/config/system-headers.mozbuild	Tue Sep 10 12:42:13 2019 +0200
++++ b/config/system-headers.mozbuild	Wed Sep 18 11:03:20 2019 +0200
+@@ -1020,8 +1020,6 @@
+     'X11/extensions/Print.h',
+     'X11/extensions/scrnsaver.h',
+     'X11/extensions/shape.h',
+-    'X11/extensions/Xcomposite.h',
+-    'X11/extensions/Xdamage.h',
+     'X11/extensions/Xfixes.h',
+     'X11/extensions/Xrender.h',
+     'X11/extensions/XShm.h',
+diff -r 5d3469aabe61 js/src/threading/posix/Thread.cpp
+--- a/js/src/threading/posix/Thread.cpp	Tue Sep 10 12:42:13 2019 +0200
++++ b/js/src/threading/posix/Thread.cpp	Wed Sep 18 11:03:20 2019 +0200
+@@ -161,7 +161,8 @@
+ #elif defined(__NetBSD__)
+   rv = pthread_setname_np(pthread_self(), "%s", (void*)name);
+ #else
+-  rv = pthread_setname_np(pthread_self(), name);
++//  rv = pthread_setname_np(pthread_self(), name);
++  rv = 0;
+ #endif
+   MOZ_RELEASE_ASSERT(!rv || mozilla::recordreplay::IsRecordingOrReplaying());
+ }
+diff -r 5d3469aabe61 media/webrtc/gn-configs/x64_False_x64_linux.json
+--- a/media/webrtc/gn-configs/x64_False_x64_linux.json	Tue Sep 10 12:42:13 2019 +0200
++++ b/media/webrtc/gn-configs/x64_False_x64_linux.json	Wed Sep 18 11:03:20 2019 +0200
+@@ -143,9 +143,7 @@
+                 "X11",
+                 "X11-xcb",
+                 "xcb",
+-                "Xcomposite",
+                 "Xcursor",
+-                "Xdamage",
+                 "Xext",
+                 "Xfixes",
+                 "Xi",
+@@ -10649,9 +10647,7 @@
+                 "X11",
+                 "X11-xcb",
+                 "xcb",
+-                "Xcomposite",
+                 "Xcursor",
+-                "Xdamage",
+                 "Xext",
+                 "Xfixes",
+                 "Xi",
+@@ -10861,9 +10857,7 @@
+                 "X11",
+                 "X11-xcb",
+                 "xcb",
+-                "Xcomposite",
+                 "Xcursor",
+-                "Xdamage",
+                 "Xext",
+                 "Xfixes",
+                 "Xi",
+diff -r 5d3469aabe61 media/webrtc/gn-configs/x64_False_x86_linux.json
+--- a/media/webrtc/gn-configs/x64_False_x86_linux.json	Tue Sep 10 12:42:13 2019 +0200
++++ b/media/webrtc/gn-configs/x64_False_x86_linux.json	Wed Sep 18 11:03:20 2019 +0200
+@@ -149,9 +149,7 @@
+                 "X11",
+                 "X11-xcb",
+                 "xcb",
+-                "Xcomposite",
+                 "Xcursor",
+-                "Xdamage",
+                 "Xext",
+                 "Xfixes",
+                 "Xi",
+@@ -11217,9 +11215,7 @@
+                 "X11",
+                 "X11-xcb",
+                 "xcb",
+-                "Xcomposite",
+                 "Xcursor",
+-                "Xdamage",
+                 "Xext",
+                 "Xfixes",
+                 "Xi",
+@@ -11440,9 +11436,7 @@
+                 "X11",
+                 "X11-xcb",
+                 "xcb",
+-                "Xcomposite",
+                 "Xcursor",
+-                "Xdamage",
+                 "Xext",
+                 "Xfixes",
+                 "Xi",
+diff -r 5d3469aabe61 media/webrtc/gn-configs/x64_True_x64_linux.json
+--- a/media/webrtc/gn-configs/x64_True_x64_linux.json	Tue Sep 10 12:42:13 2019 +0200
++++ b/media/webrtc/gn-configs/x64_True_x64_linux.json	Wed Sep 18 11:03:20 2019 +0200
+@@ -140,9 +140,7 @@
+                 "X11",
+                 "X11-xcb",
+                 "xcb",
+-                "Xcomposite",
+                 "Xcursor",
+-                "Xdamage",
+                 "Xext",
+                 "Xfixes",
+                 "Xi",
+@@ -10364,9 +10362,7 @@
+                 "X11",
+                 "X11-xcb",
+                 "xcb",
+-                "Xcomposite",
+                 "Xcursor",
+-                "Xdamage",
+                 "Xext",
+                 "Xfixes",
+                 "Xi",
+@@ -10570,9 +10566,7 @@
+                 "X11",
+                 "X11-xcb",
+                 "xcb",
+-                "Xcomposite",
+                 "Xcursor",
+-                "Xdamage",
+                 "Xext",
+                 "Xfixes",
+                 "Xi",
+diff -r 5d3469aabe61 media/webrtc/gn-configs/x64_True_x86_linux.json
+--- a/media/webrtc/gn-configs/x64_True_x86_linux.json	Tue Sep 10 12:42:13 2019 +0200
++++ b/media/webrtc/gn-configs/x64_True_x86_linux.json	Wed Sep 18 11:03:20 2019 +0200
+@@ -146,9 +146,7 @@
+                 "X11",
+                 "X11-xcb",
+                 "xcb",
+-                "Xcomposite",
+                 "Xcursor",
+-                "Xdamage",
+                 "Xext",
+                 "Xfixes",
+                 "Xi",
+@@ -10932,9 +10930,7 @@
+                 "X11",
+                 "X11-xcb",
+                 "xcb",
+-                "Xcomposite",
+                 "Xcursor",
+-                "Xdamage",
+                 "Xext",
+                 "Xfixes",
+                 "Xi",
+@@ -11149,9 +11145,7 @@
+                 "X11",
+                 "X11-xcb",
+                 "xcb",
+-                "Xcomposite",
+                 "Xcursor",
+-                "Xdamage",
+                 "Xext",
+                 "Xfixes",
+                 "Xi",
+diff -r 5d3469aabe61 media/webrtc/trunk/gtest/moz.build
+--- a/media/webrtc/trunk/gtest/moz.build	Tue Sep 10 12:42:13 2019 +0200
++++ b/media/webrtc/trunk/gtest/moz.build	Wed Sep 18 11:03:20 2019 +0200
+@@ -66,8 +66,6 @@
+         OS_LIBS += [
+             'rt',
+             'X11',
+-            'Xcomposite',
+-            'Xdamage',
+             'Xext',
+             'Xfixes',
+             'Xrandr',
+diff -r 5d3469aabe61 media/webrtc/trunk/webrtc/build/config/linux/BUILD.gn
+--- a/media/webrtc/trunk/webrtc/build/config/linux/BUILD.gn	Tue Sep 10 12:42:13 2019 +0200
++++ b/media/webrtc/trunk/webrtc/build/config/linux/BUILD.gn	Wed Sep 18 11:03:20 2019 +0200
+@@ -32,9 +32,7 @@
+     "X11",
+     "X11-xcb",
+     "xcb",
+-    "Xcomposite",
+     "Xcursor",
+-    "Xdamage",
+     "Xext",
+     "Xfixes",
+     "Xi",
+@@ -48,10 +46,6 @@
+   }
+ }
+ 
+-config("xcomposite") {
+-  libs = [ "Xcomposite" ]
+-}
+-
+ config("xext") {
+   libs = [ "Xext" ]
+ }
+diff -r 5d3469aabe61 media/webrtc/trunk/webrtc/build/experimental/install-build-deps.py
+--- a/media/webrtc/trunk/webrtc/build/experimental/install-build-deps.py	Tue Sep 10 12:42:13 2019 +0200
++++ b/media/webrtc/trunk/webrtc/build/experimental/install-build-deps.py	Wed Sep 18 11:03:20 2019 +0200
+@@ -140,9 +140,7 @@
+   'libx11-xcb1',
+   'libxau6',
+   'libxcb1',
+-  'libxcomposite1',
+   'libxcursor1',
+-  'libxdamage1',
+   'libxdmcp6',
+   'libxext6',
+   'libxfixes3',
+@@ -171,9 +169,7 @@
+   'libx11-xcb1-dbg',
+   'libxau6-dbg',
+   'libxcb1-dbg',
+-  'libxcomposite1-dbg',
+   'libxcursor1-dbg',
+-  'libxdamage1-dbg',
+   'libxdmcp6-dbg',
+   'libxext6-dbg',
+   'libxfixes3-dbg',
+@@ -230,9 +226,7 @@
+   'libtinfo-dev',
+   'libtinfo-dev:i386',
+   'libtool',
+-  'libxcomposite1:i386',
+   'libxcursor1:i386',
+-  'libxdamage1:i386',
+   'libxi6:i386',
+   'libxrandr2:i386',
+   'libxss1:i386',
+diff -r 5d3469aabe61 media/webrtc/trunk/webrtc/build/install-build-deps.sh
+--- a/media/webrtc/trunk/webrtc/build/install-build-deps.sh	Tue Sep 10 12:42:13 2019 +0200
++++ b/media/webrtc/trunk/webrtc/build/install-build-deps.sh	Wed Sep 18 11:03:20 2019 +0200
+@@ -249,9 +249,7 @@
+   libx11-xcb1
+   libxau6
+   libxcb1
+-  libxcomposite1
+   libxcursor1
+-  libxdamage1
+   libxdmcp6
+   libxext6
+   libxfixes3
+@@ -282,9 +280,7 @@
+   libx11-xcb1-dbg
+   libxau6-dbg
+   libxcb1-dbg
+-  libxcomposite1-dbg
+   libxcursor1-dbg
+-  libxdamage1-dbg
+   libxdmcp6-dbg
+   libxext6-dbg
+   libxi6-dbg
+@@ -388,9 +384,7 @@
+   libtinfo-dev
+   libtinfo-dev:i386
+   libtool
+-  libxcomposite1:i386
+   libxcursor1:i386
+-  libxdamage1:i386
+   libxi6:i386
+   libxrandr2:i386
+   libxss1:i386
+diff -r 5d3469aabe61 media/webrtc/trunk/webrtc/modules/desktop_capture/desktop_capture_gn/moz.build
+--- a/media/webrtc/trunk/webrtc/modules/desktop_capture/desktop_capture_gn/moz.build	Tue Sep 10 12:42:13 2019 +0200
++++ b/media/webrtc/trunk/webrtc/modules/desktop_capture/desktop_capture_gn/moz.build	Wed Sep 18 11:03:20 2019 +0200
+@@ -63,9 +63,7 @@
+         "X11",
+         "X11-xcb",
+         "xcb",
+-        "Xcomposite",
+         "Xcursor",
+-        "Xdamage",
+         "Xext",
+         "Xfixes",
+         "Xi",
+@@ -83,9 +81,7 @@
+         "X11",
+         "X11-xcb",
+         "xcb",
+-        "Xcomposite",
+         "Xcursor",
+-        "Xdamage",
+         "Xext",
+         "Xfixes",
+         "Xi",
+@@ -105,9 +101,7 @@
+         "X11",
+         "X11-xcb",
+         "xcb",
+-        "Xcomposite",
+         "Xcursor",
+-        "Xdamage",
+         "Xext",
+         "Xfixes",
+         "Xi",
+@@ -125,9 +119,7 @@
+         "X11",
+         "X11-xcb",
+         "xcb",
+-        "Xcomposite",
+         "Xcursor",
+-        "Xdamage",
+         "Xext",
+         "Xfixes",
+         "Xi",
+@@ -145,9 +137,7 @@
+         "X11",
+         "X11-xcb",
+         "xcb",
+-        "Xcomposite",
+         "Xcursor",
+-        "Xdamage",
+         "Xext",
+         "Xfixes",
+         "Xi",
+diff -r 5d3469aabe61 media/webrtc/trunk/webrtc/modules/desktop_capture/linux/screen_capturer_x11.cc
+--- a/media/webrtc/trunk/webrtc/modules/desktop_capture/linux/screen_capturer_x11.cc	Tue Sep 10 12:42:13 2019 +0200
++++ b/media/webrtc/trunk/webrtc/modules/desktop_capture/linux/screen_capturer_x11.cc	Wed Sep 18 11:03:20 2019 +0200
+@@ -12,7 +12,6 @@
+ 
+ #include <string.h>
+ 
+-#include <X11/extensions/Xdamage.h>
+ #include <X11/extensions/Xfixes.h>
+ #include <X11/Xlib.h>
+ #include <X11/Xutil.h>
+@@ -40,10 +39,6 @@
+ 
+ ScreenCapturerX11::~ScreenCapturerX11() {
+   options_.x_display()->RemoveEventHandler(ConfigureNotify, this);
+-  if (use_damage_) {
+-    options_.x_display()->RemoveEventHandler(
+-        damage_event_base_ + XDamageNotify, this);
+-  }
+   DeinitXlib();
+ }
+ 
+@@ -96,39 +91,7 @@
+     return;
+   }
+ 
+-  // Check for XDamage extension.
+-  if (!XDamageQueryExtension(display(), &damage_event_base_,
+-                             &damage_error_base_)) {
+-    RTC_LOG(LS_INFO) << "X server does not support XDamage.";
+-    return;
+-  }
+-
+-  // TODO(lambroslambrou): Disable DAMAGE in situations where it is known
+-  // to fail, such as when Desktop Effects are enabled, with graphics
+-  // drivers (nVidia, ATI) that fail to report DAMAGE notifications
+-  // properly.
+-
+-  // Request notifications every time the screen becomes damaged.
+-  damage_handle_ = XDamageCreate(display(), root_window_,
+-                                 XDamageReportNonEmpty);
+-  if (!damage_handle_) {
+-    RTC_LOG(LS_ERROR) << "Unable to initialize XDamage.";
+-    return;
+-  }
+-
+-  // Create an XFixes server-side region to collate damage into.
+-  damage_region_ = XFixesCreateRegion(display(), 0, 0);
+-  if (!damage_region_) {
+-    XDamageDestroy(display(), damage_handle_);
+-    RTC_LOG(LS_ERROR) << "Unable to create XFixes region.";
+-    return;
+-  }
+-
+-  options_.x_display()->AddEventHandler(
+-      damage_event_base_ + XDamageNotify, this);
+-
+-  use_damage_ = true;
+-  RTC_LOG(LS_INFO) << "Using XDamage extension.";
++  RTC_LOG(LS_INFO) << "X server does not support XDamage extension.";
+ }
+ 
+ void ScreenCapturerX11::Start(Callback* callback) {
+@@ -190,14 +153,7 @@
+ }
+ 
+ bool ScreenCapturerX11::HandleXEvent(const XEvent& event) {
+-  if (use_damage_ && (event.type == damage_event_base_ + XDamageNotify)) {
+-    const XDamageNotifyEvent* damage_event =
+-        reinterpret_cast<const XDamageNotifyEvent*>(&event);
+-    if (damage_event->damage != damage_handle_)
+-      return false;
+-    RTC_DCHECK(damage_event->level == XDamageReportNonEmpty);
+-    return true;
+-  } else if (event.type == ConfigureNotify) {
++  if (event.type == ConfigureNotify) {
+     ScreenConfigurationChanged();
+     return true;
+   }
+@@ -216,41 +172,11 @@
+   // if any.  If there isn't a previous frame, that means a screen-resolution
+   // change occurred, and |invalid_rects| will be updated to include the whole
+   // screen.
+-  if (use_damage_ && queue_.previous_frame())
+-    SynchronizeFrame();
+ 
+   DesktopRegion* updated_region = frame->mutable_updated_region();
+ 
+   x_server_pixel_buffer_.Synchronize();
+-  if (use_damage_ && queue_.previous_frame()) {
+-    // Atomically fetch and clear the damage region.
+-    XDamageSubtract(display(), damage_handle_, None, damage_region_);
+-    int rects_num = 0;
+-    XRectangle bounds;
+-    XRectangle* rects = XFixesFetchRegionAndBounds(display(), damage_region_,
+-                                                   &rects_num, &bounds);
+-    for (int i = 0; i < rects_num; ++i) {
+-      updated_region->AddRect(DesktopRect::MakeXYWH(
+-          rects[i].x, rects[i].y, rects[i].width, rects[i].height));
+-    }
+-    XFree(rects);
+-    helper_.InvalidateRegion(*updated_region);
+-
+-    // Capture the damaged portions of the desktop.
+-    helper_.TakeInvalidRegion(updated_region);
+-
+-    // Clip the damaged portions to the current screen size, just in case some
+-    // spurious XDamage notifications were received for a previous (larger)
+-    // screen size.
+-    updated_region->IntersectWith(
+-        DesktopRect::MakeSize(x_server_pixel_buffer_.window_size()));
+-
+-    for (DesktopRegion::Iterator it(*updated_region);
+-         !it.IsAtEnd(); it.Advance()) {
+-      if (!x_server_pixel_buffer_.CaptureRect(it.rect(), frame.get()))
+-        return nullptr;
+-    }
+-  } else {
++  {
+     // Doing full-screen polling, or this is the first capture after a
+     // screen-resolution change.  In either case, need a full-screen capture.
+     DesktopRect screen_rect = DesktopRect::MakeSize(frame->size());
+@@ -302,11 +228,6 @@
+   x_server_pixel_buffer_.Release();
+ 
+   if (display()) {
+-    if (damage_handle_) {
+-      XDamageDestroy(display(), damage_handle_);
+-      damage_handle_ = 0;
+-    }
+-
+     if (damage_region_) {
+       XFixesDestroyRegion(display(), damage_region_);
+       damage_region_ = 0;
+diff -r 5d3469aabe61 media/webrtc/trunk/webrtc/modules/desktop_capture/linux/window_capturer_x11.cc
+--- a/media/webrtc/trunk/webrtc/modules/desktop_capture/linux/window_capturer_x11.cc	Tue Sep 10 12:42:13 2019 +0200
++++ b/media/webrtc/trunk/webrtc/modules/desktop_capture/linux/window_capturer_x11.cc	Wed Sep 18 11:03:20 2019 +0200
+@@ -10,7 +10,6 @@
+ 
+ #include "modules/desktop_capture/linux/window_capturer_x11.h"
+ 
+-#include <X11/extensions/Xcomposite.h>
+ #include <X11/extensions/Xrender.h>
+ #include <X11/Xutil.h>
+ 
+@@ -33,15 +32,7 @@
+     : x_display_(options.x_display()),
+       atom_cache_(display()),
+       window_finder_(&atom_cache_) {
+-  int event_base, error_base, major_version, minor_version;
+-  if (XCompositeQueryExtension(display(), &event_base, &error_base) &&
+-      XCompositeQueryVersion(display(), &major_version, &minor_version) &&
+-      // XCompositeNameWindowPixmap() requires version 0.2
+-      (major_version > 0 || minor_version >= 2)) {
+-    has_composite_extension_ = true;
+-  } else {
+-    RTC_LOG(LS_INFO) << "Xcomposite extension not available or too old.";
+-  }
++  RTC_LOG(LS_INFO) << "Xcomposite extension not available or too old.";
+ 
+   x_display_->AddEventHandler(ConfigureNotify, this);
+ }
+@@ -79,7 +70,7 @@
+ 
+   // Redirect drawing to an offscreen buffer (ie, turn on compositing). X11
+   // remembers who has requested this and will turn it off for us when we exit.
+-  XCompositeRedirectWindow(display(), id, CompositeRedirectAutomatic);
++  // XCompositeRedirectWindow(display(), id, CompositeRedirectAutomatic);
+ 
+   return true;
+ }
+diff -r 5d3469aabe61 media/webrtc/trunk/webrtc/webrtc_gn/moz.build
+--- a/media/webrtc/trunk/webrtc/webrtc_gn/moz.build	Tue Sep 10 12:42:13 2019 +0200
++++ b/media/webrtc/trunk/webrtc/webrtc_gn/moz.build	Wed Sep 18 11:03:20 2019 +0200
+@@ -140,9 +140,7 @@
+         "X11",
+         "X11-xcb",
+         "xcb",
+-        "Xcomposite",
+         "Xcursor",
+-        "Xdamage",
+         "Xext",
+         "Xfixes",
+         "Xi",
+diff -r 5d3469aabe61 old-configure.in
+--- a/old-configure.in	Tue Sep 10 12:42:13 2019 +0200
++++ b/old-configure.in	Wed Sep 18 11:03:20 2019 +0200
+@@ -1959,7 +1959,7 @@
+ 
+ if test -n "$MOZ_WEBRTC"; then
+     if test -n "$MOZ_X11"; then
+-      MOZ_WEBRTC_X11_LIBS="-lXext -lXdamage -lXfixes -lXcomposite"
++      MOZ_WEBRTC_X11_LIBS="-lXext -lXfixes"
+     fi
+ fi
+ 
+diff -r 5d3469aabe61 security/sandbox/linux/SandboxFilter.cpp
+--- a/security/sandbox/linux/SandboxFilter.cpp	Tue Sep 10 12:42:13 2019 +0200
++++ b/security/sandbox/linux/SandboxFilter.cpp	Wed Sep 18 11:03:20 2019 +0200
+@@ -852,7 +852,7 @@
+     switch (aCall) {
+       case SYS_RECVFROM:
+       case SYS_SENDTO:
+-      case SYS_SENDMMSG:  // libresolv via libasyncns; see bug 1355274
++      // case SYS_SENDMMSG:  // libresolv via libasyncns; see bug 1355274
+         return Some(Allow());
+ 
+ #ifdef ANDROID
+diff -r 5d3469aabe61 security/sandbox/linux/SandboxReporterClient.cpp
+--- a/security/sandbox/linux/SandboxReporterClient.cpp	Tue Sep 10 12:42:13 2019 +0200
++++ b/security/sandbox/linux/SandboxReporterClient.cpp	Wed Sep 18 11:03:20 2019 +0200
+@@ -49,7 +49,7 @@
+   // sending uninitialized alignment padding to another process.
+   PodZero(&report);
+ 
+-  clock_gettime(CLOCK_MONOTONIC_COARSE, &report.mTime);
++  clock_gettime(CLOCK_MONOTONIC, &report.mTime);
+   report.mPid = getpid();
+   report.mTid = syscall(__NR_gettid);
+   report.mProcType = mProcType;
+diff -r 5d3469aabe61 security/sandbox/linux/reporter/SandboxReporterWrappers.cpp
+--- a/security/sandbox/linux/reporter/SandboxReporterWrappers.cpp	Tue Sep 10 12:42:13 2019 +0200
++++ b/security/sandbox/linux/reporter/SandboxReporterWrappers.cpp	Wed Sep 18 11:03:20 2019 +0200
+@@ -38,7 +38,7 @@
+ /* readonly attribute uint64_t msecAgo; */
+ NS_IMETHODIMP SandboxReportWrapper::GetMsecAgo(uint64_t* aMsec) {
+   struct timespec then = mReport.mTime, now = {0, 0};
+-  clock_gettime(CLOCK_MONOTONIC_COARSE, &now);
++  clock_gettime(CLOCK_MONOTONIC, &now);
+ 
+   const uint64_t now_msec = uint64_t(now.tv_sec) * 1000 + now.tv_nsec / 1000000;
+   const uint64_t then_msec =
+diff -r 5d3469aabe61 widget/nsShmImage.h
+--- a/widget/nsShmImage.h	Tue Sep 10 12:42:13 2019 +0200
++++ b/widget/nsShmImage.h	Wed Sep 18 11:03:20 2019 +0200
+@@ -17,8 +17,10 @@
+ #  include "nsIWidget.h"
+ #  include "Units.h"
+ 
++extern "C" {
+ #  include <X11/Xlib-xcb.h>
+ #  include <xcb/shm.h>
++}
+ 
+ class nsShmImage {
+   // bug 1168843, compositor thread may create shared memory instances that are

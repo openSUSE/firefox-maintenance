@@ -1,0 +1,31 @@
+# HG changeset patch
+# Parent  c6ceeb4ce76ae3e2e092e95df5ea9f036cd002cf
+
+diff -r c6ceeb4ce76a toolkit/system/unixproxy/nsLibProxySettings.cpp
+--- a/toolkit/system/unixproxy/nsLibProxySettings.cpp	Wed Sep 18 16:34:11 2019 +0200
++++ b/toolkit/system/unixproxy/nsLibProxySettings.cpp	Thu Sep 19 11:05:33 2019 +0200
+@@ -59,7 +59,7 @@
+ 
+   char** proxyArray = nullptr;
+   proxyArray = px_proxy_factory_get_proxies(mProxyFactory,
+-                                            PromiseFlatCString(aSpec).get());
++                                            (char*)PromiseFlatCString(aSpec).get());
+   NS_ENSURE_TRUE(proxyArray, NS_ERROR_NOT_AVAILABLE);
+ 
+   // Translate libproxy's output to PAC string as expected
+diff -r c6ceeb4ce76a xpcom/threads/nsThread.cpp
+--- a/xpcom/threads/nsThread.cpp	Wed Sep 18 16:34:11 2019 +0200
++++ b/xpcom/threads/nsThread.cpp	Thu Sep 19 11:05:33 2019 +0200
+@@ -556,7 +556,12 @@
+     // kernel report them as separate regions, even when they are adjacent to
+     // heap memory. This allows us to accurately track the actual memory
+     // consumption of our allocated stacks.
++
++// On SLE-11 SP1, this macro is not available. We don't really need to "accurately track memory consumption"
++// so hopefully deactivating that is ok
++#if defined(MADV_NOHUGEPAGE)
+     madvise(mStackBase, stackSize, MADV_NOHUGEPAGE);
++#endif
+ 
+     pthread_attr_destroy(&attr);
+ #elif defined(XP_WIN)

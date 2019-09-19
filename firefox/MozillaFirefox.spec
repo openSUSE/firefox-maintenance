@@ -59,69 +59,98 @@ BuildArch:      i686
 %define desktop_file_name %{progname}
 %define firefox_appid \{ec8030f7-c20a-464f-9b0e-13a3a9e97384\}
 %define __provides_exclude ^lib.*\\.so.*$
-%define __requires_exclude ^(libmoz.*|liblgpllibs.*|libxul.*)$
+%define __requires_exclude ^(libstdc.*|libmoz.*|liblgpllibs.*|libxul.*)$
 %define localize 1
 %ifarch %ix86 x86_64
-%define crashreporter 1
+%define crashreporter 0
 %else
 %define crashreporter 0
 %endif
+#ifarch x86_64
+#define jobs 8
+#endif
+
+# inlined from package memory-constraints/memoryconstraints.macros
+#
+# Macros for memory constraints on buildjobs.
+# If you happen to have HUGE packages sometimes you need to do
+# crazy magic in order to make sure it is most of the time building
+# rather than just giving you OOM
+#
+
+# m: memory limit in MBs per core; default is 1000
+%define limit_build(m:) \
+    _threads="`/usr/bin/getconf _NPROCESSORS_ONLN`" \
+    _core_memory="%{-m:%{-m*}}%{!-m:1000}" \
+    echo "Available memory:" \
+    cat /proc/meminfo \
+    echo "System limits:" \
+    ulimit -a \
+    echo "System jobs: $_threads" \
+    if test "$_threads" -gt 1 ; then \
+        mem_per_process="$_core_memory" \
+        max_mem=$(awk '/MemTotal/ { print $2 }' /proc/meminfo) \
+        max_jobs="$(($max_mem / ($mem_per_process * 1000)))" \
+        test "$_threads" -gt "$max_jobs" && _threads="$max_jobs" && echo "Warning: Reducing number of jobs to $max_jobs because of memory limits" \
+        test "$_threads" -le 0 && $_threads=1 && echo "Warning: Do not use the parallel build at all because of memory limits" \
+    fi \
+    %global jobs $([[ -n $_threads ]] && echo $_threads || echo "`/usr/bin/getconf _NPROCESSORS_ONLN`") \
+    %global _smp_mflags $([[ -n $_threads ]] && echo "-j$_threads" || echo "-j`/usr/bin/getconf _NPROCESSORS_ONLN`") \
+    %{nil}
 
 Name:           %{pkgname}
 BuildRequires:  Mesa-devel
 BuildRequires:  alsa-devel
 BuildRequires:  autoconf213
-BuildRequires:  dbus-1-glib-devel
+BuildRequires:  firefox-dbus-1-glib-devel
 BuildRequires:  dejavu-fonts
 BuildRequires:  fdupes
-BuildRequires:  memory-constraints
-%if 0%{?suse_version} <= 1320
-BuildRequires:  gcc7-c++
-%else
-BuildRequires:  gcc-c++
-%endif
+#BuildRequires:  memory-constraints
+BuildRequires:  firefox-gcc8-c++
 BuildRequires:  cargo >= 1.34
-BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
 BuildRequires:  libidl-devel
-BuildRequires:  libiw-devel
+# BuildRequires:  libiw-devel, this is probably provided by:
+# BuildRequires:  wireless-tools
 BuildRequires:  libnotify-devel
 BuildRequires:  libproxy-devel
-BuildRequires:  makeinfo
+# BuildRequires:  makeinfo, this is probably provided by:
+BuildRequires:  texinfo
 BuildRequires:  mozilla-nspr-devel >= 4.21
 BuildRequires:  mozilla-nss-devel >= 3.44.1
-BuildRequires:  nasm >= 2.13
+BuildRequires:  firefox-nasm >= 2.13
 BuildRequires:  nodejs8 >= 8.11
-BuildRequires:  python-devel
-BuildRequires:  python2-xml
-BuildRequires:  python3 >= 3.5
+#BuildRequires:  python2-xml
+BuildRequires:  firefox-python3 >= 3.5
+BuildRequires:  firefox-python-base
+#BuildRequires:  python-devel
 BuildRequires:  rust >= 1.34
 BuildRequires:  rust-cbindgen >= 0.8.7
 BuildRequires:  startup-notification-devel
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
 BuildRequires:  xorg-x11-libXt-devel
-BuildRequires:  xvfb-run
 BuildRequires:  yasm
 BuildRequires:  zip
-%if 0%{?suse_version} < 1550
-BuildRequires:  pkgconfig(gconf-2.0) >= 1.2.1
-%endif
-BuildRequires:  pkgconfig(gdk-x11-2.0)
-BuildRequires:  pkgconfig(glib-2.0) >= 2.22
-BuildRequires:  pkgconfig(gobject-2.0)
-BuildRequires:  pkgconfig(gtk+-2.0) >= 2.18.0
-BuildRequires:  pkgconfig(gtk+-3.0) >= 3.4.0
-BuildRequires:  pkgconfig(gtk+-unix-print-2.0)
-BuildRequires:  pkgconfig(gtk+-unix-print-3.0)
-BuildRequires:  pkgconfig(libffi)
-BuildRequires:  pkgconfig(libpulse)
-%if 0%{?suse_version} > 1320
-BuildRequires:  llvm-clang-devel >= 3.9.0
-%else
+BuildRequires:  gconf2-devel
+BuildRequires:  gtk2-devel >= 2.18.0
+BuildRequires:  glib2-devel >= 2.22
+BuildRequires:  firefox-gtk3-devel >= 3.4.0
+BuildRequires:  firefox-at-spi2-atk-devel
+BuildRequires:  firefox-atk-devel
+BuildRequires:  firefox-cairo-devel
+BuildRequires:  firefox-pango-devel
+BuildRequires:  firefox-gdk-pixbuf-devel
+BuildRequires:  libffi-devel
+BuildRequires:  libpulse-devel
+BuildRequires:  xz
+BuildRequires:  firefox-fontconfig-devel
+#%if 0%{?suse_version} > 1320
+#BuildRequires:  llvm-clang-devel >= 3.9.0
+#%else
 # this covers the workaround to compile on Leap 42 in OBS
 BuildRequires:  clang4-devel
-%endif
+#%endif
 # libavcodec is required for H.264 support but the
 # openSUSE version is currently not able to play H.264
 # therefore the Packman version is required
@@ -169,6 +198,7 @@ Source18:       mozilla-api-key
 Source19:       google-api-key
 Source20:       https://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{orig_suffix}/source/%{progname}-%{orig_version}%{orig_suffix}.source.tar.xz.asc
 Source21:       https://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{orig_suffix}/KEY#/mozilla.keyring
+Source40:       README.SUSE
 # Gecko/Toolkit
 Patch1:         mozilla-nongnome-proxies.patch
 Patch2:         mozilla-kde.patch
@@ -194,6 +224,9 @@ Patch21:        mozilla-bmo1554971.patch
 Patch22:        mozilla-nestegg-big-endian.patch
 Patch23:        mozilla-bmo1512162.patch
 # Firefox/browser
+Patch97:        mozilla-fix-sle11-compile-errors.patch
+Patch98:        mozilla-deactivate-libjpeg-inline-asm.patch
+Patch99:        remove-features-not-in-sle11.patch
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
 Patch103:       firefox-add-kde.js-in-order-to-survive-PGO-build.patch
@@ -202,10 +235,29 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post):   coreutils shared-mime-info desktop-file-utils
 Requires(postun): shared-mime-info desktop-file-utils
 %if %branding
-Requires:       %{name}-branding > 44.0
+Requires:       %{name}-branding >= 60
 %endif
 Requires:       mozilla-nspr >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 Requires:       mozilla-nss >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nss)
+# requires we need as we want to switch off autoreqprov
+Requires:       xorg-x11-libX11
+Requires:       xorg-x11-libXext
+Requires:       xorg-x11-libxcb
+Requires:       xorg-x11-libXfixes
+Requires:       xorg-x11-libXt
+Requires:       xorg-x11-libXrender
+Requires:       zlib
+Requires:       firefox-dbus-1-glib
+Requires:       firefox-libstdc++6-gcc8
+Requires:       firefox-libgcc_s1-gcc8
+Requires:       firefox-libfreetype6
+Requires:       firefox-fontconfig
+Requires:       startup-notification
+Requires:       libasound2
+Requires:       libproxy0
+Requires:       firefox-libgtk-3-0
+Requires:       libfreebl3
+Requires:       libsoftokn3
 Recommends:     libcanberra0
 Recommends:     libpulse0
 # addon leads to startup crash (bnc#908892)
@@ -215,6 +267,7 @@ Obsoletes:      tracker-miner-firefox < 0.15
 Obsoletes:      libproxy1-pacrunner-mozjs <= 0.4.7
 %endif
 ##BuildArch:      i686 x86_64 aarch64 ppc64le
+AutoReqProv:	no
 
 %description
 Mozilla Firefox is a standalone web browser, designed for standards
@@ -303,6 +356,7 @@ fi
 %else
 %setup -q -n %{source_prefix}
 %endif
+cp %{SOURCE40} .
 cd $RPM_BUILD_DIR/%{source_prefix}
 %patch1 -p1
 %patch2 -p1
@@ -330,6 +384,9 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 %patch22 -p1
 %patch23 -p1
 # Firefox
+%patch97 -p1
+%patch98 -p1
+%patch99 -p1
 %patch101 -p1
 %patch102 -p1
 %patch103 -p1
@@ -360,12 +417,11 @@ export MOZILLA_OFFICIAL=1
 export BUILD_OFFICIAL=1
 export MOZ_TELEMETRY_REPORTING=1
 %if 0%{?suse_version} <= 1320
-export CC=gcc-7
-%else
-%if 0%{?clang_build} == 0
-export CC=gcc
-export CXX=g++
-%endif
+export CC=gcc-8
+export PATH=/usr/lib64/firefox/bin:$PATH
+export LD_LIBRARY_PATH=/usr/lib64/firefox/lib64:$LD_LIBRARY_PATH
+export PKG_CONFIG_PATH=/usr/lib64/firefox/lib64/pkgconfig/
+export LDFLAGS="-L/usr/%_lib/firefox/%_lib ${LDFLAGS}"
 %endif
 %ifarch %arm %ix86
 # Limit RAM usage during link
@@ -478,10 +534,17 @@ echo "Generate big endian version of config/external/icu/data/icud58l.dat"
 ls -l config/external/icu/data
 rm -f config/external/icu/data/icudt*l.dat
 %endif
-xvfb-run --server-args="-screen 0 1920x1080x24" ./mach build
+export PATH=/usr/%_lib/firefox/bin:$PATH
+export LD_LIBRARY_PATH=/usr/%_lib/firefox/%_lib:$LD_LIBRARY_PATH
+export PKG_CONFIG_PATH=/usr/%_lib/firefox/%_lib/pkgconfig/
+./mach build
 %endif # only_print_mozconfig
 
 %install
+%if 0%{?suse_version} <= 1320
+export PATH=/usr/%_lib/firefox/bin:$PATH
+export LD_LIBRARY_PATH=/usr/%_lib/firefox/%_lib:$LD_LIBRARY_PATH
+%endif
 cd $RPM_BUILD_DIR/obj
 source %{SOURCE5}
 export MOZ_SOURCE_STAMP=$REV
@@ -506,7 +569,8 @@ install -m 644 %{SOURCE9} %{buildroot}%{progdir}/browser/defaults/preferences/fi
 # build additional locales
 %if %localize
 mkdir -p %{buildroot}%{progdir}/browser/extensions
-truncate -s 0 %{_tmppath}/translations.{common,other}
+rm -f %{_tmppath}/translations.*
+touch %{_tmppath}/translations.{common,other}
 sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{source_prefix}/browser/locales/shipped-locales \
     | xargs -n 1 -I {} /bin/sh -c '
         locale=$1
@@ -647,19 +711,44 @@ rm -rf %{_tmppath}/translations.*
 
 %post
 # update mime and desktop database
+%if %suse_version > 1130
 %mime_database_post
 %desktop_database_post
 %icon_theme_cache_post
+%else
+if [ -f usr/bin/update-mime-database ] ; then
+  usr/bin/update-mime-database %{_datadir}/mime > /dev/null || :
+fi
+if [ -f usr/bin/update-desktop-database ] ; then
+  usr/bin/update-desktop-database > /dev/null || :
+fi
+%endif
+# Build glib schemas: (bsc#1145550) Fix for Firefox crash when saving file on SLE-11
+%if %suse_version < 1200
+if [ ! -f %{progdir}/share/glib-2.0/schemas/gschemas.compiled ] ; then
+  %{progdir}/bin/glib-compile-schemas %{progdir}/share/glib-2.0/schemas/
+fi
+%endif
 exit 0
 
 %postun
+%if %suse_version > 1130
 %icon_theme_cache_postun
 %desktop_database_postun
 %mime_database_postun
+%else
+if [ -f usr/bin/update-mime-database ] ; then
+  usr/bin/update-mime-database %{_datadir}/mime > /dev/null || :
+fi
+if [ -f usr/bin/update-desktop-database ] ; then
+  usr/bin/update-desktop-database > /dev/null || :
+fi
+%endif
 exit 0
 
 %files
 %defattr(-,root,root)
+%doc README.SUSE
 %dir %{progdir}
 %dir %{progdir}/browser/
 %dir %{progdir}/browser/chrome/

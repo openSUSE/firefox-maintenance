@@ -81,7 +81,7 @@ fi
 
 MOZILLA_FIVE_HOME="$MOZ_DIST_LIB"
 export MOZILLA_FIVE_HOME
-LD_LIBRARY_PATH=$MOZ_DIST_LIB${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+LD_LIBRARY_PATH=$MOZ_DIST_LIB:$MOZ_DIST_LIB/$LIB${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH
 
 # needed for SUN Java under Xorg >= 7.2
@@ -102,9 +102,10 @@ fi
 # disable Gnome crash dialog (doesn't make sense anyway)
 export GNOME_DISABLE_CRASH_DIALOG=1
 
-# enable xinput2 (boo#1032003)
-# breaks too many things right now (boo#1053959)
-#export MOZ_USE_XINPUT2=1
+export FONTCONFIG_PATH="$MOZ_DIST_LIB/etc/fonts"
+
+# For SLE-11 only (bsc#1145550)
+export XDG_DATA_DIRS=$XDG_DATA_DIRS:$MOZ_DIST_LIB/share
 
 moz_debug=0
 script_args=""

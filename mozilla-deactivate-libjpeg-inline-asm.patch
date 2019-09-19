@@ -1,0 +1,15 @@
+# HG changeset patch
+# Parent  60b193e3c10a7a475223d7389d92fe4469970efd
+
+diff -r 60b193e3c10a -r 7388049c9a8a toolkit/moz.configure
+--- a/toolkit/moz.configure	Wed Sep 18 11:03:20 2019 +0200
++++ b/toolkit/moz.configure	Wed Sep 18 15:41:34 2019 +0200
+@@ -1566,7 +1566,7 @@
+         return namespace(flags=flags, use_yasm=use_yasm, need_yasm=need_yasm)
+ 
+     set_config('LIBJPEG_TURBO_USE_YASM', in_tree_jpeg.use_yasm)
+-    set_config('LIBJPEG_TURBO_ASFLAGS', in_tree_jpeg.flags)
++#    set_config('LIBJPEG_TURBO_ASFLAGS', in_tree_jpeg.flags)
+ 
+ 
+ # Libav-fft Support

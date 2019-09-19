@@ -1,0 +1,11 @@
+Firefox recently introduced mandatory extension signing - all extensions must
+be signed by addons.mozilla.com (AMO) which is supposed to prevent accidental
+installation of malicious add-ons. In case installation of an extension that is
+not signed by AMO is desirable, the signature checks can be disabled by setting
+the preference 'xpinstall.signatures.required' to 'false'.
+
+This can be either done per profile (e.g. by setting the preference in
+about:config) or for all profiles by amending the system-wide configuration
+located in /usr/lib64/firefox/browser/defaults/preferences and
+/usr/lib64/firefox/defaults/pref. Adding a new file is prefered over modifying
+existing ones to prevent configuration reset on updates.
