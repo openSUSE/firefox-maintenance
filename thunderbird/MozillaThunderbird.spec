@@ -18,6 +18,13 @@
 
 
 # changed with every update
+# orig_version vs. mainver: To have beta-builds
+# FF70beta3 would be released as FF69.99
+# orig_version would be the upstream tar ball
+# orig_version 70.0
+# orig_suffix b3
+# major 69
+# mainver %major.99
 %define major          68
 %define mainver        %major.1.0
 %define orig_version   68.1.0
@@ -29,7 +36,6 @@
 
 # https://bugzilla.suse.com/show_bug.cgi?id=1138688
 # always build with GCC as SUSE Security Team requires that
-# TODO: Deactivate this as the next step
 %define clang_build 0
 
 # PIE, full relro
