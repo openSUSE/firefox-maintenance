@@ -3,7 +3,7 @@
 # Date 1543674229 0
 #      Sat Dec 01 14:23:49 2018 +0000
 # Node ID 0309ff19e46b126c527e633518d7de8570442114
-# Parent  5b5a6a164acbd4da6131808bd12e42e7b0a33c2a
+# Parent  ba2c9b0542c95cc5ee26c264e8338fc9ba94c958
 Bug 1511604 - Swizzle YCbCr->RGB data on big-endian machines
 Taken from https://bugzilla.mozilla.org/show_bug.cgi?id=1511604
 
@@ -11,10 +11,12 @@ This is very closely related to mozilla-bmo1504834
 
 Again, input for skia is swizzled to LE, as skia only understands LE.
 
-diff -r 5b5a6a164acb gfx/ycbcr/YCbCrUtils.cpp
---- a/gfx/ycbcr/YCbCrUtils.cpp	Mon Sep 09 17:59:29 2019 +0200
-+++ b/gfx/ycbcr/YCbCrUtils.cpp	Tue Sep 10 08:22:10 2019 +0200
-@@ -3,7 +3,9 @@
+diff --git a/gfx/ycbcr/YCbCrUtils.cpp b/gfx/ycbcr/YCbCrUtils.cpp
+--- a/gfx/ycbcr/YCbCrUtils.cpp
++++ b/gfx/ycbcr/YCbCrUtils.cpp
+@@ -1,14 +1,16 @@
+ /* -*- Mode: C++; tab-width: 20; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+  * This Source Code Form is subject to the terms of the Mozilla Public
   * License, v. 2.0. If a copy of the MPL was not distributed with this
   * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
  
@@ -24,7 +26,17 @@ diff -r 5b5a6a164acb gfx/ycbcr/YCbCrUtils.cpp
  
  #include "YCbCrUtils.h"
  #include "yuv_convert.h"
-@@ -236,6 +238,13 @@
+ #include "ycbcr_to_rgb565.h"
+ 
+ namespace mozilla {
+ namespace gfx {
+ 
+@@ -231,16 +233,23 @@ ConvertYCbCrToRGB(const layers::PlanarYC
+                           srcData.mPicSize.width,
+                           srcData.mPicSize.height,
+                           srcData.mYStride,
+                           srcData.mCbCrStride,
+                           aStride,
                            yuvtype,
                            srcData.mYUVColorSpace);
    }
@@ -38,7 +50,17 @@ diff -r 5b5a6a164acb gfx/ycbcr/YCbCrUtils.cpp
  }
  
  void
-@@ -257,6 +266,12 @@
+ ConvertYCbCrAToARGB(const uint8_t* aSrcY,
+                     const uint8_t* aSrcU,
+                     const uint8_t* aSrcV,
+                     const uint8_t* aSrcA,
+                     int aSrcStrideYA, int aSrcStrideUV,
+@@ -252,12 +261,18 @@ ConvertYCbCrAToARGB(const uint8_t* aSrcY
+                         aSrcV,
+                         aSrcA,
+                         aDstARGB,
+                         aWidth,
+                         aHeight,
                          aSrcStrideYA,
                          aSrcStrideUV,
                          aDstStrideARGB);
@@ -51,3 +73,4 @@ diff -r 5b5a6a164acb gfx/ycbcr/YCbCrUtils.cpp
  }
  
  } // namespace gfx
+ } // namespace mozilla
