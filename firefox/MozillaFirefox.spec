@@ -18,23 +18,15 @@
 
 
 # changed with every update
-# orig_version vs. mainver: To have beta-builds
-# FF70beta3 would be released as FF69.99
-# orig_version would be the upstream tar ball
-# orig_version 70.0
-# orig_suffix b3
-# major 69
-# mainver %major.99
-%define major          68
-%define mainver        %major.1.0
-%define orig_version   68.1.0
-%define orig_suffix    esr
-%define update_channel esr68
+%define major          69
+%define mainver        %major.0.1
+%define orig_version   69.0.1
+%define orig_suffix    %{nil}
+%define update_channel release
 %define branding       1
-%define releasedate    20190826132627
+%define releasedate    20190917135527
 %define source_prefix  firefox-%{orig_version}
 
-# https://bugzilla.suse.com/show_bug.cgi?id=1138688
 # always build with GCC as SUSE Security Team requires that
 %define clang_build 0
 
@@ -80,7 +72,7 @@ BuildRequires:  gcc7-c++
 %else
 BuildRequires:  gcc-c++
 %endif
-BuildRequires:  cargo >= 1.34
+BuildRequires:  cargo >= 1.35
 BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
 BuildRequires:  libidl-devel
@@ -89,14 +81,14 @@ BuildRequires:  libnotify-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.21
-BuildRequires:  mozilla-nss-devel >= 3.44.1
+BuildRequires:  mozilla-nss-devel >= 3.45
 BuildRequires:  nasm >= 2.13
 BuildRequires:  nodejs8 >= 8.11
 BuildRequires:  python-devel
 BuildRequires:  python2-xml
 BuildRequires:  python3 >= 3.5
-BuildRequires:  rust >= 1.34
-BuildRequires:  rust-cbindgen >= 0.8.7
+BuildRequires:  rust >= 1.35
+BuildRequires:  rust-cbindgen >= 0.9.0
 BuildRequires:  startup-notification-devel
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
@@ -145,7 +137,7 @@ License:        MPL-2.0
 Group:          Productivity/Networking/Web/Browsers
 Url:            http://www.mozilla.org/
 %if !%{with only_print_mozconfig}
-Source:         http://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{orig_suffix}/source/%{progname}-%{orig_version}%{orig_suffix}.source.tar.xz
+Source:         http://ftp.mozilla.org/pub/%{progname}/releases/%{version}%{orig_suffix}/source/firefox-%{orig_version}%{orig_suffix}.source.tar.xz
 Source1:        MozillaFirefox.desktop
 Source2:        MozillaFirefox-rpmlintrc
 Source3:        mozilla.sh.in
