@@ -301,7 +301,7 @@ symbols meant for upload to Mozilla's crash collector database.
 # If generated incorrectly, the tarball will be ~270B in
 # size, so 1MB seems like good enough limit to check.
 MINSIZE=1048576
-if (( $(stat -c%s "%{SOURCE7}") < MINSIZE)); then
+if (( $(stat -Lc%s "%{SOURCE7}") < MINSIZE)); then
     echo "Translations tarball %{SOURCE7} not generated properly."
     exit 1
 fi
