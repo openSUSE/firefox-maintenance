@@ -92,7 +92,7 @@ BuildRequires:  mozilla-nspr-devel >= 4.21
 BuildRequires:  mozilla-nss-devel >= 3.44.1
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000 && !0%{?is_opensuse}
 BuildRequires:  firefox-nasm >= 2.13
-BuildRequires:  nodejs8 >= 8.11
+BuildRequires:  nodejs10
 #BuildRequires:  python2-xml
 BuildRequires:  firefox-python3 >= 3.5
 %else
