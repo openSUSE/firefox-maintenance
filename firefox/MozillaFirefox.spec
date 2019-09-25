@@ -100,7 +100,6 @@ BuildRequires:  nasm >= 2.13
 BuildRequires:  nodejs8 >= 8.11
 BuildRequires:  python2-xml
 BuildRequires:  python3 >= 3.5
-BuildRequires:  xvfb-run
 %endif
 BuildRequires:  python-devel
 BuildRequires:  rust >= 1.34
@@ -109,6 +108,9 @@ BuildRequires:  startup-notification-devel
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
 BuildRequires:  xorg-x11-libXt-devel
+%if 0%{?do_profiling}
+BuildRequires:  xvfb-run
+%endif
 BuildRequires:  yasm
 BuildRequires:  zip
 %if 0%{?suse_version} < 1550
@@ -463,14 +465,17 @@ ac_add_options --with-arch=armv7-a
 ac_add_options --disable-webrtc
 %endif
 # mitigation/workaround for bmo#1512162
-%ifarch s390x
+%ifarch ppc64le s390x
 ac_add_options --enable-optimize="-O1"
 %endif
 %ifarch x86_64
 # LTO needs newer toolchain stack only (at least GCC 8.2.1 (r268506)
 %if 0%{?suse_version} > 1500
+%if 0%{?do_profiling}
 ac_add_options --enable-lto
+# for some reason, building with LTO fails without PGO
 ac_add_options MOZ_PGO=1
+%endif
 %endif
 %endif
 EOF
@@ -489,10 +494,11 @@ rm -f config/external/icu/data/icudt*l.dat
 export PATH=/usr/%_lib/firefox/bin:$PATH
 export LD_LIBRARY_PATH=/usr/%_lib/firefox/%_lib:$LD_LIBRARY_PATH
 export PKG_CONFIG_PATH=/usr/%_lib/firefox/%_lib/pkgconfig/
-./mach build
-%else
-xvfb-run --server-args="-screen 0 1920x1080x24" ./mach build
 %endif
+%if 0%{?do_profiling}
+xvfb-run --server-args="-screen 0 1920x1080x24" \
+%endif
+./mach build -v
 %endif # only_print_mozconfig
 
 %install
