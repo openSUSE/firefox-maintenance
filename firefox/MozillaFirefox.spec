@@ -186,6 +186,7 @@ Patch20:        mozilla-bmo1511604.patch
 Patch21:        mozilla-bmo1554971.patch
 Patch22:        mozilla-nestegg-big-endian.patch
 Patch23:        mozilla-bmo1512162.patch
+Patch24:        mozilla-fix-top-level-asm.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -321,6 +322,7 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 %patch21 -p1
 %patch22 -p1
 %patch23 -p1
+%patch24 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
@@ -453,9 +455,8 @@ ac_add_options --enable-optimize="-O1"
 %ifarch x86_64
 # LTO needs newer toolchain stack only (at least GCC 8.2.1 (r268506)
 %if 0%{?suse_version} > 1500
-%if 0%{?do_profiling}
 ac_add_options --enable-lto
-# for some reason, building with LTO fails without PGO
+%if 0%{?do_profiling}
 ac_add_options MOZ_PGO=1
 %endif
 %endif
