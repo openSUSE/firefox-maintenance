@@ -145,7 +145,6 @@ Source2:        MozillaFirefox-rpmlintrc
 Source3:        mozilla.sh.in
 Source4:        tar_stamps
 Source5:        source-stamp.txt
-Source6:        kde.js
 Source7:        l10n-%{orig_version}%{orig_suffix}.tar.xz
 Source8:        firefox-mimeinfo.xml
 Source9:        firefox.js
@@ -190,7 +189,6 @@ Patch23:        mozilla-bmo1512162.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
-Patch103:       firefox-add-kde.js-in-order-to-survive-PGO-build.patch
 %endif # only_print_mozconfig
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post):   coreutils shared-mime-info desktop-file-utils
@@ -326,7 +324,6 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 # Firefox
 %patch101 -p1
 %patch102 -p1
-%patch103 -p1
 %endif # only_print_mozconfig
 
 %build
@@ -501,7 +498,6 @@ mkdir -p %{buildroot}%{progdir}/browser/defaults/preferences/
 # install gre prefs
 install -m 644 %{SOURCE13} %{buildroot}%{progdir}/defaults/pref/
 # install browser prefs
-install -m 644 %{SOURCE6} %{buildroot}%{progdir}/browser/defaults/preferences/kde.js
 install -m 644 %{SOURCE9} %{buildroot}%{progdir}/browser/defaults/preferences/firefox.js
 # build additional locales
 %if %localize
