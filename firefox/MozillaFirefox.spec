@@ -93,7 +93,9 @@ BuildRequires:  startup-notification-devel
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
 BuildRequires:  xorg-x11-libXt-devel
+%if 0%{?do_profiling}
 BuildRequires:  xvfb-run
+%endif
 BuildRequires:  yasm
 BuildRequires:  zip
 %if 0%{?suse_version} < 1550
@@ -448,14 +450,17 @@ ac_add_options --with-arch=armv7-a
 ac_add_options --disable-webrtc
 %endif
 # mitigation/workaround for bmo#1512162
-%ifarch s390x
+%ifarch ppc64le s390x
 ac_add_options --enable-optimize="-O1"
 %endif
 %ifarch x86_64
 # LTO needs newer toolchain stack only (at least GCC 8.2.1 (r268506)
 %if 0%{?suse_version} > 1500
+%if 0%{?do_profiling}
 ac_add_options --enable-lto
+# for some reason, building with LTO fails without PGO
 ac_add_options MOZ_PGO=1
+%endif
 %endif
 %endif
 EOF
@@ -470,7 +475,10 @@ echo "Generate big endian version of config/external/icu/data/icud58l.dat"
 ls -l config/external/icu/data
 rm -f config/external/icu/data/icudt*l.dat
 %endif
-xvfb-run --server-args="-screen 0 1920x1080x24" ./mach build
+%if 0%{?do_profiling}
+xvfb-run --server-args="-screen 0 1920x1080x24" \
+%endif
+./mach build -v
 %endif # only_print_mozconfig
 
 %install
