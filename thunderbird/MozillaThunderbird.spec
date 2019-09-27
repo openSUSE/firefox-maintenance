@@ -56,7 +56,7 @@
 %define __requires_exclude ^(libmoz.*|liblgpllibs.*|libxul.*|libldap.*|libldif.*|libprldap.*)$
 %define localize 1
 %ifarch %ix86 x86_64
-%define crashreporter 1
+%define crashreporter 0
 %else
 %define crashreporter 0
 %endif
@@ -192,8 +192,6 @@ Recommends:     libpulse0
 %endif
 %define has_system_cairo 0
 ### build options end
-%define __provides_exclude ^lib.*\\.so.*$
-%define __requires_exclude ^(libmoz.*|liblgpllibs.*|libxul.*|libldap.*|libldif.*|libprldap.*)$
 Requires:       mozilla-nspr >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 Requires:       mozilla-nss >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nss)
 Requires(post): desktop-file-utils
@@ -308,6 +306,7 @@ export SUSE_ASNEEDED=0
 export MOZ_BUILD_DATE=%{releasedate}
 export MOZILLA_OFFICIAL=1
 export BUILD_OFFICIAL=1
+export MOZ_TELEMETRY_REPORTING=1
 %if 0%{?suse_version} <= 1320
 export CC=gcc-7
 %else
@@ -356,11 +355,11 @@ mk_add_options MOZ_MAKE_FLAGS=%{?jobs:-j%jobs}
 %endif
 %endif
 mk_add_options MOZ_OBJDIR=$RPM_BUILD_DIR/obj
-ac_add_options --enable-application=comm/mail
-ac_add_options --enable-calendar
 ac_add_options --prefix=%{_prefix}
 ac_add_options --libdir=%{progdir}
 ac_add_options --includedir=%{_includedir}
+ac_add_options --enable-application=comm/mail
+ac_add_options --enable-calendar
 ac_add_options --disable-tests
 ac_add_options --disable-debug
 ac_add_options --enable-alsa
@@ -409,6 +408,9 @@ ac_add_options --with-arch=armv7-a
 %if %{with mozilla_tb_valgrind}
 ac_add_options --disable-jemalloc
 ac_add_options --enable-valgrind
+%endif
+%ifarch aarch64 %arm s390x
+ac_add_options --disable-webrtc
 %endif
 # mitigation/workaround for bmo#1512162
 %ifarch s390x
@@ -500,6 +502,7 @@ ln -sf ../..%{progdir}/%{progname}.sh %{buildroot}%{_bindir}/%{progname}
 mkdir -p %{buildroot}%{_datadir}/applications
 install -m 644 %{SOURCE1} \
                %{buildroot}%{_datadir}/applications/%{desktop_file_name}.desktop
+%suse_update_desktop_file %{desktop_file_name} Network Email GTK
 # appdata
 mkdir -p %{buildroot}%{_datadir}/appdata
 cp %{SOURCE9} %{buildroot}%{_datadir}/appdata/%{desktop_file_name}.appdata.xml
@@ -530,7 +533,6 @@ for size in 16 22 24 32 48 64 128; do
   cp %{buildroot}%{progdir}/chrome/icons/default/default$size.png \
     %{buildroot}%{_datadir}/icons/hicolor/${size}x${size}/apps/%{progname}.png
 done
-%suse_update_desktop_file %{desktop_file_name} Network Email GTK
 # excluded files
 rm -f %{buildroot}%{progdir}/thunderbird
 rm -f %{buildroot}%{progdir}/removed-files
