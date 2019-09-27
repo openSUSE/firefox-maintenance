@@ -91,6 +91,7 @@ BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.21
 BuildRequires:  mozilla-nss-devel >= 3.44.1
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000 && !0%{?is_opensuse}
+%define do_profiling 0
 BuildRequires:  firefox-nasm >= 2.13
 BuildRequires:  nodejs10
 #BuildRequires:  python2-xml
