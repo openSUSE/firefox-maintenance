@@ -386,13 +386,13 @@ ac_add_options --disable-updater
 #ac_add_options --with-system-png # no apng support
 #ac_add_options --enable-system-hunspell
 ac_add_options --enable-startup-notification
-ac_add_options --enable-official-branding
 ac_add_options --disable-necko-wifi
 ac_add_options --enable-update-channel=%{update_channel}
-ac_add_options --with-unsigned-addon-scopes=app
 %if %has_system_cairo
 ac_add_options --enable-system-cairo
 %endif
+ac_add_options --with-unsigned-addon-scopes=app
+ac_add_options --enable-official-branding
 %if ! %crashreporter
 ac_add_options --disable-crashreporter
 %endif
@@ -404,10 +404,6 @@ ac_add_options --with-arch=armv6
 %else
 ac_add_options --with-arch=armv7-a
 %endif
-%endif
-%if %{with mozilla_tb_valgrind}
-ac_add_options --disable-jemalloc
-ac_add_options --enable-valgrind
 %endif
 %ifarch aarch64 %arm s390x
 ac_add_options --disable-webrtc
@@ -421,6 +417,10 @@ ac_add_options --enable-optimize="-O1"
 %if 0%{?suse_version} > 1500
 ac_add_options --enable-lto
 %endif
+%endif
+%if %{with mozilla_tb_valgrind}
+ac_add_options --disable-jemalloc
+ac_add_options --enable-valgrind
 %endif
 EOF
 %endif
