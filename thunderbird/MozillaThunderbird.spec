@@ -468,8 +468,8 @@ sed -r '/^(ja-JP-mac|en-US|$)/d;s/ .*$//' $RPM_BUILD_DIR/%{source_prefix}/comm/m
             [ "$_match" = "$locale" ] && _matched=1
         done
         [ $_matched -eq 1 ] && _l10ntarget=common || _l10ntarget=other
-	echo %{progdir}/extensions/langpack-$locale@thunderbird.mozilla.org \
-	  >> %{_tmppath}/translations.$_l10ntarget
+        echo %{progdir}/extensions/langpack-$locale@thunderbird.mozilla.org \
+          >> %{_tmppath}/translations.$_l10ntarget
 ' -- {}
 # repack the lightning xpi with all available locales (boo#939153) (lp#545778)
 _extid="{e2fda1a4-762b-4020-b5ad-a41df1933103}"
@@ -489,6 +489,19 @@ done
 (cd _lightning && zip -q9r ../"${_extid}.xpi" *)
 cp -p "${_extid}.xpi" %{buildroot}%{progdir}/distribution/extensions/
 %endif
+# remove some executable permissions
+find %{buildroot}%{_libdir}/%{progname}  \
+    -name "*.js" -o \
+    -name "*.jsm" -o \
+    -name "*.rdf" -o \
+    -name "*.properties" -o \
+    -name "*.dtd" -o \
+    -name "*.txt" -o \
+    -name "*.xml" -o \
+    -name "*.css" \
+    -exec chmod a-x {} +
+# remove mkdir.done files from installed base
+find %{buildroot}%{progdir} -type f -name ".mkdir.done" -delete
 # overwrite the mozilla start-script and link it to /usr/bin
 mkdir --parents %{buildroot}%{_bindir}/
 sed "s:%%PREFIX:%{_prefix}:g
@@ -516,17 +529,6 @@ rm suse-default-prefs
 cat > %{buildroot}%{progdir}/defaults/pref/all-l10n.js << EOF
 pref("general.useragent.locale", "chrome://global/locale/intl.properties");
 EOF
-# remove spurious executable bits
-find %{buildroot}%{_libdir}/%{progname}  \
-    -name "*.js" -o \
-    -name "*.jsm" -o \
-    -name "*.rdf" -o \
-    -name "*.properties" -o \
-    -name "*.dtd" -o \
-    -name "*.css" \
-    -exec chmod a-x {} +
-# remove mkdir.done files from installed base
-find $RPM_BUILD_ROOT%{progdir} -type f -name ".mkdir.done" -delete -print
 #
 for size in 16 22 24 32 48 64 128; do
   mkdir -p %{buildroot}%{_datadir}/icons/hicolor/${size}x${size}/apps/
