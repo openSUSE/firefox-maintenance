@@ -496,7 +496,7 @@ export PKG_CONFIG_PATH=/usr/%_lib/firefox/%_lib/pkgconfig/
 %if 0%{?do_profiling}
 xvfb-run --server-args="-screen 0 1920x1080x24" \
 %endif
-./mach build -v
+./mach build
 %endif # only_print_mozconfig
 
 %install
