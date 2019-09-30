@@ -319,9 +319,6 @@ export CFLAGS="$CFLAGS -mminimal-toc"
 %endif
 %endif
 export CXXFLAGS="$CFLAGS"
-%ifarch %{arm} aarch64
-export RUSTFLAGS="-Cdebuginfo=0"
-%endif
 export MOZCONFIG=$RPM_BUILD_DIR/mozconfig
 %if %{with only_print_mozconfig}
 echo "export CC=$CC"
