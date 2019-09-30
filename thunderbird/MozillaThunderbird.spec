@@ -255,7 +255,7 @@ fi
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
-%ifarch s390x
+%ifarch s390x ppc64
 %patch11 -p1
 %endif
 %patch12 -p1
