@@ -332,6 +332,7 @@ cat << EOF
 %limit_build -m 2000
 export MOZ_DEBUG_FLAGS="-pipe"
 cat << EOF > $MOZCONFIG
+%endif
 mk_add_options MOZILLA_OFFICIAL=1
 mk_add_options BUILD_OFFICIAL=1
 mk_add_options MOZ_MILESTONE_RELEASE=1
@@ -411,7 +412,6 @@ ac_add_options --disable-jemalloc
 ac_add_options --enable-valgrind
 %endif
 EOF
-%endif
 %if !%{with only_print_mozconfig}
 %ifarch ppc64 s390x s390
 # NOTE: Currently, system-icu is too old, so we can't build with that,
