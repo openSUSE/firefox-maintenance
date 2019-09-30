@@ -370,7 +370,9 @@ ac_add_options --disable-elf-hack
 ac_add_options --with-system-nspr
 ac_add_options --with-system-nss
 ac_add_options --with-system-zlib
+%if 0%{?localize}
 ac_add_options --with-l10n-base=$RPM_BUILD_DIR/l10n
+%endif
 ac_add_options --disable-updater
 #ac_add_options --with-system-png # no apng support
 #ac_add_options --enable-system-hunspell
