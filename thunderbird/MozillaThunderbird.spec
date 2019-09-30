@@ -55,11 +55,7 @@
 %define __provides_exclude ^lib.*\\.so.*$
 %define __requires_exclude ^(libmoz.*|liblgpllibs.*|libxul.*|libldap.*|libldif.*|libprldap.*)$
 %define localize 1
-%ifarch %ix86 x86_64
 %define crashreporter 0
-%else
-%define crashreporter 0
-%endif
 
 %define has_system_cairo 0
 
@@ -185,11 +181,6 @@ PreReq:         coreutils fileutils textutils /bin/sh
 Recommends:     libcanberra0
 Recommends:     libpulse0
 ### build options
-%ifarch aarch64 ppc ppc64 ppc64le s390 s390x ia64 %arm
-%define crashreporter 0
-%else
-%define crashreporter 1
-%endif
 %define has_system_cairo 0
 ### build options end
 Requires:       mozilla-nspr >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
