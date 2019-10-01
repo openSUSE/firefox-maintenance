@@ -22,7 +22,7 @@
 %define NSPR_min_version 4.21
 
 Name:           mozilla-nss
-BuildRequires:  firefox-gcc5-c++
+BuildRequires:  firefox-gcc8-c++
 BuildRequires:  mozilla-nspr-devel >= %{NSPR_min_version}
 BuildRequires:  pkg-config
 BuildRequires:  sqlite-devel
@@ -213,9 +213,9 @@ DATE="\"$(date -d "${modified}" "+%%b %%e %%Y")\""
 TIME="\"$(date -d "${modified}" "+%%R")\""
 find . -name '*.[ch]' -print -exec sed -i "s/__DATE__/${DATE}/g;s/__TIME__/${TIME}/g" {} +
 
-export CC=gcc-5
-export CXX=g++-5
-export CCC=g++-5
+export CC=gcc-8
+export CXX=g++-8
+export CCC=g++-8
 export NSS_NO_PKCS11_BYPASS=1
 export FREEBL_NO_DEPEND=1
 export FREEBL_LOWHASH=1
