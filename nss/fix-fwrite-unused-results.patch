@@ -1,0 +1,417 @@
+# HG changeset patch
+# Parent  b83b73f794eeb87b6bf2d543dc40fca88b600b42
+
+diff --git a/cmd/btoa/btoa.c b/cmd/btoa/btoa.c
+--- a/cmd/btoa/btoa.c
++++ b/cmd/btoa/btoa.c
+@@ -72,17 +72,17 @@ encode_file(FILE *outFile, FILE *inFile)
+     if (status != SECSuccess)
+         return status;
+ 
+     /*
+      * Add a trailing CRLF.  Note this must be done *after* the call
+      * to Destroy above (because only then are we sure all data has
+      * been written out).
+      */
+-    fwrite("\r\n", 1, 2, outFile);
++    (void)(fwrite("\r\n", 1, 2, outFile)+1);
+     return SECSuccess;
+ 
+ loser:
+     (void)NSSBase64Encoder_Destroy(cx, PR_TRUE);
+     return status;
+ }
+ 
+ static void
+diff --git a/cmd/crlutil/crlgen_lex.c b/cmd/crlutil/crlgen_lex.c
+--- a/cmd/crlutil/crlgen_lex.c
++++ b/cmd/crlutil/crlgen_lex.c
+@@ -521,17 +521,17 @@ YY_MALLOC_DECL
+ #endif
+ 
+ /* Copy whatever the last rule matched to the standard output. */
+ 
+ #ifndef ECHO
+ /* This used to be an fputs(), but since the string might contain NUL's,
+  * we now use fwrite().
+  */
+-#define ECHO (void)fwrite(yytext, yyleng, 1, yyout)
++#define ECHO (void)(fwrite(yytext, yyleng, 1, yyout)+1)
+ #endif
+ 
+ /* Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
+  * is returned in "result".
+  */
+ #ifndef YY_INPUT
+ #define YY_INPUT(buf, result, max_size)                           \
+     if (yy_current_buffer->yy_is_interactive) {                   \
+diff --git a/cmd/httpserv/httpserv.c b/cmd/httpserv/httpserv.c
+--- a/cmd/httpserv/httpserv.c
++++ b/cmd/httpserv/httpserv.c
+@@ -830,17 +830,17 @@ handle_connection(
+ 
+                 iovs[numIOVs].iov_base = msgBuf;
+                 iovs[numIOVs].iov_len = PORT_Strlen(msgBuf);
+                 numIOVs++;
+             }
+ 
+             if (reqLen > 0) {
+                 if (verbose > 1)
+-                    fwrite(buf, 1, reqLen, stdout); /* display it */
++                    (void)(fwrite(buf, 1, reqLen, stdout)+1); /* display it */
+ 
+                 iovs[numIOVs].iov_base = buf;
+                 iovs[numIOVs].iov_len = reqLen;
+                 numIOVs++;
+             }
+ 
+             rv = PR_Writev(ssl_sock, iovs, numIOVs, PR_INTERVAL_NO_TIMEOUT);
+             if (rv < 0) {
+diff --git a/cmd/modutil/lex.Pk11Install_yy.c b/cmd/modutil/lex.Pk11Install_yy.c
+--- a/cmd/modutil/lex.Pk11Install_yy.c
++++ b/cmd/modutil/lex.Pk11Install_yy.c
+@@ -493,17 +493,17 @@ YY_MALLOC_DECL
+ #endif
+ 
+ /* Copy whatever the last rule matched to the standard output. */
+ 
+ #ifndef ECHO
+ /* This used to be an fputs(), but since the string might contain NUL's,
+  * we now use fwrite().
+  */
+-#define ECHO (void)fwrite(yytext, yyleng, 1, yyout)
++#define ECHO (void)(fwrite(yytext, yyleng, 1, yyout)+1)
+ #endif
+ 
+ /* Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
+  * is returned in "result".
+  */
+ #ifndef YY_INPUT
+ #define YY_INPUT(buf, result, max_size)                           \
+     if (yy_current_buffer->yy_is_interactive) {                   \
+diff --git a/cmd/p7content/p7content.c b/cmd/p7content/p7content.c
+--- a/cmd/p7content/p7content.c
++++ b/cmd/p7content/p7content.c
+@@ -47,17 +47,17 @@ static PRBool saw_content;
+ static secuPWData pwdata = { PW_NONE, 0 };
+ 
+ static void
+ PrintBytes(void *arg, const char *buf, unsigned long len)
+ {
+     FILE *out;
+ 
+     out = arg;
+-    fwrite(buf, len, 1, out);
++    (void)(fwrite(buf, len, 1, out)+1);
+ 
+     saw_content = PR_TRUE;
+ }
+ 
+ /*
+  * XXX Someday we may want to do real policy stuff here.  This allows
+  * anything to be decrypted, which is okay for a test program but does
+  * not set an example of how a real client with a real policy would
+diff --git a/cmd/p7env/p7env.c b/cmd/p7env/p7env.c
+--- a/cmd/p7env/p7env.c
++++ b/cmd/p7env/p7env.c
+@@ -51,17 +51,17 @@ struct recipient {
+ };
+ 
+ static void
+ EncryptOut(void *arg, const char *buf, unsigned long len)
+ {
+     FILE *out;
+ 
+     out = arg;
+-    fwrite(buf, len, 1, out);
++    (void)(fwrite(buf, len, 1, out)+1);
+ }
+ 
+ static int
+ EncryptFile(FILE *outFile, FILE *inFile, struct recipient *recipients,
+             char *progName)
+ {
+     SEC_PKCS7ContentInfo *cinfo;
+     SEC_PKCS7EncoderContext *ecx;
+diff --git a/cmd/p7sign/p7sign.c b/cmd/p7sign/p7sign.c
+--- a/cmd/p7sign/p7sign.c
++++ b/cmd/p7sign/p7sign.c
+@@ -54,17 +54,17 @@ Usage(char *progName)
+ }
+ 
+ static void
+ SignOut(void *arg, const char *buf, unsigned long len)
+ {
+     FILE *out;
+ 
+     out = (FILE *)arg;
+-    fwrite(buf, len, 1, out);
++    (void)(fwrite(buf, len, 1, out)+1);
+ }
+ 
+ static int
+ CreateDigest(SECItem *data, char *digestdata, unsigned int *len, unsigned int maxlen)
+ {
+     const SECHashObject *hashObj;
+     void *hashcx;
+ 
+diff --git a/cmd/selfserv/selfserv.c b/cmd/selfserv/selfserv.c
+--- a/cmd/selfserv/selfserv.c
++++ b/cmd/selfserv/selfserv.c
+@@ -397,17 +397,17 @@ printSecurityInfo(PRFileDesc *fd)
+         }
+     }
+     if (verbose) {
+         SECItem *hostInfo = SSL_GetNegotiatedHostInfo(fd);
+         if (hostInfo) {
+             char namePref[] = "selfserv: Negotiated server name: ";
+ 
+             fprintf(stderr, "%s", namePref);
+-            fwrite(hostInfo->data, hostInfo->len, 1, stderr);
++            (void)(fwrite(hostInfo->data, hostInfo->len, 1, stderr)+1);
+             SECITEM_FreeItem(hostInfo, PR_TRUE);
+             hostInfo = NULL;
+             fprintf(stderr, "\n");
+         }
+     }
+     if (requestCert)
+         cert = SSL_PeerCertificate(fd);
+     else
+@@ -1523,17 +1523,17 @@ handle_connection(PRFileDesc *tcp_sock, 
+ 
+                 iovs[numIOVs].iov_base = msgBuf;
+                 iovs[numIOVs].iov_len = PORT_Strlen(msgBuf);
+                 numIOVs++;
+             }
+ 
+             if (reqLen > 0) {
+                 if (verbose > 1)
+-                    fwrite(buf, 1, reqLen, stdout); /* display it */
++                    (void)(fwrite(buf, 1, reqLen, stdout)+1); /* display it */
+ 
+                 iovs[numIOVs].iov_base = buf;
+                 iovs[numIOVs].iov_len = reqLen;
+                 numIOVs++;
+             }
+ 
+             /* Don't add the EOF if we want to test bulk encryption */
+             if (!testBulk) {
+diff --git a/cmd/signtool/certgen.c b/cmd/signtool/certgen.c
+--- a/cmd/signtool/certgen.c
++++ b/cmd/signtool/certgen.c
+@@ -672,18 +672,18 @@ output_ca_cert(CERTCertificate *cert, CE
+ 
+     certChain = SEC_PKCS7CreateCertsOnly(cert, PR_TRUE, db);
+     encodedCertChain =
+         SEC_PKCS7EncodeItem(NULL, NULL, certChain, NULL, NULL, NULL);
+     SEC_PKCS7DestroyContentInfo(certChain);
+ 
+     if (encodedCertChain) {
+         fprintf(out, "Content-type: application/x-x509-ca-cert\n\n");
+-        fwrite(encodedCertChain->data, 1, encodedCertChain->len,
+-               out);
++        (void)(fwrite(encodedCertChain->data, 1, encodedCertChain->len,
++               out)+1);
+         SECITEM_FreeItem(encodedCertChain, PR_TRUE);
+     } else {
+         PR_fprintf(errorFD, "%s: Can't DER encode this certificate\n",
+                    PROGRAM_NAME);
+         errorCount++;
+         exit(ERRX);
+     }
+ 
+diff --git a/cmd/signtool/sign.c b/cmd/signtool/sign.c
+--- a/cmd/signtool/sign.c
++++ b/cmd/signtool/sign.c
+@@ -863,10 +863,10 @@ calculate_MD5_range(FILE *fp, long r1, l
+     PORT_Free(buf);
+ 
+     return 0;
+ }
+ 
+ static void
+ SignOut(void *arg, const char *buf, unsigned long len)
+ {
+-    fwrite(buf, len, 1, (FILE *)arg);
++    (void)(fwrite(buf, len, 1, (FILE *)arg)+1);
+ }
+diff --git a/cmd/smimetools/cmsutil.c b/cmd/smimetools/cmsutil.c
+--- a/cmd/smimetools/cmsutil.c
++++ b/cmd/smimetools/cmsutil.c
+@@ -359,17 +359,17 @@ decode(FILE *out, SECItem *input, const 
+         if (decodeOptions->headerLevel >= 0)
+             fprintf(out, "\n");
+     }
+ 
+     if (!decodeOptions->suppressContent && out) {
+         SECItem *item = (sitem.data ? &sitem
+                                     : NSS_CMSMessage_GetContent(cmsg));
+         if (item && item->data && item->len) {
+-            fwrite(item->data, item->len, 1, out);
++            (void)(fwrite(item->data, item->len, 1, out)+1);
+         }
+     }
+     return cmsg;
+ 
+ loser:
+     if (cmsg)
+         NSS_CMSMessage_Destroy(cmsg);
+     return NULL;
+@@ -840,17 +840,17 @@ encrypted_data(struct encryptOptionsStr 
+         fprintf(stderr, "%s: failed to add data to encoder.\n", progName);
+         goto loser;
+     }
+     rv = NSS_CMSEncoder_Finish(ecx);
+     if (rv) {
+         fprintf(stderr, "%s: failed to encrypt data.\n", progName);
+         goto loser;
+     }
+-    fwrite(derOut.data, derOut.len, 1, encryptOptions->outfile);
++    (void)(fwrite(derOut.data, derOut.len, 1, encryptOptions->outfile)+1);
+     /*
+     if (bulkkey)
+         PK11_FreeSymKey(bulkkey);
+         */
+     if (tmppoolp)
+         PORT_FreeArena(tmppoolp, PR_FALSE);
+     return cmsg;
+ loser:
+@@ -1587,17 +1587,17 @@ main(int argc, char **argv)
+         if (rv) {
+             SECU_PrintError(progName, "failed to encode data");
+             exit(1);
+         }
+ 
+         if (cms_verbose) {
+             fprintf(stderr, "encoding passed\n");
+         }
+-        fwrite(output.data, output.len, 1, outFile);
++        (void)(fwrite(output.data, output.len, 1, outFile)+1);
+         if (cms_verbose) {
+             fprintf(stderr, "wrote to file\n");
+         }
+         PORT_FreeArena(arena, PR_FALSE);
+     }
+     if (cmsg)
+         NSS_CMSMessage_Destroy(cmsg);
+     if (outFile != stdout)
+diff --git a/gtests/google_test/gtest/src/gtest.cc b/gtests/google_test/gtest/src/gtest.cc
+--- a/gtests/google_test/gtest/src/gtest.cc
++++ b/gtests/google_test/gtest/src/gtest.cc
+@@ -4380,17 +4380,17 @@ class ScopedPrematureExitFile {
+       : premature_exit_filepath_(premature_exit_filepath ?
+                                  premature_exit_filepath : "") {
+     // If a path to the premature-exit file is specified...
+     if (!premature_exit_filepath_.empty()) {
+       // create the file with a single "0" character in it.  I/O
+       // errors are ignored as there's nothing better we can do and we
+       // don't want to fail the test because of this.
+       FILE* pfile = posix::FOpen(premature_exit_filepath, "w");
+-      fwrite("0", 1, 1, pfile);
++      (void)(fwrite("0", 1, 1, pfile)+1);
+       fclose(pfile);
+     }
+   }
+ 
+   ~ScopedPrematureExitFile() {
+     if (!premature_exit_filepath_.empty()) {
+       int retval = remove(premature_exit_filepath_.c_str());
+       if (retval) {
+diff --git a/lib/dbm/src/h_page.c b/lib/dbm/src/h_page.c
+--- a/lib/dbm/src/h_page.c
++++ b/lib/dbm/src/h_page.c
+@@ -976,32 +976,32 @@ overflow_page(HTAB *hashp)
+     hashp->SPARES[splitnum]++;
+     offset = hashp->SPARES[splitnum] -
+              (splitnum ? hashp->SPARES[splitnum - 1] : 0);
+ 
+ #define OVMSG "HASH: Out of overflow pages.  Increase page size\n"
+     if (offset > SPLITMASK) {
+         if (++splitnum >= NCACHED) {
+ #ifndef macintosh
+-            (void)fwrite(OVMSG, 1, sizeof(OVMSG) - 1, stderr);
++            (void)(fwrite(OVMSG, 1, sizeof(OVMSG) - 1, stderr)+1);
+ #endif
+             return (0);
+         }
+         hashp->OVFL_POINT = splitnum;
+         hashp->SPARES[splitnum] = hashp->SPARES[splitnum - 1];
+         hashp->SPARES[splitnum - 1]--;
+         offset = 1;
+     }
+ 
+     /* Check if we need to allocate a new bitmap page */
+     if (free_bit == (hashp->BSIZE << BYTE_SHIFT) - 1) {
+         free_page++;
+         if (free_page >= NCACHED) {
+ #ifndef macintosh
+-            (void)fwrite(OVMSG, 1, sizeof(OVMSG) - 1, stderr);
++            (void)(fwrite(OVMSG, 1, sizeof(OVMSG) - 1, stderr)+1);
+ #endif
+             return (0);
+         }
+         /*
+          * This is tricky.  The 1 indicates that you want the new page
+          * allocated with 1 clear bit.  Actually, you are going to
+          * allocate 2 pages from this map.  The first is going to be
+          * the map page, the second is the overflow page we were
+@@ -1017,17 +1017,17 @@ overflow_page(HTAB *hashp)
+         hashp->SPARES[splitnum]++;
+ #ifdef DEBUG2
+         free_bit = 2;
+ #endif
+         offset++;
+         if (offset > SPLITMASK) {
+             if (++splitnum >= NCACHED) {
+ #ifndef macintosh
+-                (void)fwrite(OVMSG, 1, sizeof(OVMSG) - 1, stderr);
++                (void)(fwrite(OVMSG, 1, sizeof(OVMSG) - 1, stderr)+1);
+ #endif
+                 return (0);
+             }
+             hashp->OVFL_POINT = splitnum;
+             hashp->SPARES[splitnum] = hashp->SPARES[splitnum - 1];
+             hashp->SPARES[splitnum - 1]--;
+             offset = 0;
+         }
+diff --git a/lib/util/utilmod.c b/lib/util/utilmod.c
+--- a/lib/util/utilmod.c
++++ b/lib/util/utilmod.c
+@@ -754,17 +754,17 @@ nssutil_DeleteSecmodDBEntry(const char *
+             }
+             /* not our match, continue to collect data in this block */
+             block = nssutil_DupCat(block, line);
+             continue;
+         }
+         /* we've collected a block of data that wasn't the module we were
+          * looking for, write it out */
+         if (block) {
+-            fwrite(block, PORT_Strlen(block), 1, fd2);
++            (void)(fwrite(block, PORT_Strlen(block), 1, fd2)+1);
+             PORT_Free(block);
+             block = NULL;
+         }
+         /* If we didn't just delete the this block, keep the blank line */
+         if (!skip) {
+             fputs(line, fd2);
+         }
+         /* we are definately not in a deleted block anymore */
+@@ -868,17 +868,17 @@ nssutil_AddSecmodDBEntry(const char *app
+         block = nssutil_DupnCat(block, "\n", 1);
+         module = keyEnd + 1 + count;
+         module = NSSUTIL_ArgStrip(module);
+     }
+     if (block) {
+         if (!libFound) {
+             fprintf(fd, "library=\n");
+         }
+-        fwrite(block, PORT_Strlen(block), 1, fd);
++        (void)(fwrite(block, PORT_Strlen(block), 1, fd)+1);
+         fprintf(fd, "\n");
+         PORT_Free(block);
+         block = NULL;
+     }
+     fclose(fd);
+     return SECSuccess;
+ 
+ loser:

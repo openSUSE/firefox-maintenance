@@ -2,7 +2,7 @@
 # spec file for package mozilla-nss
 #
 # Copyright (c) 2019 SUSE LINUX GmbH, Nuernberg, Germany.
-# Copyright (c) 2006-2019 Wolfgang Rosenauer
+# Copyright (c) 2006-2018 Wolfgang Rosenauer
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -16,19 +16,20 @@
 # Please submit bugfixes or comments via https://bugs.opensuse.org/
 #
 
+%define ffprefix  /usr/%{_lib}/firefox
 
 %global nss_softokn_fips_version 3.45
 %define NSPR_min_version 4.21
 
 Name:           mozilla-nss
-BuildRequires:  gcc-c++
+BuildRequires:  firefox-gcc5-c++
 BuildRequires:  mozilla-nspr-devel >= %{NSPR_min_version}
 BuildRequires:  pkg-config
 BuildRequires:  sqlite-devel
 BuildRequires:  zlib-devel
 Version:        3.45
-Release:        0
 %define underscore_version 3_45
+Release:        0
 # bug437293
 %ifarch ppc64
 Obsoletes:      mozilla-nss-64bit
@@ -58,6 +59,7 @@ Patch4:         add-relro-linker-option.patch
 Patch5:         malloc.patch
 Patch6:         bmo-1400603.patch
 Patch7:         nss-sqlitename.patch
+Patch8:         fix-fwrite-unused-results.patch
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 PreReq:         mozilla-nspr >= %nspr_ver
 PreReq:         libfreebl3 >= %{nss_softokn_fips_version}
@@ -129,7 +131,7 @@ any system or user configured modules.
 %package -n libfreebl3
 Summary:        Freebl library for the Network Security Services
 Group:          System/Libraries
-Recommends:     libfreebl3-hmac = %{version}-%{release}
+Suggests:       libfreebl3-hmac
 
 %description -n libfreebl3
 Network Security Services (NSS) is a set of libraries designed to
@@ -142,7 +144,7 @@ This package installs the freebl library from NSS.
 
 
 %package -n libfreebl3-hmac
-Summary:        Freebl library checksums for the Network Security Services
+Summary:        Freebl library for the Network Security Services
 Group:          System/Libraries
 Requires:       libfreebl3 = %{version}-%{release}
 
@@ -155,7 +157,7 @@ used in the FIPS 140-2 mode.
 Summary:        Network Security Services Softoken Module
 Group:          System/Libraries
 Requires:       libfreebl3 = %{version}-%{release}
-Recommends:     libsoftokn3-hmac = %{version}-%{release}
+Suggests:       libsoftokn3-hmac
 
 %description -n libsoftokn3
 Network Security Services (NSS) is a set of libraries designed to
@@ -168,7 +170,7 @@ Network Security Services Softoken Cryptographic Module
 
 
 %package -n libsoftokn3-hmac
-Summary:        Network Security Services Softoken Module checksums
+Summary:        Network Security Services Softoken Module
 Group:          System/Libraries
 Requires:       libsoftokn3 = %{version}-%{release}
 
@@ -198,19 +200,22 @@ cd nss
 %endif
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
 # additional CA certificates
 #cd security/nss/lib/ckfw/builtins
 #cat %{SOURCE2} >> certdata.txt
 #make generate
 
 %build
-%global _lto_cflags %{_lto_cflags} -ffat-lto-objects
 cd nss
 modified="$(sed -n '/^----/n;s/ - .*$//;p;q' "%{S:99}")"
 DATE="\"$(date -d "${modified}" "+%%b %%e %%Y")\""
 TIME="\"$(date -d "${modified}" "+%%R")\""
 find . -name '*.[ch]' -print -exec sed -i "s/__DATE__/${DATE}/g;s/__TIME__/${TIME}/g" {} +
 
+export CC=gcc-5
+export CXX=g++-5
+export CCC=g++-5
 export NSS_NO_PKCS11_BYPASS=1
 export FREEBL_NO_DEPEND=1
 export FREEBL_LOWHASH=1
@@ -218,12 +223,25 @@ export NSPR_INCLUDE_DIR=`nspr-config --includedir`
 export NSPR_LIB_DIR=`nspr-config --libdir`
 export OPT_FLAGS="%{optflags} -fno-strict-aliasing -fPIE -pie"
 export LIBDIR=%{_libdir}
-%ifarch x86_64 s390x ppc64 ppc64le ia64 aarch64 riscv64
+%ifarch x86_64 s390x ppc64 ppc64le ia64 aarch64
 export USE_64=1
 %endif
 export NSS_USE_SYSTEM_SQLITE=1
 #export SQLITE_LIB_NAME=nsssqlite3
 MAKE_FLAGS="BUILD_OPT=1"
+%if %{suse_version} < 1200
+# link against comapt packages first
+export LDFLAGS="-L%{ffprefix}/%{_lib}"
+export LD_LIBRARY_PATH=%{ffprefix}/%{_lib}:$LD_LIBRARY_PATH
+export PKG_CONFIG_PATH=%{ffprefix}/%{_lib}/pkgconfig:$PKG_CONFIG_PATH
+export PATH=%{ffprefix}/bin:$PATH
+
+%ifarch ia64
+OPT_FLAGS=${OPT_FLAGS/-fstack-protector /}
+%endif
+
+%endif
+
 make nss_build_all $MAKE_FLAGS
 # run testsuite
 %if 0%{?run_testsuite}

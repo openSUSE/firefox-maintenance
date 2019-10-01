@@ -141,7 +141,7 @@ BuildRequires:  firefox-atk-devel
 BuildRequires:  firefox-cairo-devel
 BuildRequires:  firefox-pango-devel
 BuildRequires:  firefox-gdk-pixbuf-devel
-BuildRequires:  libffi-devel
+BuildRequires:  firefox-libffi-devel
 BuildRequires:  libpulse-devel
 BuildRequires:  xz
 BuildRequires:  firefox-fontconfig-devel
