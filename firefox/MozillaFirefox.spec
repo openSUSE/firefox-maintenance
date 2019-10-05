@@ -203,6 +203,7 @@ Patch21:        mozilla-bmo1554971.patch
 Patch22:        mozilla-nestegg-big-endian.patch
 Patch23:        mozilla-bmo1512162.patch
 Patch24:        mozilla-fix-top-level-asm.patch
+Patch25:        mozilla-bmo1585099.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -339,6 +340,7 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 %patch22 -p1
 %patch23 -p1
 %patch24 -p1
+%patch25 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
