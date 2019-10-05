@@ -194,9 +194,7 @@ Patch102:       firefox-branded-icons.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post):   coreutils shared-mime-info desktop-file-utils
 Requires(postun): shared-mime-info desktop-file-utils
-%if %branding
-Requires:       %{name}-branding > 44.0
-%endif
+Requires:       %{name}-branding >= 68
 Requires:       mozilla-nspr >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 Requires:       mozilla-nss >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nss)
 Recommends:     libcanberra0
@@ -249,7 +247,6 @@ This package contains rarely used languages for the user interface
 of %{appname}.
 %endif
 
-%if %branding
 %package branding-upstream
 Summary:        Upstream branding for %{appname}
 Group:          Productivity/Networking/Web/Browsers
@@ -268,7 +265,6 @@ Supplements:    packageand(%{name}:branding-upstream)
 
 %description branding-upstream
 This package provides upstream look and feel for %{appname}.
-%endif
 
 %if %crashreporter
 %package buildsymbols
@@ -725,11 +721,9 @@ exit 0
 
 # this package does not need to provide files but is needed to fulfill
 # requirements if no other branding package is to be installed
-%if %branding
 %files branding-upstream
 %defattr(-,root,root)
 %dir %{progdir}
-%endif
 
 %if %crashreporter
 %files buildsymbols
