@@ -164,7 +164,6 @@ Source4:        tar_stamps
 Source7:        l10n-%{orig_version}%{orig_suffix}.tar.xz
 Source8:        firefox-mimeinfo.xml
 Source9:        firefox.js
-Source10:       compare-locales.tar.xz
 Source11:       firefox.1
 Source12:       mozilla-get-app-id
 Source13:       spellcheck.js
@@ -501,6 +500,31 @@ export PKG_CONFIG_PATH=/usr/%_lib/firefox/%_lib/pkgconfig/
 xvfb-run --server-args="-screen 0 1920x1080x24" \
 %endif
 ./mach build
+
+# build additional locales
+%if %localize
+mkdir -p %{buildroot}%{progdir}/browser/extensions
+truncate -s 0 %{_tmppath}/translations.{common,other}
+sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{source_prefix}/browser/locales/shipped-locales \
+    | xargs -n 1 -I {} /bin/sh -c '
+        locale=$1
+        ./mach build langpack-$locale
+        cp -rL ../obj/dist/xpi-stage/locale-$locale \
+            %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org
+        # remove prefs, profile defaults, and hyphenation from langpack
+        rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/defaults
+        rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/hyphenation
+        # check against the fixed common list and sort into the right filelist
+        _matched=0
+        for _match in ar ca cs da de el en-GB es-AR es-CL es-ES fi fr hu it ja ko nb-NO nl pl pt-BR pt-PT ru sv-SE zh-CN zh-TW; do
+            [ "$_match" = "$locale" ] && _matched=1
+        done
+        [ $_matched -eq 1 ] && _l10ntarget=common || _l10ntarget=other
+        echo %{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org \
+            >> %{_tmppath}/translations.$_l10ntarget
+' -- {}
+%endif
+
 %endif # only_print_mozconfig
 
 %install
@@ -529,35 +553,7 @@ mv %{buildroot}%{progdir}/%{srcname}-bin %{buildroot}%{progdir}/%{progname}-bin
 install -m 644 %{SOURCE13} %{buildroot}%{progdir}/defaults/pref/
 # install browser prefs
 install -m 644 %{SOURCE9} %{buildroot}%{progdir}/browser/defaults/preferences/firefox.js
-# build additional locales
-%if %localize
-mkdir -p %{buildroot}%{progdir}/browser/extensions
-truncate -s 0 %{_tmppath}/translations.{common,other}
-sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_version}/browser/locales/shipped-locales \
-    | xargs -n 1 -I {} /bin/sh -c '
-        locale=$1
-        pushd $RPM_BUILD_DIR/compare-locales
-        PYTHONPATH=lib \
-            scripts/compare-locales -m ../l10n-merged/$locale \
-            ../%{srcname}-%{orig_version}/browser/locales/l10n.ini ../l10n $locale
-        popd
-        LOCALE_MERGEDIR=$RPM_BUILD_DIR/l10n-merged/$locale \
-            make -C browser/locales langpack-$locale
-        cp -rL dist/xpi-stage/locale-$locale \
-            %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org
-        # remove prefs, profile defaults, and hyphenation from langpack
-        rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/defaults
-        rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/hyphenation
-        # check against the fixed common list and sort into the right filelist
-        _matched=0
-        for _match in ar ca cs da de el en-GB es-AR es-CL es-ES fi fr hu it ja ko nb-NO nl pl pt-BR pt-PT ru sv-SE zh-CN zh-TW; do
-            [ "$_match" = "$locale" ] && _matched=1
-        done
-        [ $_matched -eq 1 ] && _l10ntarget=common || _l10ntarget=other
-        echo %{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org \
-            >> %{_tmppath}/translations.$_l10ntarget
-' -- {}
-%endif
+
 # remove some executable permissions
 find %{buildroot}%{progdir} \
      -name "*.js" -o \
