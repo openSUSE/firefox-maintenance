@@ -287,7 +287,7 @@ if (( $(stat -Lc%s "%{SOURCE7}") < MINSIZE)); then
     exit 1
 fi
 
-%setup -q -n %{srcname}-%{orig_version} -b 7 -b 10
+%setup -q -n %{srcname}-%{orig_version} -b 7
 %else
 %setup -q -n %{srcname}-%{orig_version}
 %endif
