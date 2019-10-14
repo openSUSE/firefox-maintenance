@@ -19,13 +19,13 @@
 
 # changed with every update
 %define major          69
-%define mainver        %major.0.2
-%define orig_version   69.0.2
+%define mainver        %major.0.3
+%define orig_version   69.0.3
 %define orig_suffix    %{nil}
 %define update_channel release
 %define branding       1
 %define devpkg         1
-%define releasedate    20191001234643
+%define releasedate    20191009172106
 
 # always build with GCC as SUSE Security Team requires that
 %define clang_build 0
