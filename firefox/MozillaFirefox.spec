@@ -31,6 +31,7 @@
 %define orig_suffix    esr
 %define update_channel esr68
 %define branding       1
+%define devpkg         1
 %define releasedate    20191016163237
 
 # https://bugzilla.suse.com/show_bug.cgi?id=1138688
@@ -218,6 +219,9 @@ Recommends:     libcanberra0
 Recommends:     libpulse0
 # addon leads to startup crash (bnc#908892)
 Obsoletes:      tracker-miner-firefox < 0.15
+%if 0%{?devpkg} == 0
+Obsoletes:      %{name}-devel < %{version}
+%endif
 # libproxy's mozjs pacrunner crashes FF (bnc#759123)
 %if 0%{?suse_version} < 1220
 Obsoletes:      libproxy1-pacrunner-mozjs <= 0.4.7
@@ -229,6 +233,7 @@ Mozilla Firefox is a standalone web browser, designed for standards
 compliance and performance.  Its functionality can be enhanced via a
 plethora of extensions.
 
+%if 0%{?devpkg}
 %package devel
 Summary:        Devel package for %{appname}
 Group:          Development/Tools/Other
@@ -239,6 +244,7 @@ Requires:       perl(XML::Simple)
 
 %description devel
 Development files for %{appname} to make packaging of addons easier.
+%endif
 
 %if %localize
 %package translations-common
@@ -618,6 +624,7 @@ rm -f %{buildroot}%{progdir}/run-mozilla.sh
 rm -f %{buildroot}%{progdir}/LICENSE
 rm -f %{buildroot}%{progdir}/precomplete
 rm -f %{buildroot}%{progdir}/update-settings.ini
+%if 0%{?devpkg}
 # devel
 mkdir -p %{buildroot}%{_bindir}
 install -m 755 %SOURCE12 %{buildroot}%{_bindir}
@@ -639,12 +646,7 @@ cat <<'FIN' >%{buildroot}%{_sysconfdir}/rpm/macros.%{progname}
    %%{__unzip} -q -d "$extdir" "%%1" \
    %%{nil}
 FIN
-# just dumping an xpi file there doesn't work...
-#%%firefox_ext_install() \
-#       extdir="%%{buildroot}%%{firefox_extdir}" \
-#       mkdir -p "$extdir" \
-#       cp "%%1" "$extdir" \
-#       %%{nil}
+%endif
 # fdupes
 %fdupes %{buildroot}%{progdir}
 %fdupes %{buildroot}%{_datadir}
@@ -730,13 +732,14 @@ exit 0
 %doc %{_mandir}/man1/%{progname}.1.gz
 %{_datadir}/appdata/
 
+%if 0%{?devpkg}
 %files devel
 %defattr(-,root,root)
 %{_bindir}/mozilla-get-app-id
 %config %{_sysconfdir}/rpm/macros.%{progname}
+%endif
 
 %if %localize
-
 %files translations-common -f %{_tmppath}/translations.common
 %defattr(-,root,root)
 %dir %{progdir}
