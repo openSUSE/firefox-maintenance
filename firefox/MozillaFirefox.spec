@@ -26,12 +26,12 @@
 # major 69
 # mainver %major.99
 %define major          68
-%define mainver        %major.1.0
-%define orig_version   68.1.0
+%define mainver        %major.2.0
+%define orig_version   68.2.0
 %define orig_suffix    esr
 %define update_channel esr68
 %define branding       1
-%define releasedate    20190826132627
+%define releasedate    20191016163237
 %define source_prefix  firefox-%{orig_version}
 
 # https://bugzilla.suse.com/show_bug.cgi?id=1138688
@@ -196,16 +196,13 @@ Patch12:        mozilla-reduce-rust-debuginfo.patch
 Patch13:        mozilla-ppc-altivec_static_inline.patch
 Patch14:        mozilla-bmo1005535.patch
 Patch15:        mozilla-bmo1568145.patch
-Patch16:        mozilla-bmo1573381.patch
 Patch17:        mozilla-bmo1504834-part1.patch
 Patch18:        mozilla-bmo1504834-part2.patch
 Patch19:        mozilla-bmo1504834-part3.patch
 Patch20:        mozilla-bmo1511604.patch
 Patch21:        mozilla-bmo1554971.patch
 Patch22:        mozilla-nestegg-big-endian.patch
-Patch23:        mozilla-bmo1512162.patch
 Patch24:        mozilla-fix-top-level-asm.patch
-Patch25:        mozilla-bmo1585099.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -332,16 +329,13 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 %patch13 -p1
 %patch14 -p1
 %patch15 -p1
-%patch16 -p1
 %patch17 -p1
 %patch18 -p1
 %patch19 -p1
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
-%patch23 -p1
 %patch24 -p1
-%patch25 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
