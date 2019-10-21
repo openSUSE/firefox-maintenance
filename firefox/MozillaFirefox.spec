@@ -245,6 +245,8 @@ Development files for %{appname} to make packaging of addons easier.
 Summary:        Common translations for %{appname}
 Group:          System/Localization
 Provides:       locale(%{name}:ar;ca;cs;da;de;el;en_GB;es_AR;es_CL;es_ES;fi;fr;hu;it;ja;ko;nb_NO;nl;pl;pt_BR;pt_PT;ru;sv_SE;zh_CN;zh_TW)
+# This is there for updates from Firefox before the translations-package was split up into 2 packages
+Provides:       %{name}-translations
 Requires:       %{name} = %{version}
 Obsoletes:      %{name}-translations < %{version}-%{release}
 
