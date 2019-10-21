@@ -96,7 +96,6 @@ BuildRequires:  mozilla-nss-devel >= 3.44.1
 BuildRequires:  firefox-nasm >= 2.13
 BuildRequires:  nodejs10
 #BuildRequires:  python2-xml
-#BuildRequires:  firefox-python3 >= 3.5
 %else
 BuildRequires:  nasm >= 2.13
 BuildRequires:  nodejs8 >= 8.11
@@ -204,10 +203,10 @@ Patch20:        mozilla-bmo1511604.patch
 Patch21:        mozilla-bmo1554971.patch
 Patch22:        mozilla-nestegg-big-endian.patch
 Patch24:        mozilla-fix-top-level-asm.patch
+Patch25:        mozilla-sle12-lower-python-requirement.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
-Patch103:       mozilla-sle12-lower-python-requirement.patch
 %endif # only_print_mozconfig
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post):   coreutils shared-mime-info desktop-file-utils
@@ -342,10 +341,10 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch21 -p1
 %patch22 -p1
 %patch24 -p1
+%patch25 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
-%patch103 -p1
 %endif # only_print_mozconfig
 
 %build
@@ -524,7 +523,7 @@ mkdir -p %{buildroot}%{progdir}/browser/defaults/preferences/
 # renaming executables (for regular vs. ESR)
 %if "%{srcname}" != "%{progname}"
 mv %{buildroot}%{progdir}/%{srcname} %{buildroot}%{progdir}/%{progname}
-mv %{buildroot}%{progdir}/%{srcname}-bin %{buildroot}%{progdir}/%{progname}
+mv %{buildroot}%{progdir}/%{srcname}-bin %{buildroot}%{progdir}/%{progname}-bin
 %endif
 # install gre prefs
 install -m 644 %{SOURCE13} %{buildroot}%{progdir}/defaults/pref/
