@@ -95,13 +95,15 @@ BuildRequires:  mozilla-nss-devel >= 3.44.1
 BuildRequires:  firefox-nasm >= 2.13
 BuildRequires:  nodejs10
 #BuildRequires:  python2-xml
-BuildRequires:  firefox-python3 >= 3.5
+#BuildRequires:  firefox-python3 >= 3.5
 %else
 BuildRequires:  nasm >= 2.13
 BuildRequires:  nodejs8 >= 8.11
 BuildRequires:  python2-xml
-BuildRequires:  python3 >= 3.5
 %endif
+# Official requirement is 3.5, but for SLE-12 we lower (patch) the
+# requirement to 3.4, as thats the python-version we have there
+BuildRequires:  python3 >= 3.4
 BuildRequires:  python-devel
 BuildRequires:  rust >= 1.34
 BuildRequires:  rust-cbindgen >= 0.8.7
@@ -207,6 +209,7 @@ Patch25:        mozilla-bmo1585099.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
+Patch103:       mozilla-sle12-lower-python-requirement.patch
 %endif # only_print_mozconfig
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post):   coreutils shared-mime-info desktop-file-utils
@@ -342,6 +345,7 @@ cd $RPM_BUILD_DIR/%{source_prefix}
 # Firefox
 %patch101 -p1
 %patch102 -p1
+%patch103 -p1
 %endif # only_print_mozconfig
 
 %build

@@ -1,0 +1,41 @@
+# HG changeset patch
+# Parent  9edebbc21d9835abacb6110b1591d2ae1b6a0727
+On SLE-12 we have only python 3.4 available at the moment. But
+as it seems, no python 3.5 features are being used to build, so
+lowering the requirements work.
+
+diff -r 9edebbc21d98 build/moz.configure/init.configure
+--- a/build/moz.configure/init.configure	Fri Sep 20 08:00:18 2019 +0200
++++ b/build/moz.configure/init.configure	Fri Oct 11 12:44:23 2019 +0200
+@@ -412,7 +412,7 @@
+                                   'MozillaBuild python: %s' % e)
+     else:
+         # Fall back to the search routine.
+-        python, version = find_python3_executable(min_version='3.5.0')
++        python, version = find_python3_executable(min_version='3.4.5')
+ 
+         # The API returns a bytes whereas everything in configure is unicode.
+         if python:
+@@ -424,7 +424,7 @@
+                               'PATH or define PYTHON3 to point to a Python '
+                               '3.5 executable.')
+ 
+-    if version < (3, 5, 0):
++    if version < (3, 4, 5):
+         raise FatalCheckError('Python 3.5 or newer is required to build; '
+                               '%s is Python %d.%d' % (python, version[0],
+                                                       version[1]))
+diff -r 9edebbc21d98 taskcluster/scripts/run-task
+--- a/taskcluster/scripts/run-task	Fri Sep 20 08:00:18 2019 +0200
++++ b/taskcluster/scripts/run-task	Fri Oct 11 12:44:23 2019 +0200
+@@ -16,8 +16,8 @@
+ import sys
+ 
+ 
+-if sys.version_info[0:2] < (3, 5):
+-    print('run-task requires Python 3.5+')
++if sys.version_info[0:2] < (3, 4):
++    print('run-task requires Python 3.4+')
+     sys.exit(1)
+ 
+ 
