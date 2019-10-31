@@ -204,6 +204,7 @@ Patch21:        mozilla-bmo1554971.patch
 Patch22:        mozilla-nestegg-big-endian.patch
 Patch24:        mozilla-fix-top-level-asm.patch
 Patch25:        mozilla-sle12-lower-python-requirement.patch
+Patch26:        mozilla-bmo1504834-part4.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -342,6 +343,7 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch22 -p1
 %patch24 -p1
 %patch25 -p1
+%patch26 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
