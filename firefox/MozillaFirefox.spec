@@ -444,9 +444,6 @@ ac_add_options --with-arch=armv6
 ac_add_options --with-arch=armv7-a
 %endif
 %endif
-%ifarch aarch64 %arm s390x
-ac_add_options --disable-webrtc
-%endif
 # mitigation/workaround for bmo#1512162
 %ifarch s390x
 ac_add_options --enable-optimize="-O1"
