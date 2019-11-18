@@ -196,6 +196,7 @@ Patch12:        mozilla-reduce-rust-debuginfo.patch
 Patch13:        mozilla-ppc-altivec_static_inline.patch
 Patch14:        mozilla-bmo1005535.patch
 Patch15:        mozilla-bmo1568145.patch
+Patch16:        mozilla-bmo849632.patch
 Patch17:        mozilla-bmo1504834-part1.patch
 Patch18:        mozilla-bmo1504834-part2.patch
 Patch19:        mozilla-bmo1504834-part3.patch
@@ -335,6 +336,7 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch13 -p1
 %patch14 -p1
 %patch15 -p1
+%patch16 -p1
 %patch17 -p1
 %patch18 -p1
 %patch19 -p1
