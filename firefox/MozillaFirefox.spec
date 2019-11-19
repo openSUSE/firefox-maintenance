@@ -505,9 +505,9 @@ xvfb-run --server-args="-screen 0 1920x1080x24" \
 
 %install
 cd $RPM_BUILD_DIR/obj
-source %{SOURCE5}
-export MOZ_SOURCE_STAMP=$REV
-export MOZ_SOURCE_REPO=$REPO
+source %{SOURCE4}
+export MOZ_SOURCE_STAMP=$RELEASE_TAG
+export MOZ_SOURCE_REPO=$RELEASE_REPO
 # need to remove default en-US firefox-l10n.js before it gets
 # populated into browser's omni.ja; it only contains general.useragent.locale
 # which should be loaded from each language pack (set in firefox.js)
