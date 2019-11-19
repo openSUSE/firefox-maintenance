@@ -19,13 +19,13 @@
 
 # changed with every update
 %define major          70
-%define mainver        %major.0
-%define orig_version   70.0
+%define mainver        %major.0.1
+%define orig_version   70.0.1
 %define orig_suffix    %{nil}
 %define update_channel release
 %define branding       1
 %define devpkg         1
-%define releasedate    20191016161957
+%define releasedate    20191030021342
 
 # always build with GCC as SUSE Security Team requires that
 %define clang_build 0
@@ -186,6 +186,7 @@ Patch19:        mozilla-bmo1511604.patch
 Patch20:        mozilla-bmo1554971.patch
 Patch21:        mozilla-bmo1512162.patch
 Patch22:        mozilla-fix-top-level-asm.patch
+Patch23:        mozilla-bmo1504834-part4.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -321,6 +322,7 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
+%patch23 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
