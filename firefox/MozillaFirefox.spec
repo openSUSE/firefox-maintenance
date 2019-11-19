@@ -25,7 +25,6 @@
 %define update_channel release
 %define branding       1
 %define devpkg         1
-%define releasedate    20191030021342
 
 # always build with GCC as SUSE Security Team requires that
 %define clang_build 0
@@ -145,7 +144,6 @@ Source1:        MozillaFirefox.desktop
 Source2:        MozillaFirefox-rpmlintrc
 Source3:        mozilla.sh.in
 Source4:        tar_stamps
-Source5:        source-stamp.txt
 Source7:        l10n-%{orig_version}%{orig_suffix}.tar.xz
 Source8:        firefox-mimeinfo.xml
 Source9:        firefox.js
@@ -153,7 +151,7 @@ Source10:       compare-locales.tar.xz
 Source11:       firefox.1
 Source12:       mozilla-get-app-id
 Source13:       spellcheck.js
-Source14:       https://github.com/openSUSE/firefox-scripts/raw/master/create-tar.sh
+Source14:       https://github.com/openSUSE/firefox-scripts/raw/04d38e104a6ecdea33442755282688e8090ffa66/create-tar.sh
 Source15:       firefox-appdata.xml
 Source16:       %{name}.changes
 # Set up API keys, see http://www.chromium.org/developers/how-tos/api-keys
@@ -341,15 +339,15 @@ if test "$kdehelperversion" != %{kde_helper_version}; then
   echo fix kde helper version in the .spec file
   exit 1
 fi
-source %{SOURCE5}
+source %{SOURCE4}
 %endif # only_print_mozconfig
 
 export CARGO_HOME=${RPM_BUILD_DIR}/%{srcname}-%{orig_version}/.cargo
-export MOZ_SOURCE_CHANGESET=$REV
-export SOURCE_REPO=$REPO
-export source_repo=$REPO
-export MOZ_SOURCE_REPO=$REPO
-export MOZ_BUILD_DATE=%{releasedate}
+export MOZ_SOURCE_CHANGESET=$RELEASE_TAG
+export SOURCE_REPO=$RELEASE_REPO
+export source_repo=$RELEASE_REPO
+export MOZ_SOURCE_REPO=$RELEASE_REPO
+export MOZ_BUILD_DATE=$RELEASE_TIMESTAMP
 export MOZILLA_OFFICIAL=1
 export BUILD_OFFICIAL=1
 export MOZ_TELEMETRY_REPORTING=1
