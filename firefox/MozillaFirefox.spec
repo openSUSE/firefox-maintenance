@@ -19,10 +19,10 @@
 
 # changed with every update
 %define major          70
-%define mainver        %major.0.1
-%define orig_version   70.0.1
-%define orig_suffix    %{nil}
-%define update_channel release
+%define mainver        %major.99
+%define orig_version   71.0
+%define orig_suffix    b11
+%define update_channel beta
 %define branding       1
 %define devpkg         1
 
@@ -72,7 +72,7 @@ BuildRequires:  gcc7-c++
 %else
 BuildRequires:  gcc-c++
 %endif
-BuildRequires:  cargo >= 1.36
+BuildRequires:  cargo >= 1.37
 BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
 BuildRequires:  libidl-devel
@@ -80,14 +80,14 @@ BuildRequires:  libiw-devel
 BuildRequires:  libnotify-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
-BuildRequires:  mozilla-nspr-devel >= 4.22
-BuildRequires:  mozilla-nss-devel >= 3.46.1
+BuildRequires:  mozilla-nspr-devel >= 4.23
+BuildRequires:  mozilla-nss-devel >= 3.47.1
 BuildRequires:  nasm >= 2.13
 BuildRequires:  nodejs8 >= 8.11
 BuildRequires:  python-devel
 BuildRequires:  python2-xml
 BuildRequires:  python3 >= 3.5
-BuildRequires:  rust >= 1.36
+BuildRequires:  rust >= 1.37
 BuildRequires:  rust-cbindgen >= 0.9.1
 BuildRequires:  startup-notification-devel
 BuildRequires:  unzip
@@ -165,26 +165,25 @@ Source21:       https://ftp.mozilla.org/pub/%{srcname}/releases/%{version}%{orig
 Patch1:         mozilla-nongnome-proxies.patch
 Patch2:         mozilla-kde.patch
 Patch3:         mozilla-ntlm-full-path.patch
-Patch4:         mozilla-openaes-decl.patch
-Patch5:         mozilla-aarch64-startup-crash.patch
-Patch6:         mozilla-bmo1463035.patch
-Patch7:         mozilla-cubeb-noreturn.patch
-Patch8:         mozilla-fix-aarch64-libopus.patch
-Patch9:         mozilla-disable-wasm-emulate-arm-unaligned-fp-access.patch
-Patch10:        mozilla-s390-context.patch
-Patch11:        mozilla-s390-bigendian.patch
-Patch12:        mozilla-reduce-rust-debuginfo.patch
-Patch13:        mozilla-ppc-altivec_static_inline.patch
-Patch14:        mozilla-bmo1005535.patch
-Patch15:        mozilla-bmo1568145.patch
-Patch16:        mozilla-bmo1504834-part1.patch
-Patch17:        mozilla-bmo1504834-part2.patch
-Patch18:        mozilla-bmo1504834-part3.patch
-Patch19:        mozilla-bmo1511604.patch
-Patch20:        mozilla-bmo1554971.patch
-Patch21:        mozilla-bmo1512162.patch
-Patch22:        mozilla-fix-top-level-asm.patch
-Patch23:        mozilla-bmo1504834-part4.patch
+Patch4:         mozilla-aarch64-startup-crash.patch
+Patch5:         mozilla-bmo1463035.patch
+Patch6:         mozilla-cubeb-noreturn.patch
+Patch7:         mozilla-fix-aarch64-libopus.patch
+Patch8:         mozilla-disable-wasm-emulate-arm-unaligned-fp-access.patch
+Patch9:         mozilla-s390-context.patch
+Patch10:        mozilla-s390-bigendian.patch
+Patch11:        mozilla-reduce-rust-debuginfo.patch
+Patch12:        mozilla-ppc-altivec_static_inline.patch
+Patch13:        mozilla-bmo1005535.patch
+Patch14:        mozilla-bmo1568145.patch
+Patch15:        mozilla-bmo1504834-part1.patch
+Patch16:        mozilla-bmo1504834-part2.patch
+Patch17:        mozilla-bmo1504834-part3.patch
+Patch18:        mozilla-bmo1554971.patch
+Patch19:        mozilla-bmo1512162.patch
+Patch20:        mozilla-fix-top-level-asm.patch
+Patch21:        mozilla-bmo1504834-part4.patch
+Patch22:        mozilla-bmo849632.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -305,10 +304,10 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
-%patch10 -p1
 %ifarch s390x ppc64
-%patch11 -p1
+%patch10 -p1
 %endif
+%patch11 -p1
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
@@ -320,7 +319,6 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
-%patch23 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
