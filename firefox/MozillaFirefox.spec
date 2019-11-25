@@ -167,7 +167,7 @@ Source9:        firefox.js
 Source11:       firefox.1
 Source12:       mozilla-get-app-id
 Source13:       spellcheck.js
-Source14:       https://github.com/openSUSE/firefox-scripts/raw/04d38e104a6ecdea33442755282688e8090ffa66/create-tar.sh
+Source14:       https://github.com/openSUSE/firefox-scripts/raw/d414e38/create-tar.sh
 Source15:       firefox-appdata.xml
 Source16:       %{name}.changes
 # Set up API keys, see http://www.chromium.org/developers/how-tos/api-keys
