@@ -26,8 +26,8 @@
 # major 69
 # mainver %major.99
 %define major          68
-%define mainver        %major.2.0
-%define orig_version   68.2.0
+%define mainver        %major.3.0
+%define orig_version   68.3.0
 %define orig_suffix    esr
 %define update_channel esr68
 %define branding       1
@@ -167,7 +167,7 @@ Source9:        firefox.js
 Source11:       firefox.1
 Source12:       mozilla-get-app-id
 Source13:       spellcheck.js
-Source14:       https://github.com/openSUSE/firefox-scripts/raw/d414e38/create-tar.sh
+Source14:       https://github.com/openSUSE/firefox-scripts/raw/35ade35/create-tar.sh
 Source15:       firefox-appdata.xml
 Source16:       %{name}.changes
 # Set up API keys, see http://www.chromium.org/developers/how-tos/api-keys
