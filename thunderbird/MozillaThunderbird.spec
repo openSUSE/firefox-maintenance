@@ -26,11 +26,10 @@
 # major 69
 # mainver %major.99
 %define major           68
-%define mainver         %major.2.1
-%define orig_version    68.2.1
+%define mainver         %major.3.0
+%define orig_version    68.3.0
 %define orig_suffix     %{nil}
 %define update_channel  release
-%define releasedate     20191030212137
 %define source_prefix   thunderbird-%{mainver}
 
 # always build with GCC as SUSE Security Team requires that
@@ -145,7 +144,7 @@ Source4:        tar_stamps
 Source6:        suse-default-prefs.js
 Source7:        l10n-%{version}.tar.xz
 Source9:        thunderbird.appdata.xml
-Source14:       https://github.com/openSUSE/firefox-scripts/raw/d414e38/create-tar.sh
+Source14:       https://github.com/openSUSE/firefox-scripts/raw/35ade35/create-tar.sh
 Source20:       https://ftp.mozilla.org/pub/%{progname}/releases/%{orig_version}%{orig_suffix}/source/%{progname}-%{orig_version}%{orig_suffix}.source.tar.xz.asc
 Source21:       https://ftp.mozilla.org/pub/%{progname}/releases/%{orig_version}/KEY#/mozilla.keyring
 # Gecko/Toolkit
