@@ -17,7 +17,7 @@
 #
 
 
-%global nss_softokn_fips_version 3.46
+%global nss_softokn_fips_version 3.47
 %define NSPR_min_version 4.23
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 %define nssdbdir %{_sysconfdir}/pki/nssdb
