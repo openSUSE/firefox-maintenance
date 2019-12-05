@@ -18,11 +18,11 @@
 
 
 # changed with every update
-%define major          70
-%define mainver        %major.99
+%define major          71
+%define mainver        %major.0
 %define orig_version   71.0
-%define orig_suffix    b11
-%define update_channel beta
+%define orig_suffix    %{nil}
+%define update_channel release
 %define branding       1
 %define devpkg         1
 
@@ -183,6 +183,7 @@ Patch19:        mozilla-bmo1512162.patch
 Patch20:        mozilla-fix-top-level-asm.patch
 Patch21:        mozilla-bmo1504834-part4.patch
 Patch22:        mozilla-bmo849632.patch
+Patch23:        mozilla-gcc9-lto.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -318,6 +319,7 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
+%patch23 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
