@@ -49,7 +49,11 @@ Patch4:         add-relro-linker-option.patch
 Patch5:         malloc.patch
 Patch6:         bmo-1400603.patch
 Patch7:         nss-sqlitename.patch
+%if 0%{?suse_version} <= 1320
+BuildRequires:  gcc7-c++
+%else
 BuildRequires:  gcc-c++
+%endif
 BuildRequires:  pkgconfig
 BuildRequires:  pkgconfig(nspr) >= %{NSPR_min_version}
 BuildRequires:  pkgconfig(sqlite3)
@@ -185,6 +189,12 @@ cd nss
 #make generate
 
 %build
+%if 0%{?suse_version} <= 1320
+export CC=gcc-7
+export CXX=g++-7
+export CCC=g++-7
+%endif
+
 %global _lto_cflags %{_lto_cflags} -ffat-lto-objects
 cd nss
 modified="$(sed -n '/^----/n;s/ - .*$//;p;q' "%{SOURCE99}")"
