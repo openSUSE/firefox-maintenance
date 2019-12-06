@@ -36,13 +36,12 @@
 # major 69
 # mainver %major.99
 %define major          68
-%define mainver        %major.2.0
-%define orig_version   68.2.0
+%define mainver        %major.3.0
+%define orig_version   68.3.0
 %define orig_suffix    esr
 %define update_channel esr68
 %define branding       1
 %define devpkg         0
-%define releasedate    20191016163237
 
 # always build with GCC as SUSE Security Team requires that
 %define clang_build 0
@@ -175,15 +174,13 @@ Source1:        MozillaFirefox.desktop
 Source2:        MozillaFirefox-rpmlintrc
 Source3:        mozilla.sh.in
 Source4:        tar_stamps
-Source5:        source-stamp.txt
 Source7:        l10n-%{orig_version}%{orig_suffix}.tar.xz
 Source8:        firefox-mimeinfo.xml
 Source9:        firefox.js
-Source10:       compare-locales.tar.xz
 Source11:       firefox.1
 Source12:       mozilla-get-app-id
 Source13:       spellcheck.js
-Source14:       https://github.com/openSUSE/firefox-scripts/raw/master/create-tar.sh
+Source14:       https://github.com/openSUSE/firefox-scripts/raw/35ade35/create-tar.sh
 Source15:       firefox-appdata.xml
 Source16:       %{name}.changes
 # Set up API keys, see http://www.chromium.org/developers/how-tos/api-keys
@@ -327,7 +324,7 @@ if (( $(stat -Lc%s "%{SOURCE7}") < MINSIZE)); then
     exit 1
 fi
 
-%setup -q -n %{srcname}-%{orig_version} -b 7 -b 10
+%setup -q -n %{srcname}-%{orig_version} -b 7
 %else
 %setup -q -n %{srcname}-%{orig_version}
 %endif
@@ -377,14 +374,15 @@ if test "$kdehelperversion" != %{kde_helper_version}; then
   echo fix kde helper version in the .spec file
   exit 1
 fi
-source %{SOURCE5}
+source %{SOURCE4}
 %endif # only_print_mozconfig
 
-export MOZ_SOURCE_CHANGESET=$REV
-export SOURCE_REPO=$REPO
-export source_repo=$REPO
-export MOZ_SOURCE_REPO=$REPO
-export MOZ_BUILD_DATE=%{releasedate}
+export CARGO_HOME=${RPM_BUILD_DIR}/%{srcname}-%{orig_version}/.cargo
+export MOZ_SOURCE_CHANGESET=$RELEASE_TAG
+export SOURCE_REPO=$RELEASE_REPO
+export source_repo=$RELEASE_REPO
+export MOZ_SOURCE_REPO=$RELEASE_REPO
+export MOZ_BUILD_DATE=$RELEASE_TIMESTAMP
 export MOZILLA_OFFICIAL=1
 export BUILD_OFFICIAL=1
 export MOZ_TELEMETRY_REPORTING=1
@@ -515,13 +513,37 @@ export PKG_CONFIG_PATH=/usr/%_lib/firefox/%_lib/pkgconfig/
 xvfb-run --server-args="-screen 0 1920x1080x24" \
 %endif
 ./mach build
+# build additional locales
+%if %localize
+mkdir -p %{buildroot}%{progdir}/browser/extensions
+truncate -s 0 %{_tmppath}/translations.{common,other}
+sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_version}/browser/locales/shipped-locales \
+    | xargs -n 1 -I {} /bin/sh -c '
+        locale=$1
+        ./mach build langpack-$locale
+        cp -rL ../obj/dist/xpi-stage/locale-$locale \
+            %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org
+        # remove prefs, profile defaults, and hyphenation from langpack
+        rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/defaults
+        rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/hyphenation
+        # check against the fixed common list and sort into the right filelist
+        _matched=0
+        for _match in ar ca cs da de el en-GB es-AR es-CL es-ES fi fr hu it ja ko nb-NO nl pl pt-BR pt-PT ru sv-SE zh-CN zh-TW; do
+            [ "$_match" = "$locale" ] && _matched=1
+        done
+        [ $_matched -eq 1 ] && _l10ntarget=common || _l10ntarget=other
+        echo %{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org \
+            >> %{_tmppath}/translations.$_l10ntarget
+' -- {}
+%endif
+
 %endif # only_print_mozconfig
 
 %install
 cd $RPM_BUILD_DIR/obj
-source %{SOURCE5}
-export MOZ_SOURCE_STAMP=$REV
-export MOZ_SOURCE_REPO=$REPO
+source %{SOURCE4}
+export MOZ_SOURCE_STAMP=$RELEASE_TAG
+export MOZ_SOURCE_REPO=$RELEASE_REPO
 # need to remove default en-US firefox-l10n.js before it gets
 # populated into browser's omni.ja; it only contains general.useragent.locale
 # which should be loaded from each language pack (set in firefox.js)
@@ -543,35 +565,6 @@ mv %{buildroot}%{progdir}/%{srcname}-bin %{buildroot}%{progdir}/%{progname}-bin
 install -m 644 %{SOURCE13} %{buildroot}%{progdir}/defaults/pref/
 # install browser prefs
 install -m 644 %{SOURCE9} %{buildroot}%{progdir}/browser/defaults/preferences/firefox.js
-# build additional locales
-%if %localize
-mkdir -p %{buildroot}%{progdir}/browser/extensions
-truncate -s 0 %{_tmppath}/translations.{common,other}
-sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_version}/browser/locales/shipped-locales \
-    | xargs -n 1 -I {} /bin/sh -c '
-        locale=$1
-        pushd $RPM_BUILD_DIR/compare-locales
-        PYTHONPATH=lib \
-            scripts/compare-locales -m ../l10n-merged/$locale \
-            ../%{srcname}-%{orig_version}/browser/locales/l10n.ini ../l10n $locale
-        popd
-        LOCALE_MERGEDIR=$RPM_BUILD_DIR/l10n-merged/$locale \
-            make -C browser/locales langpack-$locale
-        cp -rL dist/xpi-stage/locale-$locale \
-            %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org
-        # remove prefs, profile defaults, and hyphenation from langpack
-        rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/defaults
-        rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/hyphenation
-        # check against the fixed common list and sort into the right filelist
-        _matched=0
-        for _match in ar ca cs da de el en-GB es-AR es-CL es-ES fi fr hu it ja ko nb-NO nl pl pt-BR pt-PT ru sv-SE zh-CN zh-TW; do
-            [ "$_match" = "$locale" ] && _matched=1
-        done
-        [ $_matched -eq 1 ] && _l10ntarget=common || _l10ntarget=other
-        echo %{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org \
-            >> %{_tmppath}/translations.$_l10ntarget
-' -- {}
-%endif
 # remove some executable permissions
 find %{buildroot}%{progdir} \
      -name "*.js" -o \
