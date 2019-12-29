@@ -1,7 +1,7 @@
 #
 # spec file for package MozillaThunderbird
 #
-# Copyright (c) 2019 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2019 SUSE LLC
 #               2006-2019 Wolfgang Rosenauer <wr@rosenauer.org>
 #
 # All modifications and additions to the file contributed by third parties
@@ -134,7 +134,7 @@ Provides:       mozilla-kde4-version = %{kde_helper_version}
 Summary:        An integrated email, news feeds, chat, and newsgroups client
 License:        MPL-2.0
 Group:          Productivity/Networking/Email/Clients
-Url:            https://www.thunderbird.net/
+URL:            https://www.thunderbird.net/
 %if !%{with only_print_mozconfig}
 Source:         http://ftp.mozilla.org/pub/%{progname}/releases/%{orig_version}%{orig_suffix}/source/%{progname}-%{orig_version}%{orig_suffix}.source.tar.xz
 Source1:        thunderbird.desktop
@@ -172,6 +172,7 @@ Patch21:        mozilla-bmo1554971.patch
 Patch22:        mozilla-nestegg-big-endian.patch
 Patch24:        mozilla-fix-top-level-asm.patch
 Patch25:        mozilla-bmo1504834-part4.patch
+Patch26:        mozilla-bmo1583471.patch
 %endif # only_print_mozconfig
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 PreReq:         coreutils fileutils textutils /bin/sh
@@ -269,6 +270,7 @@ fi
 %patch22 -p1
 %patch24 -p1
 %patch25 -p1
+%patch26 -p1
 %endif # only_print_mozconfig
 
 %build
