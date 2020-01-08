@@ -26,8 +26,8 @@
 # major 69
 # mainver %major.99
 %define major          68
-%define mainver        %major.3.0
-%define orig_version   68.3.0
+%define mainver        %major.4.0
+%define orig_version   68.4.0
 %define orig_suffix    esr
 %define update_channel esr68
 %define branding       1
@@ -197,14 +197,11 @@ Patch16:        mozilla-bmo849632.patch
 Patch17:        mozilla-bmo1504834-part1.patch
 Patch18:        mozilla-bmo1504834-part2.patch
 Patch19:        mozilla-bmo1504834-part3.patch
-Patch20:        mozilla-bmo1511604.patch
 Patch21:        mozilla-bmo1554971.patch
 Patch22:        mozilla-nestegg-big-endian.patch
 Patch24:        mozilla-fix-top-level-asm.patch
 Patch25:        mozilla-sle12-lower-python-requirement.patch
 Patch26:        mozilla-bmo1504834-part4.patch
-# allows building with rust 1.39 (landed upstream for next cycle)
-Patch27:        mozilla-bmo1583471.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -339,13 +336,11 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch17 -p1
 %patch18 -p1
 %patch19 -p1
-%patch20 -p1
 %patch21 -p1
 %patch22 -p1
 %patch24 -p1
 %patch25 -p1
 %patch26 -p1
-%patch27 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
