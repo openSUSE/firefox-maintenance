@@ -18,9 +18,9 @@
 
 
 # changed with every update
-%define major          71
-%define mainver        %major.0
-%define orig_version   71.0
+%define major          72
+%define mainver        %major.0.1
+%define orig_version   72.0.1
 %define orig_suffix    %{nil}
 %define update_channel release
 %define branding       1
@@ -80,8 +80,8 @@ BuildRequires:  libiw-devel
 BuildRequires:  libnotify-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
-BuildRequires:  mozilla-nspr-devel >= 4.23
-BuildRequires:  mozilla-nss-devel >= 3.47.1
+BuildRequires:  mozilla-nspr-devel >= 4.24
+BuildRequires:  mozilla-nss-devel >= 3.48
 BuildRequires:  nasm >= 2.13
 BuildRequires:  nodejs8 >= 8.11
 BuildRequires:  python-devel
@@ -150,7 +150,7 @@ Source9:        firefox.js
 Source11:       firefox.1
 Source12:       mozilla-get-app-id
 Source13:       spellcheck.js
-Source14:       https://github.com/openSUSE/firefox-scripts/raw/d414e38/create-tar.sh
+Source14:       https://github.com/openSUSE/firefox-scripts/raw/8a54002/create-tar.sh
 Source15:       firefox-appdata.xml
 Source16:       %{name}.changes
 # Set up API keys, see http://www.chromium.org/developers/how-tos/api-keys
@@ -309,15 +309,15 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %endif
 %patch11 -p1
 %patch12 -p1
-%patch13 -p1
+#%patch13 -p1
 %patch14 -p1
-%patch15 -p1
-%patch16 -p1
-%patch17 -p1
+#%patch15 -p1
+#%patch16 -p1
+#%patch17 -p1
 %patch18 -p1
 %patch19 -p1
 %patch20 -p1
-%patch21 -p1
+#%patch21 -p1
 %patch22 -p1
 %patch23 -p1
 # Firefox
