@@ -26,8 +26,8 @@
 # major 69
 # mainver %major.99
 %define major          68
-%define mainver        %major.4.0
-%define orig_version   68.4.0
+%define mainver        %major.4.1
+%define orig_version   68.4.1
 %define orig_suffix    esr
 %define update_channel esr68
 %define branding       1
@@ -197,6 +197,7 @@ Patch16:        mozilla-bmo849632.patch
 Patch17:        mozilla-bmo1504834-part1.patch
 Patch18:        mozilla-bmo1504834-part2.patch
 Patch19:        mozilla-bmo1504834-part3.patch
+Patch20:        mozilla-bmo1602730.patch
 Patch21:        mozilla-bmo1554971.patch
 Patch22:        mozilla-nestegg-big-endian.patch
 Patch24:        mozilla-fix-top-level-asm.patch
@@ -336,6 +337,7 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch17 -p1
 %patch18 -p1
 %patch19 -p1
+%patch20 -p1
 %patch21 -p1
 %patch22 -p1
 %patch24 -p1
