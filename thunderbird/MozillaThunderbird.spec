@@ -1,8 +1,8 @@
 #
 # spec file for package MozillaThunderbird
 #
-# Copyright (c) 2019 SUSE LINUX GmbH, Nuernberg, Germany.
-#               2006-2019 Wolfgang Rosenauer <wr@rosenauer.org>
+# Copyright (c) 2020 SUSE LLC
+#               2006-2020 Wolfgang Rosenauer <wr@rosenauer.org>
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -26,8 +26,8 @@
 # major 69
 # mainver %major.99
 %define major           68
-%define mainver         %major.4.2
-%define orig_version    68.4.2
+%define mainver         %major.5.0
+%define orig_version    68.5.0
 %define orig_suffix     %{nil}
 %define update_channel  release
 %define source_prefix   thunderbird-%{mainver}
@@ -513,6 +513,10 @@ cat > %{buildroot}%{progdir}/defaults/pref/all-l10n.js << EOF
 pref("general.useragent.locale", "chrome://global/locale/intl.properties");
 EOF
 #
+# Install symbolic icon for GNOME
+mkdir -p %{buildroot}%{gnome_dir}/share/icons/hicolor/symbolic/apps/
+cp %{_builddir}/%{source_prefix}/comm/mail/branding/thunderbird/TB-symbolic.svg \
+   %{buildroot}%{gnome_dir}/share/icons/hicolor/symbolic/apps/%{progname}-symbolic.svg
 for size in 16 22 24 32 48 64 128; do
   mkdir -p %{buildroot}%{_datadir}/icons/hicolor/${size}x${size}/apps/
   cp %{buildroot}%{progdir}/chrome/icons/default/default$size.png \
@@ -594,6 +598,7 @@ exit 0
 %{_datadir}/appdata/
 %{_datadir}/applications/%{desktop_file_name}.desktop
 %{_datadir}/icons/hicolor/*/apps/%{progname}.png
+%{_datadir}/icons/hicolor/symbolic/apps/%{progname}-symbolic.svg
 %{_bindir}/%{progname}
 
 %if %localize
