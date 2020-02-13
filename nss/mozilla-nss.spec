@@ -2,7 +2,7 @@
 # spec file for package mozilla-nss
 #
 # Copyright (c) 2020 SUSE LLC
-# Copyright (c) 2006-2019 Wolfgang Rosenauer
+# Copyright (c) 2006-2020 Wolfgang Rosenauer
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -17,14 +17,14 @@
 #
 
 
-%global nss_softokn_fips_version 3.48
+%global nss_softokn_fips_version 3.49
 %define NSPR_min_version 4.24
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 %define nssdbdir %{_sysconfdir}/pki/nssdb
 Name:           mozilla-nss
-Version:        3.48
+Version:        3.49.2
 Release:        0
-%define underscore_version 3_48
+%define underscore_version 3_49_2
 Summary:        Network Security Services
 License:        MPL-2.0
 Group:          System/Libraries
@@ -49,11 +49,7 @@ Patch4:         add-relro-linker-option.patch
 Patch5:         malloc.patch
 Patch6:         bmo-1400603.patch
 Patch7:         nss-sqlitename.patch
-%if 0%{?suse_version} <= 1320
-BuildRequires:  gcc7-c++
-%else
 BuildRequires:  gcc-c++
-%endif
 BuildRequires:  pkgconfig
 BuildRequires:  pkgconfig(nspr) >= %{NSPR_min_version}
 BuildRequires:  pkgconfig(sqlite3)
@@ -189,11 +185,6 @@ cd nss
 #make generate
 
 %build
-%if 0%{?suse_version} <= 1320
-export CC=gcc-7
-export CXX=g++-7
-export CCC=g++-7
-%endif
 %global _lto_cflags %{_lto_cflags} -ffat-lto-objects
 cd nss
 modified="$(sed -n '/^----/n;s/ - .*$//;p;q' "%{SOURCE99}")"
