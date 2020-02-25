@@ -19,12 +19,12 @@ diff -r 49c37f3c6143 -r bdaf9b68df7b image/test/gtest/Common.cpp
 -        ASSERT_LE_OR_RETURN(abs(pmColor.mGreen - data[i + 1]), aFuzz, false);
 -        ASSERT_LE_OR_RETURN(abs(pmColor.mRed - data[i + 2]), aFuzz, false);
 -        ASSERT_LE_OR_RETURN(abs(pmColor.mAlpha - data[i + 3]), aFuzz, false);
-+#if MOZ_LITTLE_ENDIAN
++#if MOZ_LITTLE_ENDIAN()
 +          ASSERT_LE_OR_RETURN(abs(pmColor.mBlue - data[i + 0]), aFuzz, false);
 +          ASSERT_LE_OR_RETURN(abs(pmColor.mGreen - data[i + 1]), aFuzz, false);
 +          ASSERT_LE_OR_RETURN(abs(pmColor.mRed - data[i + 2]), aFuzz, false);
 +          ASSERT_LE_OR_RETURN(abs(pmColor.mAlpha - data[i + 3]), aFuzz, false);
-+#elif MOZ_BIG_ENDIAN
++#elif MOZ_BIG_ENDIAN()
 +          ASSERT_LE_OR_RETURN(abs(pmColor.mBlue - data[i + 3]), aFuzz, false);
 +          ASSERT_LE_OR_RETURN(abs(pmColor.mGreen - data[i + 2]), aFuzz, false);
 +          ASSERT_LE_OR_RETURN(abs(pmColor.mRed - data[i + 1]), aFuzz, false);
@@ -37,12 +37,12 @@ diff -r 49c37f3c6143 -r bdaf9b68df7b image/test/gtest/Common.cpp
 -        ASSERT_EQ_OR_RETURN(pmColor.mGreen, data[i + 1], false);
 -        ASSERT_EQ_OR_RETURN(pmColor.mRed, data[i + 2], false);
 -        ASSERT_EQ_OR_RETURN(pmColor.mAlpha, data[i + 3], false);
-+#if MOZ_LITTLE_ENDIAN
++#if MOZ_LITTLE_ENDIAN()
 +          ASSERT_EQ_OR_RETURN(pmColor.mBlue, data[i + 0], false);
 +          ASSERT_EQ_OR_RETURN(pmColor.mGreen, data[i + 1], false);
 +          ASSERT_EQ_OR_RETURN(pmColor.mRed, data[i + 2], false);
 +          ASSERT_EQ_OR_RETURN(pmColor.mAlpha, data[i + 3], false);
-+#elif MOZ_BIG_ENDIAN
++#elif MOZ_BIG_ENDIAN()
 +          ASSERT_EQ_OR_RETURN(pmColor.mBlue, data[i + 3], false);
 +          ASSERT_EQ_OR_RETURN(pmColor.mGreen, data[i + 2], false);
 +          ASSERT_EQ_OR_RETURN(pmColor.mRed, data[i + 1], false);
@@ -57,12 +57,12 @@ diff -r 49c37f3c6143 -r bdaf9b68df7b image/test/gtest/Common.cpp
    int32_t rowLength = mapping.GetStride();
    for (int32_t col = 0; col < surfaceSize.width; ++col) {
      int32_t i = aRow * rowLength + col * 4;
-+#if MOZ_LITTLE_ENDIAN
++#if MOZ_LITTLE_ENDIAN()
      ASSERT_EQ_OR_RETURN(aPixels[col].mBlue, data[i + 0], false);
      ASSERT_EQ_OR_RETURN(aPixels[col].mGreen, data[i + 1], false);
      ASSERT_EQ_OR_RETURN(aPixels[col].mRed, data[i + 2], false);
      ASSERT_EQ_OR_RETURN(aPixels[col].mAlpha, data[i + 3], false);
-+#elif MOZ_BIG_ENDIAN
++#elif MOZ_BIG_ENDIAN()
 +    ASSERT_EQ_OR_RETURN(aPixels[col].mBlue, data[i + 3], false);
 +    ASSERT_EQ_OR_RETURN(aPixels[col].mGreen, data[i + 2], false);
 +    ASSERT_EQ_OR_RETURN(aPixels[col].mRed, data[i + 1], false);
