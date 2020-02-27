@@ -1,0 +1,18 @@
+diff -r b8657b926bbd gfx/layers/composite/CompositableHost.cpp
+--- a/gfx/layers/composite/CompositableHost.cpp	Tue Feb 25 09:19:36 2020 +0100
++++ b/gfx/layers/composite/CompositableHost.cpp	Thu Feb 27 12:22:02 2020 +0100
+@@ -92,9 +92,11 @@
+   }
+   MOZ_ASSERT(source);
+ 
+-  RefPtr<EffectMask> effect =
+-      new EffectMask(source, source->GetSize(), aTransform);
+-  aEffects.mSecondaryEffects[EffectTypes::MASK] = effect;
++  // Setting an alpha-mask here breaks the URL-bar on big endian (s390x)
++  // if the typed URL is too long for the textbox (automatic scrolling needed)
++  //RefPtr<EffectMask> effect =
++  //    new EffectMask(source, source->GetSize(), aTransform);
++  //aEffects.mSecondaryEffects[EffectTypes::MASK] = effect;
+   return true;
+ }
+ 

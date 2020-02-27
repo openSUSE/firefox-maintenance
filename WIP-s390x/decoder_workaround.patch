@@ -1,0 +1,37 @@
+diff -r b8657b926bbd image/decoders/nsJPEGDecoder.cpp
+--- a/image/decoders/nsJPEGDecoder.cpp	Tue Feb 25 09:19:36 2020 +0100
++++ b/image/decoders/nsJPEGDecoder.cpp	Wed Feb 26 14:52:02 2020 +0100
+@@ -263,6 +263,9 @@
+         case JCS_YCbCr:
+           // By default, we will output directly to BGRA. If we need to apply
+           // special color transforms, this may change.
++#if MOZ_BIG_ENDIAN()
++          mInfo.out_color_space = MOZ_JCS_EXT_NATIVE_ENDIAN_XRGB;
++#else
+           switch (SurfaceFormat::OS_RGBX) {
+             case SurfaceFormat::B8G8R8X8:
+               mInfo.out_color_space = JCS_EXT_BGRX;
+@@ -277,6 +280,7 @@
+               mState = JPEG_ERROR;
+               return Transition::TerminateFailure();
+           }
++#endif
+           break;
+         case JCS_CMYK:
+         case JCS_YCCK:
+diff -r b8657b926bbd image/decoders/nsWebPDecoder.cpp
+--- a/image/decoders/nsWebPDecoder.cpp	Tue Feb 25 09:19:36 2020 +0100
++++ b/image/decoders/nsWebPDecoder.cpp	Wed Feb 26 14:52:02 2020 +0100
+@@ -237,7 +237,12 @@
+   // WebP doesn't guarantee that the alpha generated matches the hint in the
+   // header, so we always need to claim the input is BGRA. If the output is
+   // BGRX, swizzling will mask off the alpha channel.
++#if MOZ_BIG_ENDIAN()
++  mBuffer.colorspace = MODE_ARGB;
++  SurfaceFormat inFormat = mFormat;
++#else
+   SurfaceFormat inFormat = SurfaceFormat::OS_RGBA;
++#endif
+ 
+   SurfacePipeFlags pipeFlags = SurfacePipeFlags();
+   if (mFormat == SurfaceFormat::OS_RGBA &&
