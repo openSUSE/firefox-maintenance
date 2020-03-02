@@ -1,0 +1,31 @@
+# HG changeset patch
+# User msirringhaus@suse.de
+# Date 1583133297 -3600
+#      Mon Mar 02 08:14:57 2020 +0100
+# Node ID de77bb31a860e145b6ed28e658e3092ee4257af8
+# Parent  489982f101b81eb4236e5dd38a906b2ec23e9608
+[mq]: temp-build-fixes.patch
+
+diff -r 489982f101b8 -r de77bb31a860 build/moz.configure/rust.configure
+--- a/build/moz.configure/rust.configure	Fri Feb 28 12:34:52 2020 +0100
++++ b/build/moz.configure/rust.configure	Mon Mar 02 08:14:57 2020 +0100
+@@ -148,7 +148,7 @@
+     if build_project == 'tools/crashreporter':
+         rustc_min_version = Version('1.31.0')
+     else:
+-        rustc_min_version = Version('1.41.0')
++        rustc_min_version = Version('1.40.0')
+     cargo_min_version = rustc_min_version
+ 
+     version = rustc_info.version
+diff -r 489982f101b8 -r de77bb31a860 mozglue/baseprofiler/public/ModuloBuffer.h
+--- a/mozglue/baseprofiler/public/ModuloBuffer.h	Fri Feb 28 12:34:52 2020 +0100
++++ b/mozglue/baseprofiler/public/ModuloBuffer.h	Mon Mar 02 08:14:57 2020 +0100
+@@ -16,6 +16,7 @@
+ #include <iterator>
+ #include <limits>
+ #include <type_traits>
++#include <functional>
+ 
+ namespace mozilla {
+ 
