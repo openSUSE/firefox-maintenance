@@ -1,0 +1,34 @@
+# HG changeset patch
+# Parent  dc1e12beab4cb7ef7d223018cf2f6e5a4a71aae8
+
+diff -r dc1e12beab4c -r c4c6717bf06c gfx/2d/DrawTargetSkia.cpp
+--- a/gfx/2d/DrawTargetSkia.cpp	Mon Mar 02 13:14:26 2020 +0100
++++ b/gfx/2d/DrawTargetSkia.cpp	Wed Mar 04 12:55:01 2020 +0100
+@@ -68,15 +68,27 @@
+     mColors.resize(mCount);
+     mPositions.resize(mCount);
+     if (aStops[0].offset != 0) {
++#if MOZ_BIG_ENDIAN()
++      mColors[0] = mozilla::detail::Swapper<SkColor>::swap(ColorToSkColor(aStops[0].color, 1.0));
++#else
+       mColors[0] = ColorToSkColor(aStops[0].color, 1.0);
++#endif
+       mPositions[0] = 0;
+     }
+     for (uint32_t i = 0; i < aNumStops; i++) {
++#if MOZ_BIG_ENDIAN()
++      mColors[i + shift] = mozilla::detail::Swapper<SkColor>::swap(ColorToSkColor(aStops[i].color, 1.0));
++#else
+       mColors[i + shift] = ColorToSkColor(aStops[i].color, 1.0);
++#endif
+       mPositions[i + shift] = SkFloatToScalar(aStops[i].offset);
+     }
+     if (aStops[aNumStops - 1].offset != 1) {
++#if MOZ_BIG_ENDIAN()
++      mColors[mCount - 1] = mozilla::detail::Swapper<SkColor>::swap(ColorToSkColor(aStops[aNumStops - 1].color, 1.0));
++#else
+       mColors[mCount - 1] = ColorToSkColor(aStops[aNumStops - 1].color, 1.0);
++#endif
+       mPositions[mCount - 1] = SK_Scalar1;
+     }
+   }
