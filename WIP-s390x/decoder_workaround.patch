@@ -1,6 +1,25 @@
-diff -r b8657b926bbd image/decoders/nsJPEGDecoder.cpp
---- a/image/decoders/nsJPEGDecoder.cpp	Tue Feb 25 09:19:36 2020 +0100
-+++ b/image/decoders/nsJPEGDecoder.cpp	Wed Feb 26 14:52:02 2020 +0100
+# HG changeset patch
+# User msirringhaus@suse.de
+# Date 1582805876 -3600
+#      Thu Feb 27 13:17:56 2020 +0100
+# Node ID 2202974b0d1686767c5225ba3deb06cc25737aff
+# Parent  85571d30953f3e577c7d7acf46aa64f7dfbde030
+imported patch decoder_workaround.patch
+
+diff -r 85571d30953f image/decoders/nsGIFDecoder2.cpp
+--- a/image/decoders/nsGIFDecoder2.cpp	Thu Feb 27 12:57:14 2020 +0100
++++ b/image/decoders/nsGIFDecoder2.cpp	Mon Mar 09 12:27:21 2020 +0100
+@@ -422,6 +422,7 @@
+   MOZ_ASSERT(mSwizzleFn);
+   uint8_t* data = reinterpret_cast<uint8_t*>(aColormap);
+   mSwizzleFn(data, data, aColors);
++  SwizzleRow(SurfaceFormat::A8R8G8B8, SurfaceFormat::B8G8R8A8)(data, data, aColors);
+ }
+ 
+ LexerResult nsGIFDecoder2::DoDecode(SourceBufferIterator& aIterator,
+diff -r 85571d30953f image/decoders/nsJPEGDecoder.cpp
+--- a/image/decoders/nsJPEGDecoder.cpp	Thu Feb 27 12:57:14 2020 +0100
++++ b/image/decoders/nsJPEGDecoder.cpp	Mon Mar 09 12:27:21 2020 +0100
 @@ -263,6 +263,9 @@
          case JCS_YCbCr:
            // By default, we will output directly to BGRA. If we need to apply
@@ -19,9 +38,9 @@ diff -r b8657b926bbd image/decoders/nsJPEGDecoder.cpp
            break;
          case JCS_CMYK:
          case JCS_YCCK:
-diff -r b8657b926bbd image/decoders/nsWebPDecoder.cpp
---- a/image/decoders/nsWebPDecoder.cpp	Tue Feb 25 09:19:36 2020 +0100
-+++ b/image/decoders/nsWebPDecoder.cpp	Wed Feb 26 14:52:02 2020 +0100
+diff -r 85571d30953f image/decoders/nsWebPDecoder.cpp
+--- a/image/decoders/nsWebPDecoder.cpp	Thu Feb 27 12:57:14 2020 +0100
++++ b/image/decoders/nsWebPDecoder.cpp	Mon Mar 09 12:27:21 2020 +0100
 @@ -237,7 +237,12 @@
    // WebP doesn't guarantee that the alpha generated matches the hint in the
    // header, so we always need to claim the input is BGRA. If the output is
