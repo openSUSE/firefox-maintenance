@@ -17,14 +17,14 @@
 #
 
 
-%global nss_softokn_fips_version 3.49
-%define NSPR_min_version 4.24
+%global nss_softokn_fips_version 3.50
+%define NSPR_min_version 4.25
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 %define nssdbdir %{_sysconfdir}/pki/nssdb
 Name:           mozilla-nss
-Version:        3.49.2
+Version:        3.50
 Release:        0
-%define underscore_version 3_49_2
+%define underscore_version 3_50
 Summary:        Network Security Services
 License:        MPL-2.0
 Group:          System/Libraries
@@ -185,7 +185,12 @@ cd nss
 #make generate
 
 %build
+%ifarch %arm
+# LTO fails on neon errors
+%global _lto_cflags %{nil}
+%else
 %global _lto_cflags %{_lto_cflags} -ffat-lto-objects
+%endif
 cd nss
 modified="$(sed -n '/^----/n;s/ - .*$//;p;q' "%{SOURCE99}")"
 DATE="\"$(date -d "${modified}" "+%%b %%e %%Y")\""
@@ -234,7 +239,7 @@ pushd ../dist/Linux*
 # copy headers
 cp -rL ../public/nss/*.h %{buildroot}%{_includedir}/nss3
 # copy some freebl include files we also want
-for file in blapi.h alghmac.h
+for file in blapi.h alghmac.h cmac.h
 do
   cp -L ../private/nss/$file %{buildroot}/%{_includedir}/nss3
 done
