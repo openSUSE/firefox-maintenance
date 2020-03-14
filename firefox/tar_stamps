@@ -7,5 +7,5 @@ PREV_VERSION_SUFFIX=""
 #SKIP_LOCALES="" # Uncomment to skip l10n and compare-locales-generation
 
 RELEASE_REPO="https://hg.mozilla.org/releases/mozilla-release"
-RELEASE_TAG="dc1684693eed684bdafeff0ad78d4f6d288fcae1"
-RELEASE_TIMESTAMP="20200304223017"
+RELEASE_TAG="c6e493873ba543907dadabb42b64208a3679d43d"
+RELEASE_TIMESTAMP="20200309095159"
