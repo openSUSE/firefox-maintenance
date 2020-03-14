@@ -1,8 +1,8 @@
 #
 # spec file for package firefox-esr
 #
-# Copyright (c) 2019 SUSE LINUX GmbH, Nuernberg, Germany.
-#               2006-2019 Wolfgang Rosenauer <wr@rosenauer.org>
+# Copyright (c) 2020 SUSE LLC
+#               2006-2020 Wolfgang Rosenauer <wr@rosenauer.org>
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -36,8 +36,8 @@
 # major 69
 # mainver %major.99
 %define major          68
-%define mainver        %major.4.1
-%define orig_version   68.4.1
+%define mainver        %major.6.0
+%define orig_version   68.6.0
 %define orig_suffix    esr
 %define update_channel esr68
 %define branding       1
