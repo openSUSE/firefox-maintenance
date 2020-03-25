@@ -323,7 +323,6 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch21 -p1
 %patch22 -p1
 %patch23 -p1
-%patch24 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
