@@ -1,0 +1,48 @@
+# HG changeset patch
+# User cgrobertson@suse.com
+# Date 1584727901 -0600
+#      Fri, 20 Mar 2020 12:16:42 -0600
+# Parent  cd14d9f66b6634f14aff500ceb128da2d7bc9cbe
+
+diff --git a/security/sandbox/linux/Sandbox.cpp b/security/sandbox/linux/Sandbox.cpp
+--- a/security/sandbox/linux/Sandbox.cpp
++++ b/security/sandbox/linux/Sandbox.cpp
+@@ -635,16 +635,17 @@ void SetMediaPluginSandbox(const char* a
+     SANDBOX_LOG_ERROR("failed to open plugin file %s: %s", aFilePath,
+                       strerror(errno));
+     MOZ_CRASH("failed while trying to open the plugin file ");
+   }
+ 
+   auto files = new SandboxOpenedFiles();
+   files->Add(std::move(plugin));
+   files->Add("/dev/urandom", true);
++  files->Add("/proc/sys/crypto/fips_enabled");
+   files->Add("/sys/devices/system/cpu/cpu0/tsc_freq_khz");
+   files->Add("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq");
+   files->Add("/proc/cpuinfo");  // Info also available via CPUID instruction.
+ #ifdef __i386__
+   files->Add("/proc/self/auxv");  // Info also in process's address space.
+ #endif
+ 
+   // Finally, start the sandbox.
+diff --git a/security/sandbox/linux/broker/SandboxBrokerPolicyFactory.cpp b/security/sandbox/linux/broker/SandboxBrokerPolicyFactory.cpp
+--- a/security/sandbox/linux/broker/SandboxBrokerPolicyFactory.cpp
++++ b/security/sandbox/linux/broker/SandboxBrokerPolicyFactory.cpp
+@@ -207,16 +207,17 @@ SandboxBrokerPolicyFactory::SandboxBroke
+   // Bug 1308851: NVIDIA proprietary driver when using WebGL
+   policy->AddFilePrefix(rdwr, "/dev", "nvidia");
+ 
+   // Bug 1312678: radeonsi/Intel with DRI when using WebGL
+   policy->AddDir(rdwr, "/dev/dri");
+ 
+   // Read permissions
+   policy->AddPath(rdonly, "/dev/urandom");
++  policy->AddPath(rdonly, "/proc/sys/crypto/fips_enabled");
+   policy->AddPath(rdonly, "/proc/cpuinfo");
+   policy->AddPath(rdonly, "/proc/meminfo");
+   policy->AddDir(rdonly, "/sys/devices/cpu");
+   policy->AddDir(rdonly, "/sys/devices/system/cpu");
+   policy->AddDir(rdonly, "/lib");
+   policy->AddDir(rdonly, "/lib64");
+   policy->AddDir(rdonly, "/usr/lib");
+   policy->AddDir(rdonly, "/usr/lib32");

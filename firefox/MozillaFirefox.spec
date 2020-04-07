@@ -1,7 +1,7 @@
 #
 # spec file for package MozillaFirefox
 #
-# Copyright (c) 2019 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2020 SUSE LLC
 #               2006-2019 Wolfgang Rosenauer <wr@rosenauer.org>
 #
 # All modifications and additions to the file contributed by third parties
@@ -26,8 +26,8 @@
 # major 69
 # mainver %major.99
 %define major          68
-%define mainver        %major.6.0
-%define orig_version   68.6.0
+%define mainver        %major.7.0
+%define orig_version   68.7.0
 %define orig_suffix    esr
 %define update_channel esr68
 %define branding       1
@@ -206,6 +206,7 @@ Patch26:        mozilla-bmo1504834-part4.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
+Patch103:       firefox-fips.patch
 %endif # only_print_mozconfig
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post):   coreutils shared-mime-info desktop-file-utils
@@ -346,6 +347,7 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 # Firefox
 %patch101 -p1
 %patch102 -p1
+%patch103 -p1
 %endif # only_print_mozconfig
 
 %build
