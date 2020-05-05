@@ -172,7 +172,6 @@ Patch21:        mozilla-bmo1554971.patch
 Patch22:        mozilla-nestegg-big-endian.patch
 Patch24:        mozilla-fix-top-level-asm.patch
 Patch25:        mozilla-bmo1504834-part4.patch
-Patch26:        mozilla-bmo1580963.patch
 %endif # only_print_mozconfig
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 PreReq:         coreutils fileutils textutils /bin/sh
@@ -270,7 +269,6 @@ fi
 %patch22 -p1
 %patch24 -p1
 %patch25 -p1
-%patch26 -p1
 %endif # only_print_mozconfig
 
 %build
