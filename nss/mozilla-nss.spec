@@ -17,14 +17,14 @@
 #
 
 
-%global nss_softokn_fips_version 3.51
+%global nss_softokn_fips_version 3.52
 %define NSPR_min_version 4.25
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 %define nssdbdir %{_sysconfdir}/pki/nssdb
 Name:           mozilla-nss
-Version:        3.51.1
+Version:        3.52.1
 Release:        0
-%define underscore_version 3_51_1
+%define underscore_version 3_52_1
 Summary:        Network Security Services
 License:        MPL-2.0
 Group:          System/Libraries
@@ -49,7 +49,6 @@ Patch4:         add-relro-linker-option.patch
 Patch5:         malloc.patch
 Patch6:         bmo-1400603.patch
 Patch7:         nss-sqlitename.patch
-Patch8:         nss-kremlin-ppc64le.patch
 BuildRequires:  gcc-c++
 BuildRequires:  pkgconfig
 BuildRequires:  pkgconfig(nspr) >= %{NSPR_min_version}
@@ -180,7 +179,6 @@ cd nss
 %endif
 %patch6 -p1
 %patch7 -p1
-%patch8 -p1
 # additional CA certificates
 #cd security/nss/lib/ckfw/builtins
 #cat %{SOURCE2} >> certdata.txt
@@ -199,6 +197,7 @@ DATE="\"$(date -d "${modified}" "+%%b %%e %%Y")\""
 TIME="\"$(date -d "${modified}" "+%%R")\""
 find . -name '*.[ch]' -print -exec sed -i "s/__DATE__/${DATE}/g;s/__TIME__/${TIME}/g" {} +
 
+export NSS_ENABLE_WERROR=0
 export NSS_NO_PKCS11_BYPASS=1
 export FREEBL_NO_DEPEND=1
 export FREEBL_LOWHASH=1
