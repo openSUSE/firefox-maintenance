@@ -90,7 +90,7 @@ BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.21
 BuildRequires:  mozilla-nss-devel >= 3.44.1
-%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000 && !0%{?is_opensuse}
+%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 %define do_profiling 0
 BuildRequires:  firefox-nasm >= 2.13
 BuildRequires:  nodejs10
@@ -493,7 +493,7 @@ echo "Generate big endian version of config/external/icu/data/icud58l.dat"
 ls -l config/external/icu/data
 rm -f config/external/icu/data/icudt*l.dat
 %endif
-%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000 && !0%{?is_opensuse}
+%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 export PATH=/usr/%_lib/firefox/bin:$PATH
 export LD_LIBRARY_PATH=/usr/%_lib/firefox/%_lib:$LD_LIBRARY_PATH
 export PKG_CONFIG_PATH=/usr/%_lib/firefox/%_lib/pkgconfig/
