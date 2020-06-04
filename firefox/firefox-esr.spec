@@ -36,8 +36,8 @@
 # major 69
 # mainver %major.99
 %define major          68
-%define mainver        %major.6.0
-%define orig_version   68.6.0
+%define mainver        %major.9.0
+%define orig_version   68.9.0
 %define orig_suffix    esr
 %define update_channel esr68
 %define branding       1
@@ -104,7 +104,8 @@ BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.21
 BuildRequires:  mozilla-nss-devel >= 3.44.1
-%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000 && !0%{?is_opensuse}
+%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
+%define do_profiling 0
 BuildRequires:  firefox-nasm >= 2.13
 BuildRequires:  nodejs10
 #BuildRequires:  python2-xml
@@ -180,7 +181,7 @@ Source9:        firefox.js
 Source11:       firefox.1
 Source12:       mozilla-get-app-id
 Source13:       spellcheck.js
-Source14:       https://github.com/openSUSE/firefox-scripts/raw/35ade35/create-tar.sh
+Source14:       https://github.com/openSUSE/firefox-scripts/raw/5e54f4a/create-tar.sh
 Source15:       firefox-appdata.xml
 Source16:       %{name}.changes
 # Set up API keys, see http://www.chromium.org/developers/how-tos/api-keys
@@ -216,6 +217,7 @@ Patch22:        mozilla-nestegg-big-endian.patch
 Patch24:        mozilla-fix-top-level-asm.patch
 Patch25:        mozilla-sle12-lower-python-requirement.patch
 Patch26:        mozilla-bmo1504834-part4.patch
+Patch27:        mozilla-fips.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -356,6 +358,7 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch24 -p1
 %patch25 -p1
 %patch26 -p1
+%patch27 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
@@ -504,7 +507,7 @@ echo "Generate big endian version of config/external/icu/data/icud58l.dat"
 ls -l config/external/icu/data
 rm -f config/external/icu/data/icudt*l.dat
 %endif
-%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000 && !0%{?is_opensuse}
+%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 export PATH=/usr/%_lib/firefox/bin:$PATH
 export LD_LIBRARY_PATH=/usr/%_lib/firefox/%_lib:$LD_LIBRARY_PATH
 export PKG_CONFIG_PATH=/usr/%_lib/firefox/%_lib/pkgconfig/

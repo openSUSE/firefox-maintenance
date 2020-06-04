@@ -203,10 +203,10 @@ Patch22:        mozilla-nestegg-big-endian.patch
 Patch24:        mozilla-fix-top-level-asm.patch
 Patch25:        mozilla-sle12-lower-python-requirement.patch
 Patch26:        mozilla-bmo1504834-part4.patch
+Patch27:        mozilla-fips.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
-Patch103:       firefox-fips.patch
 %endif # only_print_mozconfig
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post):   coreutils shared-mime-info desktop-file-utils
@@ -344,10 +344,10 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch24 -p1
 %patch25 -p1
 %patch26 -p1
+%patch27 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
-%patch103 -p1
 %endif # only_print_mozconfig
 
 %build
