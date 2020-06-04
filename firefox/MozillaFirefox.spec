@@ -19,8 +19,8 @@
 
 # changed with every update
 %define major          77
-%define mainver        %major.0
-%define orig_version   77.0
+%define mainver        %major.0.1
+%define orig_version   77.0.1
 %define orig_suffix    %{nil}
 %define update_channel release
 %define branding       1
@@ -104,6 +104,7 @@ BuildRequires:  zip
 %if 0%{?suse_version} < 1550
 BuildRequires:  pkgconfig(gconf-2.0) >= 1.2.1
 %endif
+BuildRequires:  clang-devel >= 5
 BuildRequires:  pkgconfig(gdk-x11-2.0)
 BuildRequires:  pkgconfig(glib-2.0) >= 2.22
 BuildRequires:  pkgconfig(gobject-2.0)
@@ -113,7 +114,6 @@ BuildRequires:  pkgconfig(gtk+-unix-print-2.0)
 BuildRequires:  pkgconfig(gtk+-unix-print-3.0)
 BuildRequires:  pkgconfig(libffi)
 BuildRequires:  pkgconfig(libpulse)
-BuildRequires:  clang-devel >= 5
 # libavcodec is required for H.264 support but the
 # openSUSE version is currently not able to play H.264
 # therefore the Packman version is required
