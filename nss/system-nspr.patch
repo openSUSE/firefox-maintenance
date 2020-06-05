@@ -1,25 +1,19 @@
 # HG changeset patch
-# Parent  bbf8e741ac966df6cf513ea042d1351eb279c122
+# User M. Sirringhaus <msirringhaus@suse.de>
+# Date 1590407573 -7200
+#      Mon May 25 13:52:53 2020 +0200
+# Node ID 7616b189f50b94dbe98f78f32d0416948699cc91
+# Parent  7b3b4111316505e60319a0881f679eaab47a3439
+[mq]: system-nspr.patch
 
-diff --git a/Makefile b/Makefile
---- a/Makefile
-+++ b/Makefile
-@@ -42,17 +42,17 @@ include $(CORE_DEPTH)/coreconf/rules.mk
+diff -r 7b3b41113165 -r 7616b189f50b Makefile
+--- a/Makefile	Mon May 25 13:49:52 2020 +0200
++++ b/Makefile	Mon May 25 13:52:53 2020 +0200
+@@ -48,7 +48,6 @@
  #######################################################################
  
+ nss_build_all:
+-	$(MAKE) build_nspr
+ 	$(MAKE) all
+ 	$(MAKE) latest
  
- 
- #######################################################################
- # (7) Execute "local" rules. (OPTIONAL).                              #
- #######################################################################
- 
--nss_build_all: build_nspr all latest
-+nss_build_all: all latest
- 
- nss_clean_all: clobber_nspr clobber
- 
- NSPR_CONFIG_STATUS = $(CORE_DEPTH)/../nspr/$(OBJDIR_NAME)/config.status
- NSPR_CONFIGURE = $(CORE_DEPTH)/../nspr/configure
- 
- #
- # Translate coreconf build options to NSPR configure options.

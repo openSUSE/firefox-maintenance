@@ -1,8 +1,8 @@
 #
 # spec file for package mozilla-nss
 #
-# Copyright (c) 2019 SUSE LLC.
-# Copyright (c) 2006-2019 Wolfgang Rosenauer
+# Copyright (c) 2020 SUSE LLC
+# Copyright (c) 2006-2020 Wolfgang Rosenauer
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -17,14 +17,14 @@
 #
 
 
-%global nss_softokn_fips_version 3.47
-%define NSPR_min_version 4.23
+%global nss_softokn_fips_version 3.53
+%define NSPR_min_version 4.25
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 %define nssdbdir %{_sysconfdir}/pki/nssdb
 Name:           mozilla-nss
-Version:        3.47.1
+Version:        3.53
 Release:        0
-%define underscore_version 3_47_1
+%define underscore_version 3_53
 Summary:        Network Security Services
 License:        MPL-2.0
 Group:          System/Libraries
@@ -49,8 +49,29 @@ Patch4:         add-relro-linker-option.patch
 Patch5:         malloc.patch
 Patch6:         bmo-1400603.patch
 Patch7:         nss-sqlitename.patch
-%if 0%{?suse_version} <= 1320
-BuildRequires:  gcc7-c++
+Patch11:        nss-fips-use-getrandom.patch
+Patch13:        nss-fips-dsa-kat.patch
+Patch15:        nss-fips-pairwise-consistency-check.patch
+Patch16:        nss-fips-rsa-keygen-strictness.patch
+Patch19:        nss-fips-cavs-keywrap.patch
+Patch20:        nss-fips-cavs-kas-ffc.patch
+Patch21:        nss-fips-cavs-kas-ecc.patch
+Patch22:        nss-fips-gcm-ctr.patch
+Patch23:        nss-fips-constructor-self-tests.patch
+Patch24:        nss-fips-cavs-general.patch
+Patch25:        nss-fips-cavs-dsa-fixes.patch
+Patch26:        nss-fips-cavs-rsa-fixes.patch
+Patch27:        nss-fips-approved-crypto-non-ec.patch
+Patch29:        nss-fips-zeroization.patch
+Patch30:        nss-fips-tls-allow-md5-prf.patch
+Patch31:        nss-fips-use-strong-random-pool.patch
+Patch32:        nss-fips-detect-fips-mode-fixes.patch
+Patch34:        nss-fips-combined-hash-sign-dsa-ecdsa.patch
+Patch35:        nss-fix-dh-pkcs-derive-inverted-logic.patch
+Patch36:        nss-fips-aes-keywrap-post.patch
+%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
+# aarch64 + gcc4.8 fails to build on SLE-12 due to undefined references
+BuildRequires:  gcc9-c++
 %else
 BuildRequires:  gcc-c++
 %endif
@@ -183,25 +204,54 @@ cd nss
 %endif
 %patch6 -p1
 %patch7 -p1
+
+# FIPS patches
+%patch11 -p1
+%patch13 -p1
+%patch15 -p1
+%patch16 -p1
+%patch19 -p1
+%patch20 -p1
+%patch21 -p1
+%patch22 -p1
+%patch23 -p1
+%patch24 -p1
+%patch25 -p1
+%patch26 -p1
+%patch27 -p1
+%patch29 -p1
+%patch30 -p1
+%patch31 -p1
+%patch32 -p1
+%patch34 -p1
+%patch35 -p1
+%patch36 -p1
+
 # additional CA certificates
 #cd security/nss/lib/ckfw/builtins
 #cat %{SOURCE2} >> certdata.txt
 #make generate
 
 %build
-%if 0%{?suse_version} <= 1320
-export CC=gcc-7
-export CXX=g++-7
-export CCC=g++-7
-%endif
-
+%ifarch %arm
+# LTO fails on neon errors
+%global _lto_cflags %{nil}
+%else
 %global _lto_cflags %{_lto_cflags} -ffat-lto-objects
+%endif
+%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
+export CC=gcc-9
+# Yes, they use both... 
+export CXX=g++-9
+export CCC=g++-9
+%endif
 cd nss
 modified="$(sed -n '/^----/n;s/ - .*$//;p;q' "%{SOURCE99}")"
 DATE="\"$(date -d "${modified}" "+%%b %%e %%Y")\""
 TIME="\"$(date -d "${modified}" "+%%R")\""
 find . -name '*.[ch]' -print -exec sed -i "s/__DATE__/${DATE}/g;s/__TIME__/${TIME}/g" {} +
 
+export NSS_ENABLE_WERROR=0
 export NSS_NO_PKCS11_BYPASS=1
 export FREEBL_NO_DEPEND=1
 export FREEBL_LOWHASH=1
@@ -244,7 +294,7 @@ pushd ../dist/Linux*
 # copy headers
 cp -rL ../public/nss/*.h %{buildroot}%{_includedir}/nss3
 # copy some freebl include files we also want
-for file in blapi.h alghmac.h
+for file in blapi.h alghmac.h cmac.h
 do
   cp -L ../private/nss/$file %{buildroot}/%{_includedir}/nss3
 done
