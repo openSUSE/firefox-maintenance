@@ -18,18 +18,25 @@
 
 
 # changed with every update
-%define major          77
-%define mainver        %major.0.1
-%define orig_version   77.0.1
-%define orig_suffix    %{nil}
+# orig_version vs. mainver: To have beta-builds
+# FF70beta3 would be released as FF69.99
+# orig_version would be the upstream tar ball
+# orig_version 70.0
+# orig_suffix b3
+# major 69
+# mainver %major.99
+%define major          78
+%define mainver        %major.0
+%define orig_version   78.0
+%define orig_suffix    b4
 %define update_channel release
 %define branding       1
 %define devpkg         1
 
-# PGO builds do not work in TW currently (bmo#1642410)
-%define do_profiling   0
+# disable for FF73 for now as it fails for unknown reason
+#%define do_profiling   0
 
-# upstream default is clang (to use gcc for large parts set to 0)
+# always build with GCC as SUSE Security Team requires that
 %define clang_build 0
 
 # PIE, full relro
@@ -71,7 +78,7 @@ BuildRequires:  dejavu-fonts
 BuildRequires:  fdupes
 BuildRequires:  memory-constraints
 %if 0%{?suse_version} <= 1320
-BuildRequires:  gcc7-c++
+BuildRequires:  gcc9-c++
 %else
 BuildRequires:  gcc-c++
 %endif
@@ -84,12 +91,18 @@ BuildRequires:  libnotify-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.25
-BuildRequires:  mozilla-nss-devel >= 3.52.1
+BuildRequires:  mozilla-nss-devel >= 3.53
 BuildRequires:  nasm >= 2.14
 BuildRequires:  nodejs10 >= 10.19.0
 BuildRequires:  python-devel
+%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
+#BuildRequires:  firefox-nasm >= 2.14
+BuildRequires:  python-libxml2
+BuildRequires:  python36
+%else
 BuildRequires:  python2-xml
 BuildRequires:  python3 >= 3.5
+%endif
 BuildRequires:  rust >= 1.41
 BuildRequires:  rust-cbindgen >= 0.14.1
 BuildRequires:  startup-notification-devel
@@ -104,7 +117,11 @@ BuildRequires:  zip
 %if 0%{?suse_version} < 1550
 BuildRequires:  pkgconfig(gconf-2.0) >= 1.2.1
 %endif
+%if (0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000)
+BuildRequires:  clang6-devel
+%else
 BuildRequires:  clang-devel >= 5
+%endif
 BuildRequires:  pkgconfig(gdk-x11-2.0)
 BuildRequires:  pkgconfig(glib-2.0) >= 2.22
 BuildRequires:  pkgconfig(gobject-2.0)
@@ -148,7 +165,7 @@ Source9:        firefox.js
 Source11:       firefox.1
 Source12:       mozilla-get-app-id
 Source13:       spellcheck.js
-Source14:       https://github.com/openSUSE/firefox-scripts/raw/8a54002/create-tar.sh
+Source14:       https://github.com/openSUSE/firefox-scripts/raw/5e54f4a/create-tar.sh
 Source15:       firefox-appdata.xml
 Source16:       %{name}.changes
 # Set up API keys, see http://www.chromium.org/developers/how-tos/api-keys
@@ -164,11 +181,9 @@ Patch2:         mozilla-kde.patch
 Patch3:         mozilla-ntlm-full-path.patch
 Patch4:         mozilla-aarch64-startup-crash.patch
 Patch5:         mozilla-bmo1463035.patch
-Patch6:         mozilla-sandbox-fips.patch
 Patch7:         mozilla-fix-aarch64-libopus.patch
 Patch8:         mozilla-disable-wasm-emulate-arm-unaligned-fp-access.patch
 Patch9:         mozilla-s390-context.patch
-Patch10:        mozilla-s390-bigendian.patch
 Patch11:        mozilla-reduce-rust-debuginfo.patch
 Patch12:        mozilla-ppc-altivec_static_inline.patch
 Patch13:        mozilla-bmo1005535.patch
@@ -181,7 +196,9 @@ Patch19:        mozilla-bmo1512162.patch
 Patch20:        mozilla-fix-top-level-asm.patch
 Patch21:        mozilla-bmo1504834-part4.patch
 Patch22:        mozilla-bmo849632.patch
-Patch23:        mozilla-bmo1634646.patch
+Patch50:        WIP-decoders.patch
+Patch51:        WIP-skia-gradient.patch
+Patch53:        mozilla-s390x-sqlite.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -228,6 +245,8 @@ Development files for %{appname} to make packaging of addons easier.
 Summary:        Common translations for %{appname}
 Group:          System/Localization
 Provides:       locale(%{name}:ar;ca;cs;da;de;el;en_GB;es_AR;es_CL;es_ES;fi;fr;hu;it;ja;ko;nb_NO;nl;pl;pt_BR;pt_PT;ru;sv_SE;zh_CN;zh_TW)
+# This is there for updates from Firefox before the translations-package was split up into 2 packages
+Provides:       %{name}-translations
 Requires:       %{name} = %{version}
 Obsoletes:      %{name}-translations < %{version}-%{release}
 
@@ -294,17 +313,13 @@ fi
 %endif
 cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch1 -p1
-%patch2 -p1
+#%patch2 -p1
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%patch6 -p1
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
-%ifarch s390x ppc64
-%patch10 -p1
-%endif
 %patch11 -p1
 %patch12 -p1
 %patch13 -p1
@@ -317,9 +332,11 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
-%patch23 -p1
+%patch50 -p1
+%patch51 -p1
+%patch53 -p1
 # Firefox
-%patch101 -p1
+#%patch101 -p1
 %patch102 -p1
 %endif # only_print_mozconfig
 
@@ -330,12 +347,20 @@ modified="$(sed -n '/^----/n;s/ - .*$//;p;q' "%{_sourcedir}/%{name}.changes")"
 DATE="\"$(date -d "${modified}" "+%%b %%e %%Y")\""
 TIME="\"$(date -d "${modified}" "+%%R")\""
 find . -regex ".*\.c\|.*\.cpp\|.*\.h" -exec sed -i "s/__DATE__/${DATE}/g;s/__TIME__/${TIME}/g" {} +
+
+# SLE-12 provides python36, but that package does not provide a python3 binary
+%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
+sed -i "s/python3/python36/g" configure.in
+sed -i "s/python3/python36/g" mach
+export PYTHON3=/usr/bin/python36
+%endif
+
 #
-kdehelperversion=$(cat toolkit/xre/nsKDEUtils.cpp | grep '#define KMOZILLAHELPER_VERSION' | cut -d ' ' -f 3)
-if test "$kdehelperversion" != %{kde_helper_version}; then
-  echo fix kde helper version in the .spec file
-  exit 1
-fi
+#kdehelperversion=$(cat toolkit/xre/nsKDEUtils.cpp | grep '#define KMOZILLAHELPER_VERSION' | cut -d ' ' -f 3)
+#if test "$kdehelperversion" != %{kde_helper_version}; then
+#  echo fix kde helper version in the .spec file
+#  exit 1
+#fi
 source %{SOURCE4}
 %endif # only_print_mozconfig
 
@@ -349,7 +374,7 @@ export MOZILLA_OFFICIAL=1
 export BUILD_OFFICIAL=1
 export MOZ_TELEMETRY_REPORTING=1
 %if 0%{?suse_version} <= 1320
-export CC=gcc-7
+export CC=gcc-9
 %else
 %if 0%{?clang_build} == 0
 export CC=gcc
@@ -379,11 +404,7 @@ echo "export RUSTFLAGS=\"$RUSTFLAGS\""
 echo ""
 cat << EOF
 %else
-%ifarch ppc64 ppc64le
-%limit_build -m 2500
-%else
 %limit_build -m 2000
-%endif
 cat << EOF > $MOZCONFIG
 %endif
 mk_add_options MOZILLA_OFFICIAL=1
@@ -395,7 +416,11 @@ ac_add_options --prefix=%{_prefix}
 ac_add_options --libdir=%{_libdir}
 ac_add_options --includedir=%{_includedir}
 ac_add_options --enable-release
+%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
+ac_add_options --enable-default-toolkit=cairo-gtk3
+%else
 ac_add_options --enable-default-toolkit=cairo-gtk3-wayland
+%endif
 %if 0%{?suse_version} >= 1550
 ac_add_options --disable-gconf
 %endif
@@ -423,7 +448,7 @@ ac_add_options --disable-updater
 ac_add_options --disable-tests
 ac_add_options --enable-alsa
 ac_add_options --disable-debug
-ac_add_options --enable-startup-notification
+#ac_add_options --enable-startup-notification
 #ac_add_options --enable-chrome-format=jar
 ac_add_options --enable-update-channel=%{update_channel}
 ac_add_options --with-mozilla-api-keyfile=%{SOURCE18}

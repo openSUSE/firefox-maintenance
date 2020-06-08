@@ -8,14 +8,10 @@ and https://reproducible-builds.org/specs/source-date-epoch/
 for the definition of this variable.
 
 diff --git a/python/mozbuild/mozbuild/action/langpack_manifest.py b/python/mozbuild/mozbuild/action/langpack_manifest.py
+index 6f72697..d4cca96 100644
 --- a/python/mozbuild/mozbuild/action/langpack_manifest.py
 +++ b/python/mozbuild/mozbuild/action/langpack_manifest.py
-@@ -11,16 +11,17 @@
- from __future__ import absolute_import, print_function, unicode_literals
- 
- import argparse
- import sys
- import os
+@@ -16,6 +16,7 @@ import os
  import json
  import io
  import datetime
@@ -23,17 +19,7 @@ diff --git a/python/mozbuild/mozbuild/action/langpack_manifest.py b/python/mozbu
  import requests
  import mozversioncontrol
  import mozpack.path as mozpath
- from mozpack.chrome.manifest import (
-     Manifest,
-     ManifestLocale,
-     parse_manifest,
- )
-@@ -94,17 +95,17 @@ def get_dt_from_hg(path):
- #    ts == "20170914215617"
- ###
- def get_timestamp_for_locale(path):
-     dt = None
-     if os.path.isdir(os.path.join(path, '.hg')):
+@@ -100,7 +101,7 @@ def get_timestamp_for_locale(path):
          dt = get_dt_from_hg(path)
  
      if dt is None:
@@ -42,8 +28,3 @@ diff --git a/python/mozbuild/mozbuild/action/langpack_manifest.py b/python/mozbu
  
      dt = dt.replace(microsecond=0)
      return dt.strftime("%Y%m%d%H%M%S")
- 
- 
- ###
- # Parses multiple defines files into a single key-value pair object.
- #
