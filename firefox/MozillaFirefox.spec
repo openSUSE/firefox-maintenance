@@ -19,10 +19,10 @@
 
 # changed with every update
 %define major          77
-%define mainver        %major.0.1
-%define orig_version   77.0.1
-%define orig_suffix    %{nil}
-%define update_channel release
+%define mainver        %major.99
+%define orig_version   78.0
+%define orig_suffix    b6
+%define update_channel beta
 %define branding       1
 %define devpkg         1
 
@@ -80,13 +80,12 @@ BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
 BuildRequires:  libidl-devel
 BuildRequires:  libiw-devel
-BuildRequires:  libnotify-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.25
-BuildRequires:  mozilla-nss-devel >= 3.52.1
+BuildRequires:  mozilla-nss-devel >= 3.53
 BuildRequires:  nasm >= 2.14
-BuildRequires:  nodejs10 >= 10.19.0
+BuildRequires:  nodejs10 >= 10.21.0
 BuildRequires:  python-devel
 BuildRequires:  python2-xml
 BuildRequires:  python3 >= 3.5
@@ -109,7 +108,7 @@ BuildRequires:  pkgconfig(gdk-x11-2.0)
 BuildRequires:  pkgconfig(glib-2.0) >= 2.22
 BuildRequires:  pkgconfig(gobject-2.0)
 BuildRequires:  pkgconfig(gtk+-2.0) >= 2.18.0
-BuildRequires:  pkgconfig(gtk+-3.0) >= 3.4.0
+BuildRequires:  pkgconfig(gtk+-3.0) >= 3.14.0
 BuildRequires:  pkgconfig(gtk+-unix-print-2.0)
 BuildRequires:  pkgconfig(gtk+-unix-print-3.0)
 BuildRequires:  pkgconfig(libffi)
@@ -181,7 +180,6 @@ Patch19:        mozilla-bmo1512162.patch
 Patch20:        mozilla-fix-top-level-asm.patch
 Patch21:        mozilla-bmo1504834-part4.patch
 Patch22:        mozilla-bmo849632.patch
-Patch23:        mozilla-bmo1634646.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -203,7 +201,7 @@ Obsoletes:      %{name}-devel < %{version}
 %if 0%{?suse_version} < 1220
 Obsoletes:      libproxy1-pacrunner-mozjs <= 0.4.7
 %endif
-##BuildArch:      i686 x86_64 aarch64 ppc64le
+ExcludeArch:    armv6l armv6hl
 
 %description
 Mozilla Firefox is a standalone web browser, designed for standards
@@ -303,7 +301,7 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch8 -p1
 %patch9 -p1
 %ifarch s390x ppc64
-%patch10 -p1
+#%patch10 -p1
 %endif
 %patch11 -p1
 %patch12 -p1
@@ -317,7 +315,6 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
-%patch23 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
@@ -396,9 +393,6 @@ ac_add_options --libdir=%{_libdir}
 ac_add_options --includedir=%{_includedir}
 ac_add_options --enable-release
 ac_add_options --enable-default-toolkit=cairo-gtk3-wayland
-%if 0%{?suse_version} >= 1550
-ac_add_options --disable-gconf
-%endif
 # bmo#1441155 - Disable the generation of Rust debug symbols on Linux32
 %ifarch %ix86 %arm
 ac_add_options --disable-debug-symbols
@@ -423,7 +417,6 @@ ac_add_options --disable-updater
 ac_add_options --disable-tests
 ac_add_options --enable-alsa
 ac_add_options --disable-debug
-ac_add_options --enable-startup-notification
 #ac_add_options --enable-chrome-format=jar
 ac_add_options --enable-update-channel=%{update_channel}
 ac_add_options --with-mozilla-api-keyfile=%{SOURCE18}
