@@ -167,7 +167,6 @@ Patch6:         mozilla-sandbox-fips.patch
 Patch7:         mozilla-fix-aarch64-libopus.patch
 Patch8:         mozilla-disable-wasm-emulate-arm-unaligned-fp-access.patch
 Patch9:         mozilla-s390-context.patch
-Patch10:        mozilla-s390-bigendian.patch
 Patch11:        mozilla-reduce-rust-debuginfo.patch
 Patch12:        mozilla-ppc-altivec_static_inline.patch
 Patch13:        mozilla-bmo1005535.patch
@@ -300,9 +299,6 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
-%ifarch s390x ppc64
-#%patch10 -p1
-%endif
 %patch11 -p1
 %patch12 -p1
 %patch13 -p1
