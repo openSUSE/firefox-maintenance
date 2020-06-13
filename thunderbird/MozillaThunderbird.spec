@@ -151,14 +151,11 @@ Source21:       https://ftp.mozilla.org/pub/%{progname}/releases/%{orig_version}
 Patch1:         mozilla-nongnome-proxies.patch
 Patch2:         mozilla-kde.patch
 Patch3:         mozilla-ntlm-full-path.patch
-Patch4:         mozilla-openaes-decl.patch
 Patch5:         mozilla-aarch64-startup-crash.patch
 Patch6:         mozilla-bmo1463035.patch
-Patch7:         mozilla-cubeb-noreturn.patch
 Patch8:         mozilla-fix-aarch64-libopus.patch
 Patch9:         mozilla-disable-wasm-emulate-arm-unaligned-fp-access.patch
 Patch10:        mozilla-s390-context.patch
-Patch11:        mozilla-s390-bigendian.patch
 Patch12:        mozilla-reduce-rust-debuginfo.patch
 Patch13:        mozilla-ppc-altivec_static_inline.patch
 Patch14:        mozilla-bmo1005535.patch
@@ -169,7 +166,6 @@ Patch18:        mozilla-bmo1504834-part2.patch
 Patch19:        mozilla-bmo1504834-part3.patch
 Patch20:        mozilla-bmo1602730.patch
 Patch21:        mozilla-bmo1554971.patch
-Patch22:        mozilla-nestegg-big-endian.patch
 Patch24:        mozilla-fix-top-level-asm.patch
 Patch25:        mozilla-bmo1504834-part4.patch
 %endif # only_print_mozconfig
@@ -246,16 +242,11 @@ fi
 %patch2 -p1
 %endif
 %patch3 -p1
-%patch4 -p1
 %patch5 -p1
 %patch6 -p1
-%patch7 -p1
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
-%ifarch s390x ppc64
-%patch11 -p1
-%endif
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
@@ -266,7 +257,6 @@ fi
 %patch19 -p1
 %patch20 -p1
 %patch21 -p1
-%patch22 -p1
 %patch24 -p1
 %patch25 -p1
 %endif # only_print_mozconfig
