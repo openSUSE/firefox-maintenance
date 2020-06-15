@@ -91,7 +91,6 @@ BuildRequires:  python2-xml
 BuildRequires:  python3 >= 3.5
 BuildRequires:  rust >= 1.41
 BuildRequires:  rust-cbindgen >= 0.14.1
-BuildRequires:  startup-notification-devel
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
 BuildRequires:  xorg-x11-libXt-devel
