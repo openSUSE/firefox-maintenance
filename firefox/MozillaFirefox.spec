@@ -28,13 +28,10 @@
 %define major          78
 %define mainver        %major.0
 %define orig_version   78.0
-%define orig_suffix    b4
+%define orig_suffix    b7
 %define update_channel release
 %define branding       1
 %define devpkg         1
-
-# disable for FF73 for now as it fails for unknown reason
-#%define do_profiling   0
 
 # always build with GCC as SUSE Security Team requires that
 %define clang_build 0
@@ -87,16 +84,14 @@ BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
 BuildRequires:  libidl-devel
 BuildRequires:  libiw-devel
-BuildRequires:  libnotify-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.25
 BuildRequires:  mozilla-nss-devel >= 3.53
 BuildRequires:  nasm >= 2.14
-BuildRequires:  nodejs10 >= 10.19.0
+BuildRequires:  nodejs10 >= 10.21.0
 BuildRequires:  python-devel
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
-#BuildRequires:  firefox-nasm >= 2.14
 BuildRequires:  python-libxml2
 BuildRequires:  python36
 %else
@@ -105,7 +100,6 @@ BuildRequires:  python3 >= 3.5
 %endif
 BuildRequires:  rust >= 1.41
 BuildRequires:  rust-cbindgen >= 0.14.1
-BuildRequires:  startup-notification-devel
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
 BuildRequires:  xorg-x11-libXt-devel
@@ -126,7 +120,7 @@ BuildRequires:  pkgconfig(gdk-x11-2.0)
 BuildRequires:  pkgconfig(glib-2.0) >= 2.22
 BuildRequires:  pkgconfig(gobject-2.0)
 BuildRequires:  pkgconfig(gtk+-2.0) >= 2.18.0
-BuildRequires:  pkgconfig(gtk+-3.0) >= 3.4.0
+BuildRequires:  pkgconfig(gtk+-3.0) >= 3.14.0
 BuildRequires:  pkgconfig(gtk+-unix-print-2.0)
 BuildRequires:  pkgconfig(gtk+-unix-print-3.0)
 BuildRequires:  pkgconfig(libffi)
@@ -313,7 +307,7 @@ fi
 %endif
 cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch1 -p1
-#%patch2 -p1
+%patch2 -p1
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
@@ -336,7 +330,7 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch51 -p1
 %patch53 -p1
 # Firefox
-#%patch101 -p1
+%patch101 -p1
 %patch102 -p1
 %endif # only_print_mozconfig
 
@@ -356,11 +350,11 @@ export PYTHON3=/usr/bin/python36
 %endif
 
 #
-#kdehelperversion=$(cat toolkit/xre/nsKDEUtils.cpp | grep '#define KMOZILLAHELPER_VERSION' | cut -d ' ' -f 3)
-#if test "$kdehelperversion" != %{kde_helper_version}; then
-#  echo fix kde helper version in the .spec file
-#  exit 1
-#fi
+kdehelperversion=$(cat toolkit/xre/nsKDEUtils.cpp | grep '#define KMOZILLAHELPER_VERSION' | cut -d ' ' -f 3)
+if test "$kdehelperversion" != %{kde_helper_version}; then
+  echo fix kde helper version in the .spec file
+  exit 1
+fi
 source %{SOURCE4}
 %endif # only_print_mozconfig
 
@@ -421,9 +415,6 @@ ac_add_options --enable-default-toolkit=cairo-gtk3
 %else
 ac_add_options --enable-default-toolkit=cairo-gtk3-wayland
 %endif
-%if 0%{?suse_version} >= 1550
-ac_add_options --disable-gconf
-%endif
 # bmo#1441155 - Disable the generation of Rust debug symbols on Linux32
 %ifarch %ix86 %arm
 ac_add_options --disable-debug-symbols
@@ -448,7 +439,6 @@ ac_add_options --disable-updater
 ac_add_options --disable-tests
 ac_add_options --enable-alsa
 ac_add_options --disable-debug
-#ac_add_options --enable-startup-notification
 #ac_add_options --enable-chrome-format=jar
 ac_add_options --enable-update-channel=%{update_channel}
 ac_add_options --with-mozilla-api-keyfile=%{SOURCE18}
