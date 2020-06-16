@@ -65,6 +65,12 @@ BuildArch:      i686
 %else
 %define crashreporter 0
 %endif
+# pipewire is too old on Leap 15.1
+%if 0%{?suse_version} == 1500 && 0%{?sle_version} <= 150100
+%bcond_with pipewire3
+%else
+%bcond_without pipewire3
+%endif
 
 Name:           %{pkgname}
 BuildRequires:  Mesa-devel
@@ -125,6 +131,9 @@ BuildRequires:  pkgconfig(gtk+-unix-print-2.0)
 BuildRequires:  pkgconfig(gtk+-unix-print-3.0)
 BuildRequires:  pkgconfig(libffi)
 BuildRequires:  pkgconfig(libpulse)
+%if %{with pipewire3}
+BuildRequires:  pkgconfig(libpipewire-0.3)
+%endif
 # libavcodec is required for H.264 support but the
 # openSUSE version is currently not able to play H.264
 # therefore the Packman version is required
@@ -190,6 +199,7 @@ Patch19:        mozilla-bmo1512162.patch
 Patch20:        mozilla-fix-top-level-asm.patch
 Patch21:        mozilla-bmo1504834-part4.patch
 Patch22:        mozilla-bmo849632.patch
+Patch23:        mozilla-pipewire-0-3.patch
 Patch50:        WIP-decoders.patch
 Patch51:        WIP-skia-gradient.patch
 Patch53:        mozilla-s390x-sqlite.patch
@@ -326,6 +336,9 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
+%if %{with pipewire3}
+%patch23 -p1
+%endif
 %patch50 -p1
 %patch51 -p1
 %patch53 -p1
