@@ -61,6 +61,12 @@ BuildArch:      i686
 %else
 %define crashreporter 0
 %endif
+# pipewire is too old on Leap 15.1
+%if 0%{?suse_version} == 1500 && 0%{?sle_version} <= 150100
+%bcond_with pipewire3
+%else
+%bcond_without pipewire3
+%endif
 
 Name:           %{pkgname}
 BuildRequires:  Mesa-devel
@@ -101,9 +107,6 @@ BuildRequires:  yasm
 BuildRequires:  zip
 %if 0%{?suse_version} < 1550
 BuildRequires:  pkgconfig(gconf-2.0) >= 1.2.1
-BuildRequires:  pkgconfig(libpipewire-0.2)
-%else
-BuildRequires:  pkgconfig(libpipewire-0.3)
 %endif
 BuildRequires:  clang-devel >= 5
 BuildRequires:  pkgconfig(gdk-x11-2.0)
@@ -115,6 +118,9 @@ BuildRequires:  pkgconfig(gtk+-unix-print-2.0)
 BuildRequires:  pkgconfig(gtk+-unix-print-3.0)
 BuildRequires:  pkgconfig(libffi)
 BuildRequires:  pkgconfig(libpulse)
+%if %{with pipewire3}
+BuildRequires:  pkgconfig(libpipewire-0.3)
+%endif
 # libavcodec is required for H.264 support but the
 # openSUSE version is currently not able to play H.264
 # therefore the Packman version is required
@@ -182,7 +188,6 @@ Patch20:        mozilla-fix-top-level-asm.patch
 Patch21:        mozilla-bmo1504834-part4.patch
 Patch22:        mozilla-bmo849632.patch
 Patch23:        mozilla-pipewire-0-3.patch
-Patch24:        mozilla-pipewire-0-2.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -315,9 +320,7 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
-%if 0%{?suse_version} < 1550
-%patch24 -p1
-%else
+%if %{with pipewire3}
 %patch23 -p1
 %endif
 # Firefox
