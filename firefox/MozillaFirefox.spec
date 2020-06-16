@@ -184,6 +184,7 @@ Patch2:         mozilla-kde.patch
 Patch3:         mozilla-ntlm-full-path.patch
 Patch4:         mozilla-aarch64-startup-crash.patch
 Patch5:         mozilla-bmo1463035.patch
+Patch6:         mozilla-sandbox-fips.patch
 Patch7:         mozilla-fix-aarch64-libopus.patch
 Patch8:         mozilla-disable-wasm-emulate-arm-unaligned-fp-access.patch
 Patch9:         mozilla-s390-context.patch
@@ -200,9 +201,12 @@ Patch20:        mozilla-fix-top-level-asm.patch
 Patch21:        mozilla-bmo1504834-part4.patch
 Patch22:        mozilla-bmo849632.patch
 Patch23:        mozilla-pipewire-0-3.patch
-Patch50:        WIP-decoders.patch
-Patch51:        WIP-skia-gradient.patch
-Patch53:        mozilla-s390x-sqlite.patch
+Patch24:        mozilla-bmo1602730.patch
+Patch25:        mozilla-bmo998749.patch
+Patch26:        mozilla-bmo1626236.patch
+Patch27:        mozilla-s390x-skia-gradient.patch
+Patch28:        mozilla-bmo1619231.patch
+Patch29:        mozilla-bmo1643282.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -321,6 +325,7 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
@@ -339,9 +344,12 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %if %{with pipewire3}
 %patch23 -p1
 %endif
-%patch50 -p1
-%patch51 -p1
-%patch53 -p1
+%patch24 -p1
+%patch25 -p1
+%patch26 -p1
+%patch27 -p1
+%patch28 -p1
+%patch29 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
