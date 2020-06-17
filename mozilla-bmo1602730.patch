@@ -1,0 +1,26 @@
+# HG changeset patch
+# User msirringhaus@suse.de
+# Date 1582805890 -3600
+#      Thu Feb 27 13:18:10 2020 +0100
+# Node ID 457cbe5705f2a3759d3da36a05c0ed66ec61ea12
+# Parent  7440f4b6bab85068ca2f84e9c48e0706d04330e8
+imported patch mozilla-bmo1602730-FF73.patch
+
+diff -r 7440f4b6bab8 -r 457cbe5705f2 gfx/layers/composite/CompositableHost.cpp
+--- a/gfx/layers/composite/CompositableHost.cpp	Thu Feb 27 13:17:56 2020 +0100
++++ b/gfx/layers/composite/CompositableHost.cpp	Thu Feb 27 13:18:10 2020 +0100
+@@ -92,9 +92,11 @@
+   }
+   MOZ_ASSERT(source);
+ 
+-  RefPtr<EffectMask> effect =
+-      new EffectMask(source, source->GetSize(), aTransform);
+-  aEffects.mSecondaryEffects[EffectTypes::MASK] = effect;
++  // Setting an alpha-mask here breaks the URL-bar on big endian (s390x)
++  // if the typed URL is too long for the textbox (automatic scrolling needed)
++  //RefPtr<EffectMask> effect =
++  //    new EffectMask(source, source->GetSize(), aTransform);
++  //aEffects.mSecondaryEffects[EffectTypes::MASK] = effect;
+   return true;
+ }
+ 

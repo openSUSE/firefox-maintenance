@@ -18,6 +18,13 @@
 
 
 # changed with every update
+# orig_version vs. mainver: To have beta-builds
+# FF70beta3 would be released as FF69.99
+# orig_version would be the upstream tar ball
+# orig_version 70.0
+# orig_suffix b3
+# major 69
+# mainver %major.99
 %define major          77
 %define mainver        %major.99
 %define orig_version   78.0
@@ -26,8 +33,10 @@
 %define branding       1
 %define devpkg         1
 
+%if 0%{?suse_version} > 1500
 # PGO builds do not work in TW currently (bmo#1642410)
 %define do_profiling   0
+%endif
 
 # upstream default is clang (to use gcc for large parts set to 0)
 %define clang_build 0
@@ -77,7 +86,7 @@ BuildRequires:  dejavu-fonts
 BuildRequires:  fdupes
 BuildRequires:  memory-constraints
 %if 0%{?suse_version} <= 1320
-BuildRequires:  gcc7-c++
+BuildRequires:  gcc9-c++
 %else
 BuildRequires:  gcc-c++
 %endif
@@ -93,8 +102,13 @@ BuildRequires:  mozilla-nss-devel >= 3.53.1
 BuildRequires:  nasm >= 2.14
 BuildRequires:  nodejs10 >= 10.21.0
 BuildRequires:  python-devel
+%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
+BuildRequires:  python-libxml2
+BuildRequires:  python36
+%else
 BuildRequires:  python2-xml
 BuildRequires:  python3 >= 3.5
+%endif
 BuildRequires:  rust >= 1.41
 BuildRequires:  rust-cbindgen >= 0.14.1
 BuildRequires:  unzip
@@ -108,7 +122,11 @@ BuildRequires:  zip
 %if 0%{?suse_version} < 1550
 BuildRequires:  pkgconfig(gconf-2.0) >= 1.2.1
 %endif
+%if (0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000)
+BuildRequires:  clang6-devel
+%else
 BuildRequires:  clang-devel >= 5
+%endif
 BuildRequires:  pkgconfig(gdk-x11-2.0)
 BuildRequires:  pkgconfig(glib-2.0) >= 2.22
 BuildRequires:  pkgconfig(gobject-2.0)
@@ -155,7 +173,7 @@ Source9:        firefox.js
 Source11:       firefox.1
 Source12:       mozilla-get-app-id
 Source13:       spellcheck.js
-Source14:       https://github.com/openSUSE/firefox-scripts/raw/8a54002/create-tar.sh
+Source14:       https://github.com/openSUSE/firefox-scripts/raw/5e54f4a/create-tar.sh
 Source15:       firefox-appdata.xml
 Source16:       %{name}.changes
 # Set up API keys, see http://www.chromium.org/developers/how-tos/api-keys
@@ -188,6 +206,10 @@ Patch20:        mozilla-fix-top-level-asm.patch
 Patch21:        mozilla-bmo1504834-part4.patch
 Patch22:        mozilla-bmo849632.patch
 Patch23:        mozilla-pipewire-0-3.patch
+Patch24:        mozilla-bmo1602730.patch
+Patch25:        mozilla-bmo998749.patch
+Patch26:        mozilla-bmo1626236.patch
+Patch27:        mozilla-s390x-skia-gradient.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -234,6 +256,8 @@ Development files for %{appname} to make packaging of addons easier.
 Summary:        Common translations for %{appname}
 Group:          System/Localization
 Provides:       locale(%{name}:ar;ca;cs;da;de;el;en_GB;es_AR;es_CL;es_ES;fi;fr;hu;it;ja;ko;nb_NO;nl;pl;pt_BR;pt_PT;ru;sv_SE;zh_CN;zh_TW)
+# This is there for updates from Firefox before the translations-package was split up into 2 packages
+Provides:       %{name}-translations
 Requires:       %{name} = %{version}
 Obsoletes:      %{name}-translations < %{version}-%{release}
 
@@ -323,6 +347,10 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %if %{with pipewire3}
 %patch23 -p1
 %endif
+%patch24 -p1
+%patch25 -p1
+%patch26 -p1
+%patch27 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
@@ -335,6 +363,14 @@ modified="$(sed -n '/^----/n;s/ - .*$//;p;q' "%{_sourcedir}/%{name}.changes")"
 DATE="\"$(date -d "${modified}" "+%%b %%e %%Y")\""
 TIME="\"$(date -d "${modified}" "+%%R")\""
 find . -regex ".*\.c\|.*\.cpp\|.*\.h" -exec sed -i "s/__DATE__/${DATE}/g;s/__TIME__/${TIME}/g" {} +
+
+# SLE-12 provides python36, but that package does not provide a python3 binary
+%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
+sed -i "s/python3/python36/g" configure.in
+sed -i "s/python3/python36/g" mach
+export PYTHON3=/usr/bin/python36
+%endif
+
 #
 kdehelperversion=$(cat toolkit/xre/nsKDEUtils.cpp | grep '#define KMOZILLAHELPER_VERSION' | cut -d ' ' -f 3)
 if test "$kdehelperversion" != %{kde_helper_version}; then
@@ -354,7 +390,7 @@ export MOZILLA_OFFICIAL=1
 export BUILD_OFFICIAL=1
 export MOZ_TELEMETRY_REPORTING=1
 %if 0%{?suse_version} <= 1320
-export CC=gcc-7
+export CC=gcc-9
 %else
 %if 0%{?clang_build} == 0
 export CC=gcc
@@ -400,7 +436,11 @@ ac_add_options --prefix=%{_prefix}
 ac_add_options --libdir=%{_libdir}
 ac_add_options --includedir=%{_includedir}
 ac_add_options --enable-release
+%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
+ac_add_options --enable-default-toolkit=cairo-gtk3
+%else
 ac_add_options --enable-default-toolkit=cairo-gtk3-wayland
+%endif
 # bmo#1441155 - Disable the generation of Rust debug symbols on Linux32
 %ifarch %ix86 %arm
 ac_add_options --disable-debug-symbols
