@@ -1,15 +1,8 @@
-# HG changeset patch
-# User M. Sirringhaus <msirringhaus@suse.de>
-# Date 1590407573 -7200
-#      Mon May 25 13:52:53 2020 +0200
-# Node ID 7616b189f50b94dbe98f78f32d0416948699cc91
-# Parent  7b3b4111316505e60319a0881f679eaab47a3439
-[mq]: system-nspr.patch
-
-diff -r 7b3b41113165 -r 7616b189f50b Makefile
---- a/Makefile	Mon May 25 13:49:52 2020 +0200
-+++ b/Makefile	Mon May 25 13:52:53 2020 +0200
-@@ -48,7 +48,6 @@
+diff --git a/Makefile b/Makefile
+index eb4ed1a..de9c13d 100644
+--- a/Makefile
++++ b/Makefile
+@@ -48,12 +48,10 @@ include $(CORE_DEPTH)/coreconf/rules.mk
  #######################################################################
  
  nss_build_all:
@@ -17,3 +10,8 @@ diff -r 7b3b41113165 -r 7616b189f50b Makefile
  	$(MAKE) all
  	$(MAKE) latest
  
+ nss_clean_all:
+-	$(MAKE) clobber_nspr
+ 	$(MAKE) clobber
+ 
+ NSPR_CONFIG_STATUS = $(CORE_DEPTH)/../nspr/$(OBJDIR_NAME)/config.status
