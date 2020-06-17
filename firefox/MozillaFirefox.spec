@@ -25,15 +25,20 @@
 # orig_suffix b3
 # major 69
 # mainver %major.99
-%define major          78
-%define mainver        %major.0
+%define major          77
+%define mainver        %major.99
 %define orig_version   78.0
 %define orig_suffix    b8
-%define update_channel release
+%define update_channel beta
 %define branding       1
 %define devpkg         1
 
-# always build with GCC as SUSE Security Team requires that
+%if 0%{?suse_version} > 1500
+# PGO builds do not work in TW currently (bmo#1642410)
+%define do_profiling   0
+%endif
+
+# upstream default is clang (to use gcc for large parts set to 0)
 %define clang_build 0
 
 # PIE, full relro
@@ -226,7 +231,7 @@ Obsoletes:      %{name}-devel < %{version}
 %if 0%{?suse_version} < 1220
 Obsoletes:      libproxy1-pacrunner-mozjs <= 0.4.7
 %endif
-##BuildArch:      i686 x86_64 aarch64 ppc64le
+ExcludeArch:    armv6l armv6hl
 
 %description
 Mozilla Firefox is a standalone web browser, designed for standards
@@ -415,7 +420,11 @@ echo "export RUSTFLAGS=\"$RUSTFLAGS\""
 echo ""
 cat << EOF
 %else
+%ifarch ppc64 ppc64le
+%limit_build -m 2500
+%else
 %limit_build -m 2000
+%endif
 cat << EOF > $MOZCONFIG
 %endif
 mk_add_options MOZILLA_OFFICIAL=1
