@@ -21,7 +21,7 @@
 %define major          77
 %define mainver        %major.99
 %define orig_version   78.0
-%define orig_suffix    b7
+%define orig_suffix    b8
 %define update_channel beta
 %define branding       1
 %define devpkg         1
@@ -89,7 +89,7 @@ BuildRequires:  libiw-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.25
-BuildRequires:  mozilla-nss-devel >= 3.53
+BuildRequires:  mozilla-nss-devel >= 3.53.1
 BuildRequires:  nasm >= 2.14
 BuildRequires:  nodejs10 >= 10.21.0
 BuildRequires:  python-devel
