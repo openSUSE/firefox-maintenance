@@ -49,6 +49,7 @@ Patch4:         add-relro-linker-option.patch
 Patch5:         malloc.patch
 Patch6:         bmo-1400603.patch
 Patch7:         nss-sqlitename.patch
+Patch8:         ppc-old-abi-v3.patch
 BuildRequires:  gcc-c++
 BuildRequires:  pkgconfig
 BuildRequires:  pkgconfig(nspr) >= %{NSPR_min_version}
@@ -179,6 +180,7 @@ cd nss
 %endif
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
 # additional CA certificates
 #cd security/nss/lib/ckfw/builtins
 #cat %{SOURCE2} >> certdata.txt
