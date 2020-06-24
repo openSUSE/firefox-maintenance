@@ -28,8 +28,8 @@
 %define major          77
 %define mainver        %major.99
 %define orig_version   78.0
-%define orig_suffix    b8
-%define update_channel beta
+%define orig_suffix    esr
+%define update_channel esr78
 %define branding       1
 %define devpkg         1
 
