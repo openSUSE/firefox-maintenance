@@ -218,7 +218,7 @@ Patch102:       firefox-branded-icons.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post):   coreutils shared-mime-info desktop-file-utils
 Requires(postun): shared-mime-info desktop-file-utils
-Requires:       %{name}-branding >= 68
+Requires:       %{name}-branding >= 78
 Requires:       mozilla-nspr >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 Requires:       mozilla-nss >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nss)
 Recommends:     libcanberra0
@@ -378,8 +378,9 @@ if test "$kdehelperversion" != %{kde_helper_version}; then
   echo fix kde helper version in the .spec file
   exit 1
 fi
-source %{SOURCE4}
 %endif # only_print_mozconfig
+
+source %{SOURCE4}
 
 export CARGO_HOME=${RPM_BUILD_DIR}/%{srcname}-%{orig_version}/.cargo
 export MOZ_SOURCE_CHANGESET=$RELEASE_TAG
@@ -416,8 +417,17 @@ export MOZCONFIG=$RPM_BUILD_DIR/mozconfig
 echo "export CC=$CC"
 echo "export CXX=$CXX"
 echo "export CFLAGS=\"$CFLAGS\""
+echo "export CXXFLAGS=\"$CXXFLAGS\""
 echo "export LDFLAGS=\"$LDFLAGS\""
 echo "export RUSTFLAGS=\"$RUSTFLAGS\""
+echo "export CARGO_HOME=\"$CARGO_HOME\""
+echo "export PATH=\"$PATH\""
+echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH\""
+echo "export PKG_CONFIG_PATH=\"$PKG_CONFIG_PATH\""
+echo "export MOZCONFIG=\"$MOZCONFIG\""
+echo "export MOZILLA_OFFICIAL=1"
+echo "export BUILD_OFFICIAL=1"
+echo "export MOZ_TELEMETRY_REPORTING=1"
 echo ""
 cat << EOF
 %else
