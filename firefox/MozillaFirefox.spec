@@ -25,9 +25,9 @@
 # orig_suffix b3
 # major 69
 # mainver %major.99
-%define major          77
-%define mainver        %major.99
-%define orig_version   78.0
+%define major          78
+%define mainver        %major.0.1
+%define orig_version   78.0.1
 %define orig_suffix    esr
 %define update_channel esr78
 %define branding       1
@@ -221,6 +221,7 @@ Requires(postun): shared-mime-info desktop-file-utils
 Requires:       %{name}-branding >= 68
 Requires:       mozilla-nspr >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 Requires:       mozilla-nss >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nss)
+Requires:       libfreetype6 >= %(rpm -q --queryformat '%%{VERSION}' libfreetype6)
 Recommends:     libcanberra0
 Recommends:     libpulse0
 # addon leads to startup crash (bnc#908892)
