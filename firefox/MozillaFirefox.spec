@@ -25,18 +25,16 @@
 # orig_suffix b3
 # major 69
 # mainver %major.99
-%define major          77
-%define mainver        %major.99
-%define orig_version   78.0
-%define orig_suffix    b8
-%define update_channel beta
+%define major          78
+%define mainver        %major.0.1
+%define orig_version   78.0.1
+%define orig_suffix    %{nil}
+%define update_channel release
 %define branding       1
 %define devpkg         1
 
-%if 0%{?suse_version} > 1500
 # PGO builds do not work in TW currently (bmo#1642410)
 %define do_profiling   0
-%endif
 
 # upstream default is clang (to use gcc for large parts set to 0)
 %define clang_build 0
