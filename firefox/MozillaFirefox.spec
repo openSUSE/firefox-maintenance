@@ -68,11 +68,11 @@ BuildArch:      i686
 %else
 %define crashreporter 0
 %endif
-%if 0%{?sle_version} > 150100
+%if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150100
 # pipewire is too old on Leap <15.1
-%define with_pipewire0_3 1
-%else
 %define with_pipewire0_3 0
+%else
+%define with_pipewire0_3 1
 %endif
 
 Name:           %{pkgname}
