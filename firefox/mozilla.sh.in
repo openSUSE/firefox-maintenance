@@ -88,10 +88,10 @@ if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
 fi
 
 # xinput2 (boo#1173320)
-source /etc/os-release
-if [ "$ID" = "opensuse-tumbleweed" ]; then
-  export MOZ_USE_XINPUT2=1
-fi
+#source /etc/os-release
+#if [ "$ID" = "opensuse-tumbleweed" ]; then
+#  export MOZ_USE_XINPUT2=1
+#fi
 
 moz_debug=0
 script_args=""
