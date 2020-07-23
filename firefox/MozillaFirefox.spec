@@ -208,6 +208,7 @@ Patch24:        mozilla-bmo1602730.patch
 Patch25:        mozilla-bmo998749.patch
 Patch26:        mozilla-bmo1626236.patch
 Patch27:        mozilla-s390x-skia-gradient.patch
+Patch28:        mozilla-libavcodec58_91.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -349,6 +350,7 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch25 -p1
 %patch26 -p1
 %patch27 -p1
+%patch28 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
@@ -476,9 +478,10 @@ ac_add_options --disable-debug
 #ac_add_options --enable-chrome-format=jar
 ac_add_options --enable-update-channel=%{update_channel}
 ac_add_options --with-mozilla-api-keyfile=%{SOURCE18}
-ac_add_options --with-google-location-service-api-keyfile=%{SOURCE19}
+#ac_add_options --with-google-location-service-api-keyfile=%{SOURCE19}
 ac_add_options --with-google-safebrowsing-api-keyfile=%{SOURCE19}
 ac_add_options --with-unsigned-addon-scopes=app
+ac_add_options --allow-addon-sideload
 %if %branding
 ac_add_options --enable-official-branding
 %endif
@@ -533,18 +536,18 @@ sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_versi
     | xargs -n 1 -I {} /bin/sh -c '
         locale=$1
         ./mach build langpack-$locale
-        cp -rL ../obj/dist/xpi-stage/locale-$locale \
-            %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org
+        cp -L ../obj/dist/linux-*/xpi/firefox-%{orig_version}.$locale.langpack.xpi \
+            %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org.xpi
         # remove prefs, profile defaults, and hyphenation from langpack
-        rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/defaults
-        rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/hyphenation
+        #rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/defaults
+        #rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/hyphenation
         # check against the fixed common list and sort into the right filelist
         _matched=0
         for _match in ar ca cs da de el en-GB es-AR es-CL es-ES fi fr hu it ja ko nb-NO nl pl pt-BR pt-PT ru sv-SE zh-CN zh-TW; do
             [ "$_match" = "$locale" ] && _matched=1
         done
         [ $_matched -eq 1 ] && _l10ntarget=common || _l10ntarget=other
-        echo %{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org \
+        echo %{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org.xpi \
             >> %{_tmppath}/translations.$_l10ntarget
 ' -- {}
 %endif
@@ -759,12 +762,12 @@ exit 0
 %files translations-common -f %{_tmppath}/translations.common
 %defattr(-,root,root)
 %dir %{progdir}
-%dir %{progdir}/browser/extensions/
+%dir %{progdir}/browser/extensions
 
 %files translations-other -f %{_tmppath}/translations.other
 %defattr(-,root,root)
 %dir %{progdir}
-%dir %{progdir}/browser/extensions/
+%dir %{progdir}/browser/extensions
 %endif
 
 # this package does not need to provide files but is needed to fulfill
