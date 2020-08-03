@@ -69,6 +69,7 @@ Patch32:        nss-fips-detect-fips-mode-fixes.patch
 Patch34:        nss-fips-combined-hash-sign-dsa-ecdsa.patch
 Patch35:        nss-fix-dh-pkcs-derive-inverted-logic.patch
 Patch36:        nss-fips-aes-keywrap-post.patch
+Patch37:        nss-fips-fix-missing-nspr.patch
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 # aarch64 + gcc4.8 fails to build on SLE-12 due to undefined references
 BuildRequires:  gcc9-c++
@@ -226,6 +227,7 @@ cd nss
 %patch34 -p1
 %patch35 -p1
 %patch36 -p1
+%patch37 -p2
 
 # additional CA certificates
 #cd security/nss/lib/ckfw/builtins
