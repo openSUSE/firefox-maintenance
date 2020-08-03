@@ -42,8 +42,8 @@ diff --git a/build/moz.configure/toolchain.configure b/build/moz.configure/toolc
  
      if debug_symbols:
          debug_info = '2'
-+        if host.bitness == 32 or host.cpu == 'aarch64' or host.cpu == 'ppc64':
-+            debug_info = '1'
++#        if host.bitness == 32 or host.cpu == 'aarch64' or host.cpu == 'ppc64': # Just reduce debug_info for all archs
++        debug_info = '1'
  
      opts = []
  
