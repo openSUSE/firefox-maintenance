@@ -26,8 +26,8 @@
 # major 69
 # mainver %major.99
 %define major           68
-%define mainver         %major.9.0
-%define orig_version    68.9.0
+%define mainver         %major.11.0
+%define orig_version    68.11.0
 %define orig_suffix     %{nil}
 %define update_channel  release
 %define source_prefix   thunderbird-%{mainver}
@@ -57,6 +57,9 @@
 %define crashreporter 0
 
 %define has_system_cairo 0
+
+# rust/cargo have not been updated for i586. We are currently not shipping these, so disable them for now
+ExcludeArch: i586
 
 Name:           %{pkgname}
 BuildRequires:  Mesa-devel
