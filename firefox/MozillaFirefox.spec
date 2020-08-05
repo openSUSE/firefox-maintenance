@@ -483,6 +483,7 @@ ac_add_options --with-mozilla-api-keyfile=%{SOURCE18}
 #ac_add_options --with-google-location-service-api-keyfile=%{SOURCE19}
 ac_add_options --with-google-safebrowsing-api-keyfile=%{SOURCE19}
 ac_add_options --with-unsigned-addon-scopes=app
+ac_add_options --allow-addon-sideload
 %if %branding
 ac_add_options --enable-official-branding
 %endif
