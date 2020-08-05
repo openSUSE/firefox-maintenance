@@ -479,7 +479,8 @@ ac_add_options --disable-debug
 #ac_add_options --enable-chrome-format=jar
 ac_add_options --enable-update-channel=%{update_channel}
 ac_add_options --with-mozilla-api-keyfile=%{SOURCE18}
-ac_add_options --with-google-location-service-api-keyfile=%{SOURCE19}
+# Google-service currently not available for free anymore
+#ac_add_options --with-google-location-service-api-keyfile=%{SOURCE19}
 ac_add_options --with-google-safebrowsing-api-keyfile=%{SOURCE19}
 ac_add_options --with-unsigned-addon-scopes=app
 %if %branding
