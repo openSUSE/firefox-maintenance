@@ -216,8 +216,9 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post):   coreutils shared-mime-info desktop-file-utils
 Requires(postun): shared-mime-info desktop-file-utils
 Requires:       %{name}-branding >= 68
-Requires:       mozilla-nspr >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
-Requires:       mozilla-nss >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nss)
+%requires_ge    mozilla-nspr
+%requires_ge    mozilla-nss
+%requires_ge    libfreetype6
 Recommends:     libcanberra0
 Recommends:     libpulse0
 # addon leads to startup crash (bnc#908892)
