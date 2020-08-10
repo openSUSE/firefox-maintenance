@@ -537,7 +537,7 @@ xvfb-run --server-args="-screen 0 1920x1080x24" \
 mkdir -p %{buildroot}%{progdir}/browser/extensions
 truncate -s 0 %{_tmppath}/translations.{common,other}
 sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_version}/browser/locales/shipped-locales \
-    | xargs -n 1 -I {} /bin/sh -c '
+    | xargs -n 1 -P 0 -I {} /bin/sh -c '
         locale=$1
         ./mach build langpack-$locale
         cp -rL ../obj/dist/xpi-stage/locale-$locale \
