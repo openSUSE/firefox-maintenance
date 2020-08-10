@@ -89,6 +89,7 @@ BuildRequires:  gcc9-c++
 BuildRequires:  gcc-c++
 %endif
 BuildRequires:  cargo >= 1.43
+BuildRequires:  ccache
 BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
 BuildRequires:  libidl-devel
@@ -464,6 +465,7 @@ ac_add_options --disable-elf-hack
 #%endif
 ac_add_options --with-system-nspr
 ac_add_options --with-system-nss
+ac_add_options --with-ccache
 %if %{localize}
 ac_add_options --with-l10n-base=$RPM_BUILD_DIR/l10n
 %endif
