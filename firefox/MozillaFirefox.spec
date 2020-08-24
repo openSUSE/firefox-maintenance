@@ -538,10 +538,19 @@ xvfb-run --server-args="-screen 0 1920x1080x24" \
 
 # build additional locales
 %if %localize
+# The file obj/browser/locales/bookmarks.html will be overwritten by each langpack-build with the current translation
+# Thus we save here the original, to restore it afterwards, so that the default installation will not have zh-TW
+# bookmarks
+# See also https://bugzilla.opensuse.org/show_bug.cgi?id=1167976
+cp ../obj/browser/locales/bookmarks.html ../obj/browser/locales/bookmarks.html_ORIG
+
 mkdir -p %{buildroot}%{progdir}/browser/extensions
 truncate -s 0 %{_tmppath}/translations.{common,other}
+# Adding "-P 0" would give us parallel builds of langpacks. Unfortunately, mach currently doesn't support
+# building them in parallel. If we do, we get race-conditions and have mixed languages in the langpacks.
+# See https://bugzilla.suse.com/show_bug.cgi?id=1173986
 sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_version}/browser/locales/shipped-locales \
-    | xargs -n 1 -P 0 -I {} /bin/sh -c '
+    | xargs -n 1 -I {} /bin/sh -c '
         locale=$1
         ./mach build langpack-$locale
         cp -rL ../obj/dist/xpi-stage/locale-$locale \
@@ -558,6 +567,9 @@ sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_versi
         echo %{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org \
             >> %{_tmppath}/translations.$_l10ntarget
 ' -- {}
+
+# Restoring the original bookmarksfile
+cp ../obj/browser/locales/bookmarks.html_ORIG ../obj/browser/locales/bookmarks.html
 %endif
 
 ccache -s
