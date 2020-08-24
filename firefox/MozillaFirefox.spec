@@ -73,8 +73,11 @@ BuildArch:      i686
 %if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150100
 # pipewire is too old on Leap <15.1
 %define with_pipewire0_3 0
+# Wayland is too old on Leap <15.1 as well
+%define wayland_supported 0
 %else
 %define with_pipewire0_3 1
+%define wayland_supported 1
 %endif
 
 Name:           %{pkgname}
@@ -603,6 +606,7 @@ mkdir --parents %{buildroot}/usr/bin
 sed "s:%%PREFIX:%{_prefix}:g
 s:%%PROGDIR:%{progdir}:g
 s:%%APPNAME:%{progname}:g
+s:%%WAYLAND_SUPPORTED:%{wayland_supported}:g
 s:%%PROFILE:.mozilla/firefox:g" \
   %{SOURCE3} > %{buildroot}%{progdir}/%{progname}.sh
 chmod 755 %{buildroot}%{progdir}/%{progname}.sh
