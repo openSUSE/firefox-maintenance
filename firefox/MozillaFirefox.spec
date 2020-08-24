@@ -530,6 +530,7 @@ echo "Generate big endian version of config/external/icu/data/icud58l.dat"
 ls -l config/external/icu/data
 rm -f config/external/icu/data/icudt*l.dat
 %endif
+ccache -s
 %if 0%{?do_profiling}
 xvfb-run --server-args="-screen 0 1920x1080x24" \
 %endif
@@ -559,6 +560,7 @@ sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_versi
 ' -- {}
 %endif
 
+ccache -s
 %endif # only_print_mozconfig
 
 %install
