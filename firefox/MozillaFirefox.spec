@@ -25,9 +25,9 @@
 # orig_suffix b3
 # major 69
 # mainver %major.99
-%define major          79
+%define major          80
 %define mainver        %major.0
-%define orig_version   79.0
+%define orig_version   80.0
 %define orig_suffix    %{nil}
 %define update_channel release
 %define branding       1
@@ -82,7 +82,6 @@ BuildRequires:  autoconf213
 BuildRequires:  dbus-1-glib-devel
 BuildRequires:  dejavu-fonts
 BuildRequires:  fdupes
-BuildRequires:  memory-constraints
 %if 0%{?suse_version} <= 1320
 BuildRequires:  gcc9-c++
 %else
@@ -96,8 +95,8 @@ BuildRequires:  libidl-devel
 BuildRequires:  libiw-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
-BuildRequires:  mozilla-nspr-devel >= 4.26
-BuildRequires:  mozilla-nss-devel >= 3.54
+BuildRequires:  mozilla-nspr-devel >= 4.27
+BuildRequires:  mozilla-nss-devel >= 3.55
 BuildRequires:  nasm >= 2.14
 BuildRequires:  nodejs10 >= 10.21.0
 BuildRequires:  python-devel
@@ -209,6 +208,7 @@ Patch25:        mozilla-bmo998749.patch
 Patch26:        mozilla-bmo1626236.patch
 Patch27:        mozilla-s390x-skia-gradient.patch
 Patch28:        mozilla-libavcodec58_91.patch
+Patch29:        mozilla-system-nspr.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -351,6 +351,7 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch26 -p1
 %patch27 -p1
 %patch28 -p1
+%patch29 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
@@ -430,11 +431,6 @@ echo "export MOZ_TELEMETRY_REPORTING=1"
 echo ""
 cat << EOF
 %else
-%ifarch ppc64 ppc64le
-%limit_build -m 2500
-%else
-%limit_build -m 2000
-%endif
 cat << EOF > $MOZCONFIG
 %endif
 mk_add_options MOZILLA_OFFICIAL=1
@@ -524,6 +520,7 @@ echo "Generate big endian version of config/external/icu/data/icud58l.dat"
 ls -l config/external/icu/data
 rm -f config/external/icu/data/icudt*l.dat
 %endif
+ccache -s
 %if 0%{?do_profiling}
 xvfb-run --server-args="-screen 0 1920x1080x24" \
 %endif
@@ -531,10 +528,19 @@ xvfb-run --server-args="-screen 0 1920x1080x24" \
 
 # build additional locales
 %if %localize
+# The file obj/browser/locales/bookmarks.html will be overwritten by each langpack-build with the current translation
+# Thus we save here the original, to restore it afterwards, so that the default installation will not have zh-TW
+# bookmarks
+# See also https://bugzilla.opensuse.org/show_bug.cgi?id=1167976
+cp ../obj/browser/locales/bookmarks.html ../obj/browser/locales/bookmarks.html_ORIG
+
 mkdir -p %{buildroot}%{progdir}/browser/extensions
 truncate -s 0 %{_tmppath}/translations.{common,other}
-sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_version}/browser/locales/shipped-locales \
-    | xargs -n 1 -P 0 -I {} /bin/sh -c '
+# Adding "-P 0" would give us parallel builds of langpacks. Unfortunately, mach currently doesn't support
+# building them in parallel. If we do, we get race-conditions and have mixed languages in the langpacks.
+# See https://bugzilla.suse.com/show_bug.cgi?id=1173986
+sed -r '/^(ja-JP-mac|ga-IE|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_version}/browser/locales/shipped-locales \
+    | xargs -n 1 -I {} /bin/sh -c '
         locale=$1
         ./mach build langpack-$locale
         cp -L ../obj/dist/linux-*/xpi/firefox-%{orig_version}.$locale.langpack.xpi \
@@ -551,8 +557,12 @@ sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_versi
         echo %{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org.xpi \
             >> %{_tmppath}/translations.$_l10ntarget
 ' -- {}
+
+# Restoring the original bookmarksfile
+cp ../obj/browser/locales/bookmarks.html_ORIG ../obj/browser/locales/bookmarks.html
 %endif
 
+ccache -s
 %endif # only_print_mozconfig
 
 %install
@@ -615,9 +625,9 @@ s:%%ICON:%{progname}:g" \
 mkdir -p %{buildroot}%{_datadir}/mime/packages
 cp %{SOURCE8} %{buildroot}%{_datadir}/mime/packages/%{progname}.xml
 # appdata
-mkdir -p %{buildroot}%{_datadir}/appdata
+mkdir -p %{buildroot}%{_datadir}/metainfo
 sed "s:firefox.desktop:%{desktop_file_name}:g" \
-  %{SOURCE15} > %{buildroot}%{_datadir}/appdata/%{desktop_file_name}.appdata.xml
+  %{SOURCE15} > %{buildroot}%{_datadir}/metainfo/%{desktop_file_name}.appdata.xml
 # install man-page
 mkdir -p %{buildroot}%{_mandir}/man1/
 cp %{SOURCE11} %{buildroot}%{_mandir}/man1/%{progname}.1
@@ -750,7 +760,7 @@ exit 0
 %{gnome_dir}/share/icons/hicolor/
 %{_bindir}/%{progname}
 %doc %{_mandir}/man1/%{progname}.1.gz
-%{_datadir}/appdata/
+%{_datadir}/metainfo/
 
 %if 0%{?devpkg}
 %files devel
