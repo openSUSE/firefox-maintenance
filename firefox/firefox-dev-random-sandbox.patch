@@ -1,0 +1,51 @@
+# HG changeset patch
+# User Charles G Robertson <cgrobertson@suse.com>
+# Date 1598289968 21600
+#      Mon Aug 24 11:26:08 2020 -0600
+# Node ID 597266eaae166d5fabb2a36a6d2fda6dbf7dc861
+# Parent  e23a3176498ec0e724033e000140204915e2375b
+[mq]: firefox-dev-random-sandbox.patch
+bsc#1174284 - Firefox tab just crashed in FIPS mode
+
+diff --git a/security/sandbox/linux/Sandbox.cpp b/security/sandbox/linux/Sandbox.cpp
+--- a/security/sandbox/linux/Sandbox.cpp
++++ b/security/sandbox/linux/Sandbox.cpp
+@@ -647,16 +647,17 @@ void SetMediaPluginSandbox(const char* a
+     SANDBOX_LOG_ERROR("failed to open plugin file %s: %s", aFilePath,
+                       strerror(errno));
+     MOZ_CRASH("failed while trying to open the plugin file ");
+   }
+ 
+   auto files = new SandboxOpenedFiles();
+   files->Add(std::move(plugin));
+   files->Add("/dev/urandom", true);
++  files->Add("/dev/random", true);
+   files->Add("/etc/ld.so.cache");  // Needed for NSS in clearkey.
+   files->Add("/sys/devices/system/cpu/cpu0/tsc_freq_khz");
+   files->Add("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq");
+   files->Add("/proc/cpuinfo");  // Info also available via CPUID instruction.
+   files->Add("/proc/sys/crypto/fips_enabled");  // Needed for NSS in clearkey.
+ #ifdef __i386__
+   files->Add("/proc/self/auxv");  // Info also in process's address space.
+ #endif
+diff --git a/security/sandbox/linux/broker/SandboxBrokerPolicyFactory.cpp b/security/sandbox/linux/broker/SandboxBrokerPolicyFactory.cpp
+--- a/security/sandbox/linux/broker/SandboxBrokerPolicyFactory.cpp
++++ b/security/sandbox/linux/broker/SandboxBrokerPolicyFactory.cpp
+@@ -289,16 +289,17 @@ SandboxBrokerPolicyFactory::SandboxBroke
+   // Bug 1312678: radeonsi/Intel with DRI when using WebGL
+   policy->AddDir(rdwr, "/dev/dri");
+ 
+   // Bug 1575985: WASM library sandbox needs RW access to /dev/null
+   policy->AddPath(rdwr, "/dev/null");
+ 
+   // Read permissions
+   policy->AddPath(rdonly, "/dev/urandom");
++  policy->AddPath(rdonly, "/dev/random");
+   policy->AddPath(rdonly, "/proc/sys/crypto/fips_enabled");
+   policy->AddPath(rdonly, "/proc/cpuinfo");
+   policy->AddPath(rdonly, "/proc/meminfo");
+   policy->AddDir(rdonly, "/sys/devices/cpu");
+   policy->AddDir(rdonly, "/sys/devices/system/cpu");
+   policy->AddDir(rdonly, "/lib");
+   policy->AddDir(rdonly, "/lib64");
+   policy->AddDir(rdonly, "/usr/lib");

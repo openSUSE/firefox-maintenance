@@ -217,7 +217,8 @@ Patch27:        mozilla-s390x-skia-gradient.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
-%endif # only_print_mozconfig
+Patch103:       firefox-dev-random-sandbox.patch
+%endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post):   coreutils shared-mime-info desktop-file-utils
 Requires(postun): shared-mime-info desktop-file-utils
@@ -359,7 +360,8 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 # Firefox
 %patch101 -p1
 %patch102 -p1
-%endif # only_print_mozconfig
+%patch103 -p1
+%endif
 
 %build
 %if !%{with only_print_mozconfig}
@@ -382,9 +384,9 @@ if test "$kdehelperversion" != %{kde_helper_version}; then
   echo fix kde helper version in the .spec file
   exit 1
 fi
-%endif # only_print_mozconfig
 
 source %{SOURCE4}
+%endif
 
 export CARGO_HOME=${RPM_BUILD_DIR}/%{srcname}-%{orig_version}/.cargo
 export MOZ_SOURCE_CHANGESET=$RELEASE_TAG
@@ -573,7 +575,7 @@ cp ../obj/browser/locales/bookmarks.html_ORIG ../obj/browser/locales/bookmarks.h
 %endif
 
 ccache -s
-%endif # only_print_mozconfig
+%endif
 
 %install
 cd $RPM_BUILD_DIR/obj
