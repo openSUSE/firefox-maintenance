@@ -548,7 +548,6 @@ truncate -s 0 %{_tmppath}/translations.{common,other}
 cat << EOF > ${MOZCONFIG}_LANG
 mk_add_options MOZILLA_OFFICIAL=1
 mk_add_options BUILD_OFFICIAL=1
-mk_add_options MOZ_MAKE_FLAGS=%{?jobs:-j%jobs}
 mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../obj_LANG
 . \$topsrcdir/browser/config/mozconfig
 ac_add_options --prefix=%{_prefix}
@@ -565,7 +564,8 @@ sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_versi
         cp ${MOZCONFIG}_LANG ${MOZCONFIG}_$locale
         sed -i "s|obj_LANG|obj_$locale|" ${MOZCONFIG}_$locale
         export MOZCONFIG=${MOZCONFIG}_$locale
-        ./mach build langpack-$locale
+        # nsinstall is needed for langpack-build. It is already built by `./mach build`, but building it again is very fast
+        ./mach build config/nsinstall langpack-$locale
         cp -rL ../obj_$locale/dist/xpi-stage/locale-$locale \
             %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org
         # remove prefs, profile defaults, and hyphenation from langpack
