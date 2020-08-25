@@ -560,7 +560,7 @@ ac_add_options --enable-official-branding
 EOF
 
 sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_version}/browser/locales/shipped-locales \
-    | xargs -n 1 -P 0 -I {} /bin/sh -c '
+    | xargs -n 1 %{?jobs:-P %jobs} -I {} /bin/sh -c '
         locale=$1
         cp ${MOZCONFIG}_LANG ${MOZCONFIG}_$locale
         sed -i "s|obj_LANG|obj_$locale|" ${MOZCONFIG}_$locale
