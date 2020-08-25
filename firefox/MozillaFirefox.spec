@@ -473,9 +473,6 @@ ac_add_options --disable-elf-hack
 ac_add_options --with-system-nspr
 ac_add_options --with-system-nss
 ac_add_options --with-ccache
-%if %{localize}
-ac_add_options --with-l10n-base=$RPM_BUILD_DIR/l10n
-%endif
 #ac_add_options --with-system-jpeg    # libjpeg-turbo is used internally
 #ac_add_options --with-system-png     # doesn't work because of missing APNG support
 ac_add_options --with-system-zlib
@@ -540,22 +537,36 @@ xvfb-run --server-args="-screen 0 1920x1080x24" \
 
 # build additional locales
 %if %localize
-# The file obj/browser/locales/bookmarks.html will be overwritten by each langpack-build with the current translation
-# Thus we save here the original, to restore it afterwards, so that the default installation will not have zh-TW
-# bookmarks
-# See also https://bugzilla.opensuse.org/show_bug.cgi?id=1167976
-cp ../obj/browser/locales/bookmarks.html ../obj/browser/locales/bookmarks.html_ORIG
-
 mkdir -p %{buildroot}%{progdir}/browser/extensions
 truncate -s 0 %{_tmppath}/translations.{common,other}
-# Adding "-P 0" would give us parallel builds of langpacks. Unfortunately, mach currently doesn't support
-# building them in parallel. If we do, we get race-conditions and have mixed languages in the langpacks.
-# See https://bugzilla.suse.com/show_bug.cgi?id=1173986
+# langpack-build can not be done in parallel easily (see https://bugzilla.mozilla.org/show_bug.cgi?id=1660943)
+# Therefore, we have to have a separate obj-dir for each language
+# We do this, by creating a mozconfig-template with the necessary switches
+# and a placeholder obj-dir, which gets copied and modified for each language
+
+# Create mozconfig-template for langbuild
+cat << EOF > ${MOZCONFIG}_LANG
+mk_add_options MOZILLA_OFFICIAL=1
+mk_add_options BUILD_OFFICIAL=1
+mk_add_options MOZ_MAKE_FLAGS=%{?jobs:-j%jobs}
+mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../obj_LANG
+. \$topsrcdir/browser/config/mozconfig
+ac_add_options --prefix=%{_prefix}
+ac_add_options --with-l10n-base=$RPM_BUILD_DIR/l10n
+ac_add_options --disable-updater
+%if %branding
+ac_add_options --enable-official-branding
+%endif
+EOF
+
 sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_version}/browser/locales/shipped-locales \
-    | xargs -n 1 -I {} /bin/sh -c '
+    | xargs -n 1 -P 0 -I {} /bin/sh -c '
         locale=$1
+        cp ${MOZCONFIG}_LANG ${MOZCONFIG}_$locale
+        sed -i "s|obj_LANG|obj_$locale|" ${MOZCONFIG}_$locale
+        export MOZCONFIG=${MOZCONFIG}_$locale
         ./mach build langpack-$locale
-        cp -rL ../obj/dist/xpi-stage/locale-$locale \
+        cp -rL ../obj_$locale/dist/xpi-stage/locale-$locale \
             %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org
         # remove prefs, profile defaults, and hyphenation from langpack
         rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/defaults
@@ -569,9 +580,6 @@ sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_versi
         echo %{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org \
             >> %{_tmppath}/translations.$_l10ntarget
 ' -- {}
-
-# Restoring the original bookmarksfile
-cp ../obj/browser/locales/bookmarks.html_ORIG ../obj/browser/locales/bookmarks.html
 %endif
 
 ccache -s
