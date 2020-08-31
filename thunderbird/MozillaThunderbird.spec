@@ -30,7 +30,7 @@
 %define orig_version   78.2.1
 %define orig_suffix    %{nil}
 %define update_channel release
-%define source_prefix   thunderbird-%{orig_version}
+%define source_prefix  thunderbird-%{orig_version}
 
 %if 0%{?suse_version} > 1500
 # PGO builds do not work in TW currently (bmo#1642410)
@@ -82,6 +82,7 @@ BuildRequires:  gcc9-c++
 BuildRequires:  gcc-c++
 %endif
 BuildRequires:  cargo >= 1.41
+BuildRequires:  ccache
 BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
 BuildRequires:  libidl-devel
@@ -326,8 +327,6 @@ export MOZ_SOURCE_CHANGESET=$RELEASE_TAG
 export SOURCE_REPO=$RELEASE_REPO
 export source_repo=$RELEASE_REPO
 export MOZ_SOURCE_REPO=$RELEASE_REPO
-# TODO: Check if this can be removed
-export SUSE_ASNEEDED=0
 export MOZ_BUILD_DATE=$RELEASE_TIMESTAMP
 export MOZILLA_OFFICIAL=1
 export BUILD_OFFICIAL=1
@@ -358,8 +357,17 @@ export MOZCONFIG=$RPM_BUILD_DIR/mozconfig
 echo "export CC=$CC"
 echo "export CXX=$CXX"
 echo "export CFLAGS=\"$CFLAGS\""
+echo "export CXXFLAGS=\"$CXXFLAGS\""
 echo "export LDFLAGS=\"$LDFLAGS\""
 echo "export RUSTFLAGS=\"$RUSTFLAGS\""
+echo "export CARGO_HOME=\"$CARGO_HOME\""
+echo "export PATH=\"$PATH\""
+echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH\""
+echo "export PKG_CONFIG_PATH=\"$PKG_CONFIG_PATH\""
+echo "export MOZCONFIG=\"$MOZCONFIG\""
+echo "export MOZILLA_OFFICIAL=1"
+echo "export BUILD_OFFICIAL=1"
+echo "export MOZ_TELEMETRY_REPORTING=1"
 echo ""
 cat << EOF
 %else
@@ -400,6 +408,7 @@ ac_add_options --disable-elf-hack
 #%endif
 ac_add_options --with-system-nspr
 ac_add_options --with-system-nss
+ac_add_options --with-ccache
 %if %{localize}
 ac_add_options --with-l10n-base=$RPM_BUILD_DIR/l10n
 %endif
@@ -411,6 +420,7 @@ ac_add_options --disable-debug
 ac_add_options --disable-necko-wifi
 ac_add_options --enable-update-channel=%{update_channel}
 ac_add_options --with-unsigned-addon-scopes=app
+ac_add_options --allow-addon-sideload
 ac_add_options --enable-official-branding
 %if ! %crashreporter
 ac_add_options --disable-crashreporter
@@ -453,6 +463,7 @@ echo "Generate big endian version of config/external/icu/data/icud58l.dat"
 ls -l config/external/icu/data
 rm -f config/external/icu/data/icudt*l.dat
 %endif
+ccache -s
 %if 0%{?do_profiling}
 xvfb-run --server-args="-screen 0 1920x1080x24" \
 %endif
