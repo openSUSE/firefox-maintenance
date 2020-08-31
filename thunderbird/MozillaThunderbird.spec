@@ -25,11 +25,11 @@
 # orig_suffix b3
 # major 69
 # mainver %major.99
-%define major          77
-%define mainver        %major.99
-%define orig_version   78.0
-%define orig_suffix    b2
-%define update_channel beta
+%define major          78
+%define mainver        %major.2.1
+%define orig_version   78.2.1
+%define orig_suffix    %{nil}
+%define update_channel release
 %define source_prefix   thunderbird-%{orig_version}
 
 %if 0%{?suse_version} > 1500
