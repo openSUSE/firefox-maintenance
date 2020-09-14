@@ -26,8 +26,8 @@
 # major 69
 # mainver %major.99
 %define major          78
-%define mainver        %major.2.1
-%define orig_version   78.2.1
+%define mainver        %major.2.2
+%define orig_version   78.2.2
 %define orig_suffix    %{nil}
 %define update_channel release
 %define source_prefix  thunderbird-%{orig_version}
@@ -194,6 +194,7 @@ Patch24:        mozilla-bmo1602730.patch
 Patch25:        mozilla-bmo998749.patch
 Patch26:        mozilla-bmo1626236.patch
 Patch27:        mozilla-s390x-skia-gradient.patch
+Patch100:       thunderbird-bmo1664607.patch
 %endif # only_print_mozconfig
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 PreReq:         coreutils fileutils textutils /bin/sh
@@ -293,6 +294,9 @@ fi
 %patch25 -p1
 %patch26 -p1
 %patch27 -p1
+pushd comm
+%patch100 -p1
+popd
 %endif # only_print_mozconfig
 
 %build
