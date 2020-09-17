@@ -26,8 +26,8 @@
 # major 69
 # mainver %major.99
 %define major          80
-%define mainver        %major.0
-%define orig_version   80.0
+%define mainver        %major.0.1
+%define orig_version   80.0.1
 %define orig_suffix    %{nil}
 %define update_channel release
 %define branding       1
@@ -82,6 +82,7 @@ BuildRequires:  autoconf213
 BuildRequires:  dbus-1-glib-devel
 BuildRequires:  dejavu-fonts
 BuildRequires:  fdupes
+BuildRequires:  memory-constraints
 %if 0%{?suse_version} <= 1320
 BuildRequires:  gcc9-c++
 %else
@@ -209,10 +210,12 @@ Patch26:        mozilla-bmo1626236.patch
 Patch27:        mozilla-s390x-skia-gradient.patch
 Patch28:        mozilla-libavcodec58_91.patch
 Patch29:        mozilla-system-nspr.patch
+Patch30:        mozilla-silence-no-return-type.patch
+Patch31:        mozilla-bmo1661715.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
-%endif # only_print_mozconfig
+%endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post):   coreutils shared-mime-info desktop-file-utils
 Requires(postun): shared-mime-info desktop-file-utils
@@ -352,10 +355,12 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch27 -p1
 %patch28 -p1
 %patch29 -p1
+%patch30 -p1
+%patch31 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
-%endif # only_print_mozconfig
+%endif
 
 %build
 %if !%{with only_print_mozconfig}
@@ -378,9 +383,9 @@ if test "$kdehelperversion" != %{kde_helper_version}; then
   echo fix kde helper version in the .spec file
   exit 1
 fi
-%endif # only_print_mozconfig
 
 source %{SOURCE4}
+%endif
 
 export CARGO_HOME=${RPM_BUILD_DIR}/%{srcname}-%{orig_version}/.cargo
 export MOZ_SOURCE_CHANGESET=$RELEASE_TAG
@@ -431,6 +436,9 @@ echo "export MOZ_TELEMETRY_REPORTING=1"
 echo ""
 cat << EOF
 %else
+%ifarch aarch64 %arm
+%limit_build -m 2000
+%endif
 cat << EOF > $MOZCONFIG
 %endif
 mk_add_options MOZILLA_OFFICIAL=1
@@ -475,6 +483,7 @@ ac_add_options --disable-debug
 #ac_add_options --enable-chrome-format=jar
 ac_add_options --enable-update-channel=%{update_channel}
 ac_add_options --with-mozilla-api-keyfile=%{SOURCE18}
+# Google-service currently not available for free anymore
 #ac_add_options --with-google-location-service-api-keyfile=%{SOURCE19}
 ac_add_options --with-google-safebrowsing-api-keyfile=%{SOURCE19}
 ac_add_options --with-unsigned-addon-scopes=app
@@ -528,22 +537,36 @@ xvfb-run --server-args="-screen 0 1920x1080x24" \
 
 # build additional locales
 %if %localize
-# The file obj/browser/locales/bookmarks.html will be overwritten by each langpack-build with the current translation
-# Thus we save here the original, to restore it afterwards, so that the default installation will not have zh-TW
-# bookmarks
-# See also https://bugzilla.opensuse.org/show_bug.cgi?id=1167976
-cp ../obj/browser/locales/bookmarks.html ../obj/browser/locales/bookmarks.html_ORIG
-
 mkdir -p %{buildroot}%{progdir}/browser/extensions
 truncate -s 0 %{_tmppath}/translations.{common,other}
-# Adding "-P 0" would give us parallel builds of langpacks. Unfortunately, mach currently doesn't support
-# building them in parallel. If we do, we get race-conditions and have mixed languages in the langpacks.
-# See https://bugzilla.suse.com/show_bug.cgi?id=1173986
+# langpack-build can not be done in parallel easily (see https://bugzilla.mozilla.org/show_bug.cgi?id=1660943)
+# Therefore, we have to have a separate obj-dir for each language
+# We do this, by creating a mozconfig-template with the necessary switches
+# and a placeholder obj-dir, which gets copied and modified for each language
+
+# Create mozconfig-template for langbuild
+cat << EOF > ${MOZCONFIG}_LANG
+mk_add_options MOZILLA_OFFICIAL=1
+mk_add_options BUILD_OFFICIAL=1
+mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../obj_LANG
+. \$topsrcdir/browser/config/mozconfig
+ac_add_options --prefix=%{_prefix}
+ac_add_options --with-l10n-base=$RPM_BUILD_DIR/l10n
+ac_add_options --disable-updater
+%if %branding
+ac_add_options --enable-official-branding
+%endif
+EOF
+
 sed -r '/^(ja-JP-mac|ga-IE|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_version}/browser/locales/shipped-locales \
-    | xargs -n 1 -I {} /bin/sh -c '
+    | xargs -n 1 %{?jobs:-P %jobs} -I {} /bin/sh -c '
         locale=$1
-        ./mach build langpack-$locale
-        cp -L ../obj/dist/linux-*/xpi/firefox-%{orig_version}.$locale.langpack.xpi \
+        cp ${MOZCONFIG}_LANG ${MOZCONFIG}_$locale
+        sed -i "s|obj_LANG|obj_$locale|" ${MOZCONFIG}_$locale
+        export MOZCONFIG=${MOZCONFIG}_$locale
+        # nsinstall is needed for langpack-build. It is already built by `./mach build`, but building it again is very fast
+        ./mach build config/nsinstall langpack-$locale
+        cp -L ../obj_$locale/dist/linux-*/xpi/firefox-%{orig_version}.$locale.langpack.xpi \
             %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org.xpi
         # remove prefs, profile defaults, and hyphenation from langpack
         #rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/defaults
@@ -557,13 +580,10 @@ sed -r '/^(ja-JP-mac|ga-IE|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig
         echo %{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org.xpi \
             >> %{_tmppath}/translations.$_l10ntarget
 ' -- {}
-
-# Restoring the original bookmarksfile
-cp ../obj/browser/locales/bookmarks.html_ORIG ../obj/browser/locales/bookmarks.html
 %endif
 
 ccache -s
-%endif # only_print_mozconfig
+%endif
 
 %install
 cd $RPM_BUILD_DIR/obj
@@ -773,12 +793,12 @@ exit 0
 %files translations-common -f %{_tmppath}/translations.common
 %defattr(-,root,root)
 %dir %{progdir}
-%dir %{progdir}/browser/extensions
+%dir %{progdir}/browser/extensions/
 
 %files translations-other -f %{_tmppath}/translations.other
 %defattr(-,root,root)
 %dir %{progdir}
-%dir %{progdir}/browser/extensions
+%dir %{progdir}/browser/extensions/
 %endif
 
 # this package does not need to provide files but is needed to fulfill
