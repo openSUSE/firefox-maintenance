@@ -3,13 +3,18 @@
 # Date 1590586654 -7200
 #      Wed May 27 15:37:34 2020 +0200
 # Node ID 582ed54a5cda147cd5996603d6066817edb687fa
-# Parent  ce99bba6375432c55a73c1367f619dfef7c7e9fc
+# Parent  1d11da3fedcc06220a394ab4548d246247d98f8f
 imported patch nss-fix-dh-pkcs-derive-inverted-logic.patch
 
 diff --git a/lib/softoken/pkcs11c.c b/lib/softoken/pkcs11c.c
 --- a/lib/softoken/pkcs11c.c
 +++ b/lib/softoken/pkcs11c.c
-@@ -8316,7 +8316,7 @@
+@@ -8271,17 +8271,17 @@ NSC_DeriveKey(CK_SESSION_HANDLE hSession
+             dhPublic.len = pMechanism->ulParameterLen;
+ 
+             /* If the caller bothered to provide Q, use Q to validate
+              * the public key. */
+             crv = sftk_Attribute2SecItem(NULL, &dhSubPrime, sourceKey, CKA_SUBPRIME);
              if (crv == CKR_OK) {
                  rv = KEA_Verify(&dhPublic, &dhPrime, &dhSubPrime);
                  PORT_Free(dhSubPrime.data);
@@ -18,3 +23,8 @@ diff --git a/lib/softoken/pkcs11c.c b/lib/softoken/pkcs11c.c
                      crv = CKR_ARGUMENTS_BAD;
                      PORT_Free(dhPrime.data);
                      PORT_Free(dhValue.data);
+                     break;
+                 }
+             }
+ 
+             /* calculate private value - oct */

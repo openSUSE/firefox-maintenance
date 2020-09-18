@@ -4,10 +4,10 @@ Date:   Fri Jun 26 00:12:15 2020 +0200
 
     Patch 37: nss-fips-fix-missing-nspr.patch
 
-diff --git a/nss/lib/freebl/drbg.c b/nss/lib/freebl/drbg.c
+diff --git a/lib/freebl/drbg.c b/lib/freebl/drbg.c
 index 85e9e61..ae8efe6 100644
---- a/nss/lib/freebl/drbg.c
-+++ b/nss/lib/freebl/drbg.c
+--- a/lib/freebl/drbg.c
++++ b/lib/freebl/drbg.c
 @@ -6,6 +6,8 @@
  #include "stubs.h"
  #endif

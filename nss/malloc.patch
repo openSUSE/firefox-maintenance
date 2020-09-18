@@ -1,8 +1,15 @@
+# HG changeset patch
+# Parent  2958588a1809cb0afb8f31be81661901a52a6156
+
 diff --git a/tests/ssl/ssl.sh b/tests/ssl/ssl.sh
-index c1730d8..5eee525 100755
 --- a/tests/ssl/ssl.sh
 +++ b/tests/ssl/ssl.sh
-@@ -1449,6 +1449,7 @@ ssl_run_tests()
+@@ -1575,11 +1575,12 @@ ssl_run_tests()
+             fi
+             ;;
+         esac
+     done
+ }
  
  ################################# main #################################
  

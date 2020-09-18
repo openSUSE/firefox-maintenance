@@ -1,5 +1,5 @@
 # HG changeset patch
-# Parent  33317adf00d6bc6c3e3499e4b32fca6b899c4b77
+# Parent  fca7a9ba4da2735a3d844aac4411cd5074d456f7
 Index: security/coreconf/Linux.mk
 ===================================================================
 RCS file: /cvsroot/mozilla/security/coreconf/Linux.mk,v
@@ -8,7 +8,7 @@ retrieving revision 1.45.2.1
 diff --git a/coreconf/Linux.mk b/coreconf/Linux.mk
 --- a/coreconf/Linux.mk
 +++ b/coreconf/Linux.mk
-@@ -102,21 +102,17 @@ endif
+@@ -103,21 +103,17 @@ endif
  endif
  
  

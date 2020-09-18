@@ -1,7 +1,15 @@
-diff -up nss/coreconf/Linux.mk.relro nss/coreconf/Linux.mk
---- nss/coreconf/Linux.mk.relro	2013-04-09 14:29:45.943228682 -0700
-+++ nss/coreconf/Linux.mk	2013-04-09 14:31:26.194953927 -0700
-@@ -174,6 +174,12 @@ endif
+# HG changeset patch
+# Parent  551434b5e83550713a110b3544f8c835cba417cd
+
+diff --git a/coreconf/Linux.mk b/coreconf/Linux.mk
+--- a/coreconf/Linux.mk
++++ b/coreconf/Linux.mk
+@@ -173,16 +173,22 @@ ifneq ($(OS_TARGET),Android)
+ ifeq (2.6,$(firstword $(sort 2.6 $(OS_RELEASE))))
+ ifndef FREEBL_NO_DEPEND
+ FREEBL_NO_DEPEND = 1
+ FREEBL_LOWHASH = 1
+ endif
  endif
  endif
  
@@ -14,3 +22,8 @@ diff -up nss/coreconf/Linux.mk.relro nss/coreconf/Linux.mk
  USE_SYSTEM_ZLIB = 1
  ZLIB_LIBS = -lz
  
+ # The -rpath '$$ORIGIN' linker option instructs this library to search for its
+ # dependencies in the same directory where it resides.
+ ifeq ($(BUILD_SUN_PKG), 1)
+ ifeq ($(USE_64), 1)
+ RPATH = -Wl,-rpath,'$$ORIGIN:/opt/sun/private/lib64:/opt/sun/private/lib'
