@@ -17,6 +17,10 @@
 #
 
 
+%if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150100
+#!BuildIgnore: post-build-checks
+%endif
+
 # changed with every update
 # orig_version vs. mainver: To have beta-builds
 # FF70beta3 would be released as FF69.99
@@ -100,13 +104,13 @@ BuildRequires:  mozilla-nspr-devel >= 4.28
 BuildRequires:  mozilla-nss-devel >= 3.56
 BuildRequires:  nasm >= 2.14
 BuildRequires:  nodejs10 >= 10.21.0
-BuildRequires:  python-devel
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 BuildRequires:  python-libxml2
 BuildRequires:  python36
 %else
-BuildRequires:  python2-xml
+BuildRequires:  python3-devel
 BuildRequires:  python3 >= 3.5
+BuildRequires:  python3-curses
 %endif
 BuildRequires:  rust >= 1.43
 BuildRequires:  rust-cbindgen >= 0.14.3
@@ -209,7 +213,7 @@ Patch25:        mozilla-bmo998749.patch
 Patch26:        mozilla-bmo1626236.patch
 Patch27:        mozilla-s390x-skia-gradient.patch
 Patch28:        mozilla-libavcodec58_91.patch
-Patch29:        mozilla-silence-no-return-type.patch
+Patch29:        revert-795c8762b16b.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -352,7 +356,7 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch26 -p1
 %patch27 -p1
 %patch28 -p1
-%patch29 -p1
+%patch29 -p1 -R
 # Firefox
 %patch101 -p1
 %patch102 -p1
