@@ -571,6 +571,8 @@ sed -r '/^(ja-JP-mac|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_versi
         # remove prefs, profile defaults, and hyphenation from langpack
         rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/defaults
         rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/hyphenation
+        # Build systems like to run out of disc-space, so we delete the build-dir here (we copied already all relevant files)
+        rm -rf ../obj_$locale/
         # check against the fixed common list and sort into the right filelist
         _matched=0
         for _match in ar ca cs da de el en-GB es-AR es-CL es-ES fi fr hu it ja ko nb-NO nl pl pt-BR pt-PT ru sv-SE zh-CN zh-TW; do
