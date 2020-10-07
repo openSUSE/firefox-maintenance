@@ -5,7 +5,7 @@
       <size unit="G">5</size>
     </disk>
     <memory>
-      <size unit="M">2500</size>
+      <size unit="G">6</size>
     </memory>
   </hardware>
 </constraints>
