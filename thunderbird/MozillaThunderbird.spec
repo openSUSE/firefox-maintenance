@@ -26,8 +26,8 @@
 # major 69
 # mainver %major.99
 %define major          78
-%define mainver        %major.2.2
-%define orig_version   78.2.2
+%define mainver        %major.3.2
+%define orig_version   78.3.2
 %define orig_suffix    %{nil}
 %define update_channel release
 %define source_prefix  thunderbird-%{orig_version}
@@ -86,7 +86,7 @@ BuildRequires:  ccache
 BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
 BuildRequires:  libidl-devel
-BuildRequires:  mozilla-nspr-devel >= 4.25
+BuildRequires:  mozilla-nspr-devel >= 4.25.1
 BuildRequires:  mozilla-nss-devel >= 3.53.1
 BuildRequires:  nasm >= 2.14
 BuildRequires:  nodejs10 >= 10.21.0
@@ -194,7 +194,6 @@ Patch24:        mozilla-bmo1602730.patch
 Patch25:        mozilla-bmo998749.patch
 Patch26:        mozilla-bmo1626236.patch
 Patch27:        mozilla-s390x-skia-gradient.patch
-Patch100:       thunderbird-bmo1664607.patch
 %endif # only_print_mozconfig
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 PreReq:         coreutils fileutils textutils /bin/sh
@@ -294,9 +293,6 @@ fi
 %patch25 -p1
 %patch26 -p1
 %patch27 -p1
-pushd comm
-%patch100 -p1
-popd
 %endif # only_print_mozconfig
 
 %build
