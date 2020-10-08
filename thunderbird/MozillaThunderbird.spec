@@ -90,13 +90,12 @@ BuildRequires:  mozilla-nspr-devel >= 4.25.1
 BuildRequires:  mozilla-nss-devel >= 3.53.1
 BuildRequires:  nasm >= 2.14
 BuildRequires:  nodejs10 >= 10.21.0
-BuildRequires:  python-devel
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 BuildRequires:  python-libxml2
 BuildRequires:  python36
 %else
-BuildRequires:  python2-xml
 BuildRequires:  python3 >= 3.5
+BuildRequires:  python3-devel
 %endif
 BuildRequires:  rust >= 1.41
 BuildRequires:  rust-cbindgen >= 0.14.1
