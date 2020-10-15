@@ -486,7 +486,7 @@ cat << EOF > ${MOZCONFIG}_LANG
 mk_add_options MOZILLA_OFFICIAL=1
 mk_add_options BUILD_OFFICIAL=1
 mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../obj_LANG
-. \$topsrcdir/browser/config/mozconfig
+ac_add_options --enable-application=comm/mail
 ac_add_options --prefix=%{_prefix}
 ac_add_options --with-l10n-base=$RPM_BUILD_DIR/l10n
 ac_add_options --disable-updater
