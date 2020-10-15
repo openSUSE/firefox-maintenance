@@ -501,7 +501,7 @@ sed -r '/^(ja-JP-mac|en-US|$)/d;s/ .*$//' $RPM_BUILD_DIR/%{source_prefix}/comm/m
         export MOZCONFIG=${MOZCONFIG}_$locale
         # nsinstall is needed for langpack-build. It is already built by `./mach build`, but building it again is very fast
         ./mach build config/nsinstall langpack-$locale
-        cp -rL ../obj/dist/xpi-stage/locale-$locale \
+        cp -rL ../obj_$locale/dist/xpi-stage/locale-$locale \
            %{buildroot}%{progdir}/extensions/langpack-$locale@thunderbird.mozilla.org
         # remove prefs, profile defaults, and hyphenation from langpack
         rm -rf %{buildroot}%{progdir}/extensions/langpack-$locale@thunderbird.mozilla.org/defaults
