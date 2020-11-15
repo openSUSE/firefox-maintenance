@@ -26,8 +26,8 @@
 # major 69
 # mainver %major.99
 %define major          78
-%define mainver        %major.4.2
-%define orig_version   78.4.2
+%define mainver        %major.5.0
+%define orig_version   78.5.0
 %define orig_suffix    %{nil}
 %define update_channel release
 %define source_prefix  thunderbird-%{orig_version}
@@ -61,14 +61,14 @@
 %define __requires_exclude ^(libmoz.*|liblgpllibs.*|libxul.*|libldap.*|libldif.*|libprldap.*)$
 %define localize 1
 %define crashreporter 0
-%if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150100
-# pipewire is too old on Leap <15.1
-%define with_pipewire0_3 0
-# Wayland is too old on Leap <15.1 as well
-%define wayland_supported 0
-%else
+%if 0%{?sle_version} > 150100
+# pipewire and wayland is too old on Leap <=15.1
+# Activate only on everything newer
 %define with_pipewire0_3 1
 %define wayland_supported 1
+%else
+%define with_pipewire0_3 0
+%define wayland_supported 0
 %endif
 
 Name:           %{pkgname}
@@ -92,14 +92,17 @@ BuildRequires:  mozilla-nspr-devel >= 4.25.1
 BuildRequires:  mozilla-nss-devel >= 3.53.1
 BuildRequires:  nasm >= 2.14
 BuildRequires:  nodejs10 >= 10.21.0
+# Leap 15 still requires python2 for BE (ICU creation)
 %if 0%{?suse_version} < 1550
 BuildRequires:  python-devel
 BuildRequires:  python2-xml
 %endif
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
+# SLE12 exception
 BuildRequires:  python-libxml2
 BuildRequires:  python36
 %else
+# TW is python2 free
 BuildRequires:  python3 >= 3.5
 BuildRequires:  python3-devel
 %endif
