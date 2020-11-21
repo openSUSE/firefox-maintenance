@@ -29,9 +29,9 @@
 # orig_suffix b3
 # major 69
 # mainver %major.99
-%define major          81
+%define major          83
 %define mainver        %major.0
-%define orig_version   81.0
+%define orig_version   83.0
 %define orig_suffix    %{nil}
 %define update_channel release
 %define branding       1
@@ -100,17 +100,16 @@ BuildRequires:  libidl-devel
 BuildRequires:  libiw-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
-BuildRequires:  mozilla-nspr-devel >= 4.28
-BuildRequires:  mozilla-nss-devel >= 3.56
+BuildRequires:  mozilla-nspr-devel >= 4.29
+BuildRequires:  mozilla-nss-devel >= 3.58
 BuildRequires:  nasm >= 2.14
-BuildRequires:  nodejs10 >= 10.21.0
+BuildRequires:  nodejs10 >= 10.22.1
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 BuildRequires:  python-libxml2
 BuildRequires:  python36
 %else
-BuildRequires:  python3-devel
 BuildRequires:  python3 >= 3.5
-BuildRequires:  python3-curses
+BuildRequires:  python3-devel
 %endif
 BuildRequires:  rust >= 1.43
 BuildRequires:  rust-cbindgen >= 0.14.3
@@ -179,6 +178,7 @@ Source13:       spellcheck.js
 Source14:       https://github.com/openSUSE/firefox-scripts/raw/5e54f4a/create-tar.sh
 Source15:       firefox-appdata.xml
 Source16:       %{name}.changes
+Source17:       firefox-search-provider.ini
 # Set up API keys, see http://www.chromium.org/developers/how-tos/api-keys
 # Note: these are for the openSUSE Firefox builds ONLY. For your own distribution,
 # please get your own set of keys.
@@ -196,7 +196,6 @@ Patch7:         mozilla-fix-aarch64-libopus.patch
 Patch8:         mozilla-disable-wasm-emulate-arm-unaligned-fp-access.patch
 Patch9:         mozilla-s390-context.patch
 Patch11:        mozilla-reduce-rust-debuginfo.patch
-Patch12:        mozilla-ppc-altivec_static_inline.patch
 Patch13:        mozilla-bmo1005535.patch
 Patch14:        mozilla-bmo1568145.patch
 Patch15:        mozilla-bmo1504834-part1.patch
@@ -337,7 +336,6 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch8 -p1
 %patch9 -p1
 %patch11 -p1
-%patch12 -p1
 %patch13 -p1
 %patch14 -p1
 %patch15 -p1
@@ -511,7 +509,8 @@ ac_add_options --enable-optimize="-O1"
 %endif
 %ifarch x86_64
 # LTO needs newer toolchain stack only (at least GCC 8.2.1 (r268506)
-%if 0%{?suse_version} > 1500
+# TW's gcc is currently also broken with LTO https://gcc.gnu.org/bugzilla/show_bug.cgi?id=93951
+%if 0%{?suse_version} > 1500 && 0%{?suse_version} < 1550
 ac_add_options --enable-lto
 %if 0%{?do_profiling}
 ac_add_options MOZ_PGO=1
@@ -559,8 +558,13 @@ ac_add_options --enable-official-branding
 %endif
 EOF
 
+%ifarch %ix86
+%define njobs 1
+%else
+%define njobs 0%{?jobs:%jobs}
+%endif
 sed -r '/^(ja-JP-mac|ga-IE|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_version}/browser/locales/shipped-locales \
-    | xargs -n 1 %{?jobs:-P %jobs} -I {} /bin/sh -c '
+    | xargs -n 1 %{?njobs:-P %njobs} -I {} /bin/sh -c '
         locale=$1
         cp ${MOZCONFIG}_LANG ${MOZCONFIG}_$locale
         sed -i "s|obj_LANG|obj_$locale|" ${MOZCONFIG}_$locale
@@ -652,6 +656,9 @@ sed "s:firefox.desktop:%{desktop_file_name}:g" \
 # install man-page
 mkdir -p %{buildroot}%{_mandir}/man1/
 cp %{SOURCE11} %{buildroot}%{_mandir}/man1/%{progname}.1
+# install GNOME Shell search provider
+mkdir -p %{buildroot}%{_datadir}/gnome-shell/search-providers
+cp %{SOURCE17} %{buildroot}%{_datadir}/gnome-shell/search-providers
 ##########
 # ADDONS
 #
@@ -772,6 +779,9 @@ exit 0
 %endif
 %{_datadir}/applications/%{desktop_file_name}.desktop
 %{_datadir}/mime/packages/%{progname}.xml
+%dir %{_datadir}/gnome-shell
+%dir %{_datadir}/gnome-shell/search-providers
+%{_datadir}/gnome-shell/search-providers/*.ini
 %dir %{_datadir}/mozilla
 %dir %{_datadir}/mozilla/extensions
 %dir %{_datadir}/mozilla/extensions/%{firefox_appid}
