@@ -26,8 +26,8 @@
 # major 69
 # mainver %major.99
 %define major          78
-%define mainver        %major.5.0
-%define orig_version   78.5.0
+%define mainver        %major.5.1
+%define orig_version   78.5.1
 %define orig_suffix    %{nil}
 %define update_channel release
 %define source_prefix  thunderbird-%{orig_version}
@@ -61,14 +61,14 @@
 %define __requires_exclude ^(libmoz.*|liblgpllibs.*|libxul.*|libldap.*|libldif.*|libprldap.*)$
 %define localize 1
 %define crashreporter 0
-%if 0%{?sle_version} > 150100
-# pipewire and wayland is too old on Leap <=15.1
-# Activate only on everything newer
+%if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150100
+# pipewire is too old on Leap <15.1
+%define with_pipewire0_3 0
+# Wayland is too old on Leap <15.1 as well
+%define wayland_supported 0
+%else
 %define with_pipewire0_3 1
 %define wayland_supported 1
-%else
-%define with_pipewire0_3 0
-%define wayland_supported 0
 %endif
 
 Name:           %{pkgname}
