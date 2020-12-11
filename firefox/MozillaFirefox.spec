@@ -537,7 +537,6 @@ xvfb-run --server-args="-screen 0 1920x1080x24" \
 
 # build additional locales
 %if %localize
-mkdir -p %{buildroot}%{progdir}/browser/extensions
 truncate -s 0 %{_tmppath}/translations.{common,other}
 # langpack-build can not be done in parallel easily (see https://bugzilla.mozilla.org/show_bug.cgi?id=1660943)
 # Therefore, we have to have a separate obj-dir for each language
@@ -563,6 +562,7 @@ EOF
 %else
 %define njobs 0%{?jobs:%jobs}
 %endif
+mkdir -p $RPM_BUILD_DIR/langpacks_artifacts/
 sed -r '/^(ja-JP-mac|ga-IE|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_version}/browser/locales/shipped-locales \
     | xargs -n 1 %{?njobs:-P %njobs} -I {} /bin/sh -c '
         locale=$1
@@ -572,10 +572,7 @@ sed -r '/^(ja-JP-mac|ga-IE|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig
         # nsinstall is needed for langpack-build. It is already built by `./mach build`, but building it again is very fast
         ./mach build config/nsinstall langpack-$locale
         cp -L ../obj_$locale/dist/linux-*/xpi/firefox-%{orig_version}.$locale.langpack.xpi \
-            %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org.xpi
-        # remove prefs, profile defaults, and hyphenation from langpack
-        #rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/defaults
-        #rm -rf %{buildroot}%{progdir}/browser/extensions/langpack-$locale@firefox.mozilla.org/hyphenation
+            $RPM_BUILD_DIR/langpacks_artifacts/langpack-$locale@firefox.mozilla.org.xpi
         # check against the fixed common list and sort into the right filelist
         _matched=0
         for _match in ar ca cs da de el en-GB es-AR es-CL es-ES fi fr hu it ja ko nb-NO nl pl pt-BR pt-PT ru sv-SE zh-CN zh-TW; do
@@ -605,6 +602,8 @@ grep amazondotcom dist/firefox/browser/omni.ja
 # copy tree into RPM_BUILD_ROOT
 mkdir -p %{buildroot}%{progdir}
 cp -rf $RPM_BUILD_DIR/obj/dist/%{srcname}/* %{buildroot}%{progdir}
+mkdir -p %{buildroot}%{progdir}/browser/extensions
+cp -rf $RPM_BUILD_DIR/langpacks_artifacts/* %{buildroot}%{progdir}/browser/extensions/
 mkdir -p %{buildroot}%{progdir}/distribution/extensions
 mkdir -p %{buildroot}%{progdir}/browser/defaults/preferences/
 # renaming executables (for regular vs. ESR)
