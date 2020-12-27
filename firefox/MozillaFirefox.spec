@@ -29,15 +29,15 @@
 # orig_suffix b3
 # major 69
 # mainver %major.99
-%define major          83
+%define major          84
 %define mainver        %major.0
-%define orig_version   83.0
+%define orig_version   84.0
 %define orig_suffix    %{nil}
 %define update_channel release
 %define branding       1
 %define devpkg         1
 
-# PGO builds do not work in TW currently (bmo#1642410)
+# PGO builds do not work in TW currently (bmo#1680306)
 %define do_profiling   0
 
 # upstream default is clang (to use gcc for large parts set to 0)
@@ -92,7 +92,7 @@ BuildRequires:  gcc9-c++
 %else
 BuildRequires:  gcc-c++
 %endif
-BuildRequires:  cargo >= 1.43
+BuildRequires:  cargo >= 1.44
 BuildRequires:  ccache
 BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
@@ -101,7 +101,7 @@ BuildRequires:  libiw-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.29
-BuildRequires:  mozilla-nss-devel >= 3.58
+BuildRequires:  mozilla-nss-devel >= 3.59
 BuildRequires:  nasm >= 2.14
 BuildRequires:  nodejs10 >= 10.22.1
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
@@ -111,8 +111,8 @@ BuildRequires:  python36
 BuildRequires:  python3 >= 3.5
 BuildRequires:  python3-devel
 %endif
-BuildRequires:  rust >= 1.43
-BuildRequires:  rust-cbindgen >= 0.14.3
+BuildRequires:  rust >= 1.44
+BuildRequires:  rust-cbindgen >= 0.15.0
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
 BuildRequires:  xorg-x11-libXt-devel
@@ -195,6 +195,7 @@ Patch6:         mozilla-sandbox-fips.patch
 Patch7:         mozilla-fix-aarch64-libopus.patch
 Patch8:         mozilla-disable-wasm-emulate-arm-unaligned-fp-access.patch
 Patch9:         mozilla-s390-context.patch
+Patch10:        mozilla-pgo.patch
 Patch11:        mozilla-reduce-rust-debuginfo.patch
 Patch13:        mozilla-bmo1005535.patch
 Patch14:        mozilla-bmo1568145.patch
@@ -212,7 +213,6 @@ Patch25:        mozilla-bmo998749.patch
 Patch26:        mozilla-bmo1626236.patch
 Patch27:        mozilla-s390x-skia-gradient.patch
 Patch28:        mozilla-libavcodec58_91.patch
-Patch29:        revert-795c8762b16b.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -335,6 +335,7 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%patch10 -p1
 %patch11 -p1
 %patch13 -p1
 %patch14 -p1
@@ -354,7 +355,6 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch26 -p1
 %patch27 -p1
 %patch28 -p1
-%patch29 -p1 -R
 # Firefox
 %patch101 -p1
 %patch102 -p1
@@ -509,8 +509,7 @@ ac_add_options --enable-optimize="-O1"
 %endif
 %ifarch x86_64
 # LTO needs newer toolchain stack only (at least GCC 8.2.1 (r268506)
-# TW's gcc is currently also broken with LTO https://gcc.gnu.org/bugzilla/show_bug.cgi?id=93951
-%if 0%{?suse_version} > 1500 && 0%{?suse_version} < 1550
+%if 0%{?suse_version} > 1500
 ac_add_options --enable-lto
 %if 0%{?do_profiling}
 ac_add_options MOZ_PGO=1
