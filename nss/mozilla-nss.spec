@@ -17,14 +17,14 @@
 #
 
 
-%global nss_softokn_fips_version 3.58
+%global nss_softokn_fips_version 3.59
 %define NSPR_min_version 4.29
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 %define nssdbdir %{_sysconfdir}/pki/nssdb
 Name:           mozilla-nss
-Version:        3.58
+Version:        3.59.1
 Release:        0
-%define underscore_version 3_58
+%define underscore_version 3_59_1
 Summary:        Network Security Services
 License:        MPL-2.0
 Group:          System/Libraries
@@ -287,7 +287,6 @@ mkdir -p %{buildroot}%{_libexecdir}/nss
 mkdir -p %{buildroot}%{_includedir}/nss3
 mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_sbindir}
-mkdir -p %{buildroot}/%{_lib}
 mkdir -p %{buildroot}%{nssdbdir}
 pushd ../dist/Linux*
 # copy headers
@@ -313,7 +312,7 @@ cp -L  lib/libfreebl3.so \
        lib/libfreebl3.chk \
        lib/libfreeblpriv3.so \
        lib/libfreeblpriv3.chk \
-       %{buildroot}/%{_lib}
+       %{buildroot}/%{_libdir}
 #cp -L  lib/libnsssqlite3.so \
 #       %{buildroot}%{_libdir}
 # copy static libs
@@ -387,10 +386,10 @@ install -m 644 %{SOURCE9} %{buildroot}%{nssdbdir}
   %{?__debug_package:%{__debug_install_post}} \
   %{__arch_install_post} \
   %__os_install_post \
-  LD_LIBRARY_PATH=%{buildroot}/%{_lib}:%{buildroot}%{_libdir} %{buildroot}%{_libexecdir}/nss/shlibsign -i %{buildroot}%{_libdir}/libsoftokn3.so \
-  LD_LIBRARY_PATH=%{buildroot}/%{_lib}:%{buildroot}%{_libdir} %{buildroot}%{_libexecdir}/nss/shlibsign -i %{buildroot}%{_libdir}/libnssdbm3.so \
-  LD_LIBRARY_PATH=%{buildroot}/%{_lib}:%{buildroot}%{_libdir} %{buildroot}%{_libexecdir}/nss/shlibsign -i %{buildroot}/%{_lib}/libfreebl3.so \
-  LD_LIBRARY_PATH=%{buildroot}/%{_lib}:%{buildroot}%{_libdir} %{buildroot}%{_libexecdir}/nss/shlibsign -i %{buildroot}/%{_lib}/libfreeblpriv3.so \
+  LD_LIBRARY_PATH=:%{buildroot}%{_libdir} %{buildroot}%{_libexecdir}/nss/shlibsign -i %{buildroot}%{_libdir}/libsoftokn3.so \
+  LD_LIBRARY_PATH=:%{buildroot}%{_libdir} %{buildroot}%{_libexecdir}/nss/shlibsign -i %{buildroot}%{_libdir}/libnssdbm3.so \
+  LD_LIBRARY_PATH=:%{buildroot}%{_libdir} %{buildroot}%{_libexecdir}/nss/shlibsign -i %{buildroot}/%{_libdir}/libfreebl3.so \
+  LD_LIBRARY_PATH=:%{buildroot}%{_libdir} %{buildroot}%{_libexecdir}/nss/shlibsign -i %{buildroot}/%{_libdir}/libfreeblpriv3.so \
 %{nil}
 
 %post -p /sbin/ldconfig
@@ -439,12 +438,12 @@ fi
 %{_sbindir}/setup-nsssysinit.sh
 
 %files -n libfreebl3
-/%{_lib}/libfreebl3.so
-/%{_lib}/libfreeblpriv3.so
+%{_libdir}/libfreebl3.so
+%{_libdir}/libfreeblpriv3.so
 
 %files -n libfreebl3-hmac
-/%{_lib}/libfreebl3.chk
-/%{_lib}/libfreeblpriv3.chk
+%{_libdir}/libfreebl3.chk
+%{_libdir}/libfreeblpriv3.chk
 
 %files -n libsoftokn3
 %{_libdir}/libsoftokn3.so
