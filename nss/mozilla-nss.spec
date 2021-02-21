@@ -17,14 +17,14 @@
 #
 
 
-%global nss_softokn_fips_version 3.60
+%global nss_softokn_fips_version 3.61
 %define NSPR_min_version 4.29
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 %define nssdbdir %{_sysconfdir}/pki/nssdb
 Name:           mozilla-nss
-Version:        3.60.1
+Version:        3.61
 Release:        0
-%define underscore_version 3_60_1
+%define underscore_version 3_61
 Summary:        Network Security Services
 License:        MPL-2.0
 Group:          System/Libraries
@@ -259,6 +259,7 @@ export LIBDIR=%{_libdir}
 %ifarch x86_64 s390x ppc64 ppc64le ia64 aarch64 riscv64
 export USE_64=1
 %endif
+export NSS_DISABLE_GTESTS=1
 export NSS_USE_SYSTEM_SQLITE=1
 #export SQLITE_LIB_NAME=nsssqlite3
 MAKE_FLAGS="BUILD_OPT=1"
