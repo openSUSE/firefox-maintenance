@@ -502,16 +502,6 @@ ac_add_options MOZ_PGO=1
 %endif
 EOF
 %if !%{with only_print_mozconfig}
-%ifarch ppc64 s390x s390
-# NOTE: Currently, system-icu is too old, so we can't build with that,
-#       but have to generate the .dat-file freshly. This seems to be a
-#       less fragile approach anyways.
-# ac_add_options --with-system-icu
-echo "Generate big endian version of config/external/icu/data/icud58l.dat"
-./mach python intl/icu_sources_data.py .
-ls -l config/external/icu/data
-rm -f config/external/icu/data/icudt*l.dat
-%endif
 ccache -s
 %if 0%{?do_profiling}
 xvfb-run --server-args="-screen 0 1920x1080x24" \
