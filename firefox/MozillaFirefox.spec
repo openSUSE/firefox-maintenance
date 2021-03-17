@@ -17,6 +17,9 @@
 #
 
 
+%define _dwz_low_mem_die_limit  40000000
+%define _dwz_max_die_limit     200000000
+
 %if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150100
 #!BuildIgnore: post-build-checks
 %endif
@@ -30,8 +33,8 @@
 # major 69
 # mainver %major.99
 %define major          86
-%define mainver        %major.0
-%define orig_version   86.0
+%define mainver        %major.0.1
+%define orig_version   86.0.1
 %define orig_suffix    %{nil}
 %define update_channel release
 %define branding       1
