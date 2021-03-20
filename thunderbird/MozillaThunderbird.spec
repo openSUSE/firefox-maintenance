@@ -1,8 +1,8 @@
 #
 # spec file for package MozillaThunderbird
 #
-# Copyright (c) 2020 SUSE LLC
-#               2006-2020 Wolfgang Rosenauer <wr@rosenauer.org>
+# Copyright (c) 2021 SUSE LLC
+#               2006-2021 Wolfgang Rosenauer <wr@rosenauer.org>
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -26,8 +26,8 @@
 # major 69
 # mainver %major.99
 %define major          78
-%define mainver        %major.8.0
-%define orig_version   78.8.0
+%define mainver        %major.9.0
+%define orig_version   78.9.0
 %define orig_suffix    %{nil}
 %define update_channel release
 %define source_prefix  thunderbird-%{orig_version}
@@ -61,14 +61,12 @@
 %define __requires_exclude ^(libmoz.*|liblgpllibs.*|libxul.*|libldap.*|libldif.*|libprldap.*)$
 %define localize 1
 %define crashreporter 0
-%if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150100
-# pipewire is too old on Leap <15.1
-%define with_pipewire0_3 0
-# Wayland is too old on Leap <15.1 as well
-%define wayland_supported 0
-%else
+%if 0%{?sle_version} > 150100
+# pipewire is too old on Leap <=15.1
+# Activate only on everything newer
 %define with_pipewire0_3 1
-%define wayland_supported 1
+%else
+%define with_pipewire0_3 0
 %endif
 
 Name:           %{pkgname}
@@ -204,7 +202,10 @@ Patch26:        mozilla-bmo1626236.patch
 Patch27:        mozilla-s390x-skia-gradient.patch
 %endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-PreReq:         coreutils fileutils textutils /bin/sh
+PreReq:         /bin/sh
+PreReq:         coreutils
+PreReq:         fileutils
+PreReq:         textutils
 ### build options end
 %requires_ge    mozilla-nspr
 %requires_ge    mozilla-nss
@@ -212,7 +213,7 @@ PreReq:         coreutils fileutils textutils /bin/sh
 Recommends:     libcanberra0
 Recommends:     libpulse0
 Requires(post): desktop-file-utils
-Requires(postun): desktop-file-utils
+Requires(postun):desktop-file-utils
 %define libgssapi libgssapi_krb5.so.2
 ExcludeArch:    armv6l armv6hl
 
@@ -398,7 +399,7 @@ ac_add_options --libdir=%{_libdir}
 ac_add_options --includedir=%{_includedir}
 ac_add_options --enable-application=comm/mail
 ac_add_options --enable-release
-%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
+%if 0%{?sle_version} < 150200
 ac_add_options --enable-default-toolkit=cairo-gtk3
 %else
 ac_add_options --enable-default-toolkit=cairo-gtk3-wayland
@@ -477,7 +478,6 @@ xvfb-run --server-args="-screen 0 1920x1080x24" \
 
 # build additional locales
 %if %localize
-mkdir -p %{buildroot}%{progdir}/extensions/
 truncate -s 0 %{_tmppath}/translations.{common,other}
 # langpack-build can not be done in parallel easily (see https://bugzilla.mozilla.org/show_bug.cgi?id=1660943)
 # Therefore, we have to have a separate obj-dir for each language
@@ -495,6 +495,7 @@ ac_add_options --with-l10n-base=$RPM_BUILD_DIR/l10n
 ac_add_options --disable-updater
 ac_add_options --enable-official-branding
 EOF
+mkdir -p $RPM_BUILD_DIR/langpacks_artifacts/
 
 sed -r '/^(ja-JP-mac|en-US|$)/d;s/ .*$//' $RPM_BUILD_DIR/%{source_prefix}/comm/mail/locales/shipped-locales \
     | xargs -n 1 %{?jobs:-P %jobs} -I {} /bin/sh -c '
@@ -505,10 +506,9 @@ sed -r '/^(ja-JP-mac|en-US|$)/d;s/ .*$//' $RPM_BUILD_DIR/%{source_prefix}/comm/m
         # nsinstall is needed for langpack-build. It is already built by `./mach build`, but building it again is very fast
         ./mach build config/nsinstall langpack-$locale
         cp -rL ../obj_$locale/dist/xpi-stage/locale-$locale \
-           %{buildroot}%{progdir}/extensions/langpack-$locale@thunderbird.mozilla.org
-        # remove prefs, profile defaults, and hyphenation from langpack
-        rm -rf %{buildroot}%{progdir}/extensions/langpack-$locale@thunderbird.mozilla.org/defaults
-        rm -rf %{buildroot}%{progdir}/extensions/langpack-$locale@thunderbird.mozilla.org/hyphenation
+           $RPM_BUILD_DIR/langpacks_artifacts/langpack-$locale@thunderbird.mozilla.org
+        rm -rf $RPM_BUILD_DIR/langpacks_artifacts/langpack-$locale@thunderbird.mozilla.org/defaults
+        rm -rf $RPM_BUILD_DIR/langpacks_artifacts/langpack-$locale@thunderbird.mozilla.org/hyphenation
         # Build systems like to run out of disc-space, so we delete the build-dir here (we copied already all relevant files)
         rm -rf ../obj_$locale/
         # check against the fixed common list and sort into the right filelist
@@ -534,6 +534,8 @@ make -C comm/mail/installer STRIP=/bin/true MOZ_PKG_FATAL_WARNINGS=0
 # copy tree into RPM_BUILD_ROOT
 mkdir -p %{buildroot}%{progdir}
 cp -rf $RPM_BUILD_DIR/obj/dist/%{progname}/* %{buildroot}%{progdir}
+mkdir -p %{buildroot}%{progdir}/extensions
+cp -rf $RPM_BUILD_DIR/langpacks_artifacts/* %{buildroot}%{progdir}/extensions/
 
 # remove some executable permissions
 find %{buildroot}%{progdir} \
@@ -553,7 +555,6 @@ mkdir --parents %{buildroot}%{_bindir}/
 sed "s:%%PREFIX:%{_prefix}:g
 s:%%PROGDIR:%{progdir}:g
 s:%%APPNAME:%{progname}:g
-s:%%WAYLAND_SUPPORTED:%{wayland_supported}:g
 s:%%PROFILE:.thunderbird:g" \
   %{SOURCE3} > %{buildroot}%{progdir}/%{progname}.sh
 chmod 755 %{buildroot}%{progdir}/%{progname}.sh
