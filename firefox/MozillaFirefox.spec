@@ -32,9 +32,9 @@
 # orig_suffix b3
 # major 69
 # mainver %major.99
-%define major          86
-%define mainver        %major.0.1
-%define orig_version   86.0.1
+%define major          87
+%define mainver        %major.0
+%define orig_version   87.0
 %define orig_suffix    %{nil}
 %define update_channel release
 %define branding       1
@@ -44,12 +44,22 @@
 %define do_profiling   0
 
 # upstream default is clang (to use gcc for large parts set to 0)
-%define clang_build 0
+%define clang_build    1
+%if 0%{?is_opensuse} && 0%{?suse_version} >= 1550
+%ifarch x86_64
+# on Tumbleweed/x86_64 this does not work due to undefined
+#  references to `__rust_probestack'
+%define clang_build    0
+%endif
+%endif
 
 # PIE, full relro
 %define build_hardened 1
 
 %bcond_with only_print_mozconfig
+
+# define if ccache should be used or not
+%define useccache     1
 
 # Firefox only supports i686
 %ifarch %ix86
@@ -96,7 +106,9 @@ BuildRequires:  gcc9-c++
 BuildRequires:  gcc-c++
 %endif
 BuildRequires:  cargo >= 1.47
+%if 0%{useccache} != 0
 BuildRequires:  ccache
+%endif
 BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
 BuildRequires:  libidl-devel
@@ -104,7 +116,7 @@ BuildRequires:  libiw-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.29
-BuildRequires:  mozilla-nss-devel >= 3.61
+BuildRequires:  mozilla-nss-devel >= 3.62
 BuildRequires:  nasm >= 2.14
 BuildRequires:  nodejs10 >= 10.22.1
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
@@ -455,7 +467,9 @@ ac_add_options --disable-elf-hack
 #%endif
 ac_add_options --with-system-nspr
 ac_add_options --with-system-nss
+%if 0%{useccache} != 0
 ac_add_options --with-ccache
+%endif
 %if %{localize}
 ac_add_options --with-l10n-base=$RPM_BUILD_DIR/l10n
 %endif
@@ -505,7 +519,9 @@ ac_add_options MOZ_PGO=1
 %endif
 EOF
 %if !%{with only_print_mozconfig}
+%if 0%{useccache} != 0
 ccache -s
+%endif
 %if 0%{?do_profiling}
 xvfb-run --server-args="-screen 0 1920x1080x24" \
 %endif
@@ -560,7 +576,9 @@ sed -r '/^(ja-JP-mac|ga-IE|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig
 ' -- {}
 %endif
 
+%if 0%{useccache} != 0
 ccache -s
+%endif
 %endif
 
 %install
