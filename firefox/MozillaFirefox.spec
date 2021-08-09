@@ -16,7 +16,6 @@
 # Please submit bugfixes or comments via https://bugs.opensuse.org/
 #
 
-
 %define _dwz_low_mem_die_limit  40000000
 %define _dwz_max_die_limit     200000000
 
@@ -32,10 +31,10 @@
 # orig_suffix b3
 # major 69
 # mainver %major.99
-%define major          90
-%define mainver        %major.0.2
-%define orig_version   90.0.2
-%define orig_suffix    %{nil}
+%define major          91
+%define mainver        %major.0
+%define orig_version   91.0
+%define orig_suffix    esr
 %define update_channel release
 %define branding       1
 %define devpkg         1
@@ -44,7 +43,7 @@
 %define do_profiling   0
 
 # upstream default is clang (to use gcc for large parts set to 0)
-%define clang_build    1
+%define clang_build 0
 
 # PIE, full relro
 %define build_hardened 1
@@ -53,6 +52,9 @@
 
 # define if ccache should be used or not
 %define useccache     1
+
+# SLE-12 doesn't have this macro
+%{!?_rpmmacrodir: %global _rpmmacrodir %{_rpmconfigdir}/macros.d}
 
 # Firefox only supports i686
 %ifarch %ix86
@@ -100,7 +102,20 @@ BuildRequires:  gcc9-c++
 %else
 BuildRequires:  gcc-c++
 %endif
-BuildRequires:  cargo >= 1.47
+%if 0%{?suse_version} < 1550 && 0%{?sle_version} < 150300
+# Greater than 1.43 breaks esr78. This is the old requires syntax
+# for single-version rust.
+BuildRequires:  cargo >= 1.53
+BuildRequires:  cargo < 1.54
+BuildRequires:  rust >= 1.53
+BuildRequires:  rust < 1.54
+%else
+# Newer sle/leap/tw use parallel versioned rust releases which have
+# a different method for provides that we can use to request a
+# specific version
+BuildRequires:   rust+cargo >= 1.53
+BuildRequires:   rust+cargo < 1.54
+%endif
 %if 0%{useccache} != 0
 BuildRequires:  ccache
 %endif
@@ -113,7 +128,7 @@ BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.31
 BuildRequires:  mozilla-nss-devel >= 3.66
 BuildRequires:  nasm >= 2.14
-BuildRequires:  nodejs >= 10.22.1
+BuildRequires:  nodejs10 >= 10.22.1
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 BuildRequires:  python-libxml2
 BuildRequires:  python36
@@ -121,7 +136,6 @@ BuildRequires:  python36
 BuildRequires:  python3 >= 3.5
 BuildRequires:  python3-devel
 %endif
-BuildRequires:  rust >= 1.47
 BuildRequires:  rust-cbindgen >= 0.19.0
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
@@ -365,6 +379,12 @@ find . -regex ".*\.c\|.*\.cpp\|.*\.h" -exec sed -i "s/__DATE__/${DATE}/g;s/__TIM
 sed -i "s/python3/python36/g" configure.in
 sed -i "s/python3/python36/g" mach
 export PYTHON3=/usr/bin/python36
+%endif
+
+# Webrender does not support big endian yet, so we are forcing it off
+# see: https://bugzilla.mozilla.org/show_bug.cgi?id=1716707
+%ifarch s390x ppc64
+echo 'pref("gfx.webrender.force-disabled", true);' >> %{SOURCE9}
 %endif
 
 #
@@ -652,11 +672,8 @@ cp %{SOURCE17} %{buildroot}%{_datadir}/gnome-shell/search-providers
 #
 mkdir -p %{buildroot}%{_datadir}/mozilla/extensions/%{firefox_appid}
 mkdir -p %{buildroot}%{_libdir}/mozilla/extensions/%{firefox_appid}
-%if %branding
 # Install symbolic icon for GNOME
-mkdir -p %{buildroot}%{gnome_dir}/share/icons/hicolor/symbolic/apps/
-cp %{_builddir}/%{srcname}-%{orig_version}/browser/branding/official/content/identity-icons-brand.svg \
-   %{buildroot}%{gnome_dir}/share/icons/hicolor/symbolic/apps/%{progname}-symbolic.svg
+%if %branding
 for size in 16 22 24 32 48 64 128 256; do
 %else
 for size in 16 32 48; do
