@@ -18,7 +18,7 @@
 
 
 %global nss_softokn_fips_version 3.68
-%define NSPR_min_version 4.31
+%define NSPR_min_version 4.32
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 %define nssdbdir %{_sysconfdir}/pki/nssdb
 Name:           mozilla-nss

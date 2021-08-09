@@ -2,7 +2,7 @@
 # spec file for package mozilla-nspr
 #
 # Copyright (c) 2021 SUSE LLC
-#               2006-2020 Wolfgang Rosenauer
+#               2006-2021 Wolfgang Rosenauer
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
