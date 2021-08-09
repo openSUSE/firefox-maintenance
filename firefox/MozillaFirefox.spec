@@ -34,7 +34,7 @@
 %define major          91
 %define mainver        %major.0
 %define orig_version   91.0
-%define orig_suffix    esr
+%define orig_suffix    %{nil}
 %define update_channel release
 %define branding       1
 %define devpkg         1
@@ -43,7 +43,7 @@
 %define do_profiling   0
 
 # upstream default is clang (to use gcc for large parts set to 0)
-%define clang_build 0
+%define clang_build    1
 
 # PIE, full relro
 %define build_hardened 1
@@ -103,18 +103,13 @@ BuildRequires:  gcc9-c++
 BuildRequires:  gcc-c++
 %endif
 %if 0%{?suse_version} < 1550 && 0%{?sle_version} < 150300
-# Greater than 1.43 breaks esr78. This is the old requires syntax
-# for single-version rust.
-BuildRequires:  cargo >= 1.53
-BuildRequires:  cargo < 1.54
-BuildRequires:  rust >= 1.53
-BuildRequires:  rust < 1.54
+BuildRequires:  cargo >= 1.51
+BuildRequires:  rust >= 1.51
 %else
 # Newer sle/leap/tw use parallel versioned rust releases which have
 # a different method for provides that we can use to request a
 # specific version
-BuildRequires:   rust+cargo >= 1.53
-BuildRequires:   rust+cargo < 1.54
+BuildRequires:   rust+cargo >= 1.51
 %endif
 %if 0%{useccache} != 0
 BuildRequires:  ccache
@@ -128,7 +123,7 @@ BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.32
 BuildRequires:  mozilla-nss-devel >= 3.68
 BuildRequires:  nasm >= 2.14
-BuildRequires:  nodejs10 >= 10.22.1
+BuildRequires:  nodejs >= 10.22.1
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 BuildRequires:  python-libxml2
 BuildRequires:  python36
