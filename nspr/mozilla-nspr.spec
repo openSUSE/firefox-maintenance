@@ -16,6 +16,8 @@
 # Please submit bugfixes or comments via https://bugs.opensuse.org/
 #
 
+# define if ccache should be used or not
+%define useccache     1
 
 Name:           mozilla-nspr
 Version:        4.32
@@ -26,6 +28,9 @@ Group:          System/Libraries
 URL:            http://www.mozilla.org/projects/nspr/
 BuildRequires:  gcc-c++
 BuildRequires:  pkg-config
+%if 0%{useccache} != 0
+BuildRequires:  ccache
+%endif
 # bug437293
 %ifarch ppc64
 Obsoletes:      mozilla-nspr-64bit
@@ -77,6 +82,9 @@ export CFLAGS="%{optflags}"
 %endif
 	    --libdir=%{_libdir} \
 	    --includedir=%{_includedir}/nspr4 \
+%if 0%{useccache} != 0
+	    --with-ccache \
+%endif
 	    --prefix=%{_prefix}
 make SH_DATE="$BUILD_STRING" SH_NOW="$BUILD_TIME" %{?_smp_mflags}
 popd
