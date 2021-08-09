@@ -125,8 +125,8 @@ BuildRequires:  libidl-devel
 BuildRequires:  libiw-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
-BuildRequires:  mozilla-nspr-devel >= 4.31
-BuildRequires:  mozilla-nss-devel >= 3.66
+BuildRequires:  mozilla-nspr-devel >= 4.32
+BuildRequires:  mozilla-nss-devel >= 3.68
 BuildRequires:  nasm >= 2.14
 BuildRequires:  nodejs10 >= 10.22.1
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
