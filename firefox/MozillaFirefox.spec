@@ -16,6 +16,7 @@
 # Please submit bugfixes or comments via https://bugs.opensuse.org/
 #
 
+
 %define _dwz_low_mem_die_limit  40000000
 %define _dwz_max_die_limit     200000000
 
@@ -109,7 +110,7 @@ BuildRequires:  rust >= 1.51
 # Newer sle/leap/tw use parallel versioned rust releases which have
 # a different method for provides that we can use to request a
 # specific version
-BuildRequires:   rust+cargo >= 1.51
+BuildRequires:  rust+cargo >= 1.51
 %endif
 %if 0%{useccache} != 0
 BuildRequires:  ccache
