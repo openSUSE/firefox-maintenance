@@ -1,8 +1,8 @@
 #
 # spec file for package MozillaThunderbird
 #
-# Copyright (c) 2020 SUSE LLC
-#               2006-2020 Wolfgang Rosenauer <wr@rosenauer.org>
+# Copyright (c) 2021 SUSE LLC
+#               2006-2021 Wolfgang Rosenauer <wr@rosenauer.org>
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -25,20 +25,18 @@
 # orig_suffix b3
 # major 69
 # mainver %major.99
-%define major          78
-%define mainver        %major.2.1
-%define orig_version   78.2.1
+%define major          91
+%define mainver        %major.0
+%define orig_version   91.0
 %define orig_suffix    %{nil}
 %define update_channel release
 %define source_prefix  thunderbird-%{orig_version}
 
-%if 0%{?suse_version} > 1500
-# PGO builds do not work in TW currently (bmo#1642410)
+# PGO builds do not work in TW currently (bmo#1680306)
 %define do_profiling   0
-%endif
 
 # upstream default is clang (to use gcc for large parts set to 0)
-%define clang_build 0
+%define clang_build    1
 
 # PIE, full relro
 %define build_hardened 1
@@ -48,6 +46,16 @@
 %bcond_without mozilla_tb_kde4
 %bcond_with    mozilla_tb_valgrind
 %bcond_without mozilla_tb_optimize_for_size
+
+# define if ccache should be used or not
+%define useccache     1
+
+# Firefox only supports i686
+%ifarch %ix86
+ExclusiveArch:  i586 i686
+BuildArch:      i686
+%{expand:%%global optflags %(echo "%optflags"|sed -e s/i586/i686/) -march=i686 -mtune=generic}
+%endif
 
 # general build definitions
 %define progname thunderbird
@@ -61,12 +69,13 @@
 %define __requires_exclude ^(libmoz.*|liblgpllibs.*|libxul.*|libldap.*|libldif.*|libprldap.*)$
 %define localize 1
 %define crashreporter 0
-%if 0%{?sle_version} > 150100
-# pipewire is too old on Leap <=15.1
-# Activate only on everything newer
 %define with_pipewire0_3 1
-%else
+%define wayland_supported 1
+%if 0%{?sle_version} > 0 && 0%{?sle_version} < 150200
+# pipewire is too old on Leap <=15.1
 %define with_pipewire0_3 0
+# Wayland is too old on Leap <=15.1 as well
+%define wayland_supported 0
 %endif
 
 Name:           %{pkgname}
@@ -81,25 +90,33 @@ BuildRequires:  gcc9-c++
 %else
 BuildRequires:  gcc-c++
 %endif
-BuildRequires:  cargo >= 1.41
+%if 0%{?suse_version} < 1550 && 0%{?sle_version} < 150300
+BuildRequires:  cargo >= 1.51
+BuildRequires:  rust >= 1.51
+%else
+# Newer sle/leap/tw use parallel versioned rust releases which have
+# a different method for provides that we can use to request a
+# specific version
+BuildRequires:   rust+cargo >= 1.51
+%endif
+%if 0%{useccache} != 0
 BuildRequires:  ccache
+%endif
 BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
 BuildRequires:  libidl-devel
-BuildRequires:  mozilla-nspr-devel >= 4.25
-BuildRequires:  mozilla-nss-devel >= 3.53.1
+BuildRequires:  mozilla-nspr-devel >= 4.32
+BuildRequires:  mozilla-nss-devel >= 3.68
 BuildRequires:  nasm >= 2.14
-BuildRequires:  nodejs10 >= 10.21.0
-BuildRequires:  python-devel
+BuildRequires:  nodejs >= 10.22.1
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 BuildRequires:  python-libxml2
 BuildRequires:  python36
 %else
-BuildRequires:  python2-xml
 BuildRequires:  python3 >= 3.5
+BuildRequires:  python3-devel
 %endif
-BuildRequires:  rust >= 1.41
-BuildRequires:  rust-cbindgen >= 0.14.1
+BuildRequires:  rust-cbindgen >= 0.19.0
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
 BuildRequires:  xorg-x11-libXt-devel
@@ -120,9 +137,7 @@ BuildRequires:  clang-devel >= 5
 BuildRequires:  pkgconfig(gdk-x11-2.0)
 BuildRequires:  pkgconfig(glib-2.0) >= 2.22
 BuildRequires:  pkgconfig(gobject-2.0)
-BuildRequires:  pkgconfig(gtk+-2.0) >= 2.18.0
 BuildRequires:  pkgconfig(gtk+-3.0) >= 3.14.0
-BuildRequires:  pkgconfig(gtk+-unix-print-2.0)
 BuildRequires:  pkgconfig(gtk+-unix-print-3.0)
 BuildRequires:  pkgconfig(libffi)
 BuildRequires:  pkgconfig(libpulse)
@@ -164,7 +179,7 @@ Source6:        suse-default-prefs.js
 Source7:        l10n-%{orig_version}%{orig_suffix}.tar.xz
 Source9:        thunderbird.appdata.xml
 Source13:       spellcheck.js
-Source14:       https://github.com/openSUSE/firefox-scripts/raw/5e54f4a/create-tar.sh
+Source14:       https://github.com/openSUSE/firefox-scripts/raw/4503820/create-tar.sh
 Source20:       https://ftp.mozilla.org/pub/%{srcname}/releases/%{version}%{orig_suffix}/source/%{srcname}-%{orig_version}%{orig_suffix}.source.tar.xz.asc
 Source21:       https://ftp.mozilla.org/pub/%{srcname}/releases/%{version}%{orig_suffix}/KEY#/mozilla.keyring
 # Gecko/Toolkit
@@ -172,38 +187,40 @@ Patch1:         mozilla-nongnome-proxies.patch
 Patch2:         mozilla-kde.patch
 Patch3:         mozilla-ntlm-full-path.patch
 Patch4:         mozilla-aarch64-startup-crash.patch
-Patch5:         mozilla-bmo1463035.patch
 Patch6:         mozilla-sandbox-fips.patch
 Patch7:         mozilla-fix-aarch64-libopus.patch
 Patch8:         mozilla-disable-wasm-emulate-arm-unaligned-fp-access.patch
 Patch9:         mozilla-s390-context.patch
 Patch11:        mozilla-reduce-rust-debuginfo.patch
-Patch12:        mozilla-ppc-altivec_static_inline.patch
 Patch13:        mozilla-bmo1005535.patch
 Patch14:        mozilla-bmo1568145.patch
 Patch15:        mozilla-bmo1504834-part1.patch
 Patch16:        mozilla-bmo1504834-part2.patch
 Patch17:        mozilla-bmo1504834-part3.patch
-Patch18:        mozilla-bmo1554971.patch
 Patch19:        mozilla-bmo1512162.patch
 Patch20:        mozilla-fix-top-level-asm.patch
 Patch21:        mozilla-bmo1504834-part4.patch
 Patch22:        mozilla-bmo849632.patch
-Patch23:        mozilla-pipewire-0-3.patch
 Patch24:        mozilla-bmo1602730.patch
 Patch25:        mozilla-bmo998749.patch
 Patch26:        mozilla-bmo1626236.patch
 Patch27:        mozilla-s390x-skia-gradient.patch
-%endif # only_print_mozconfig
+Patch28:        mozilla-libavcodec58_91.patch
+%endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-PreReq:         coreutils fileutils textutils /bin/sh
+PreReq:         /bin/sh
+PreReq:         coreutils
+PreReq:         fileutils
+PreReq:         textutils
 ### build options end
-Requires:       mozilla-nspr >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
-Requires:       mozilla-nss >= %(rpm -q --queryformat '%%{VERSION}' mozilla-nss)
+%requires_ge    mozilla-nspr
+%requires_ge    mozilla-nss
+%requires_ge    libfreetype6
 Recommends:     libcanberra0
+Recommends:     libotr5
 Recommends:     libpulse0
 Requires(post): desktop-file-utils
-Requires(postun): desktop-file-utils
+Requires(postun):desktop-file-utils
 %define libgssapi libgssapi_krb5.so.2
 ExcludeArch:    armv6l armv6hl
 
@@ -269,31 +286,26 @@ fi
 %endif
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
 %patch11 -p1
-%patch12 -p1
 %patch13 -p1
 %patch14 -p1
 %patch15 -p1
 %patch16 -p1
 %patch17 -p1
-%patch18 -p1
 %patch19 -p1
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
-%if %{with_pipewire0_3}
-%patch23 -p1
-%endif
 %patch24 -p1
 %patch25 -p1
 %patch26 -p1
 %patch27 -p1
-%endif # only_print_mozconfig
+%patch28 -p1
+%endif
 
 %build
 %if !%{with only_print_mozconfig}
@@ -318,9 +330,9 @@ if test "$kdehelperversion" != %{kde_helper_version}; then
   exit 1
 fi
 %endif
-%endif # only_print_mozconfig
 
 source %{SOURCE4}
+%endif
 
 export CARGO_HOME=${RPM_BUILD_DIR}/%{srcname}-%{orig_version}/.cargo
 export MOZ_SOURCE_CHANGESET=$RELEASE_TAG
@@ -331,6 +343,7 @@ export MOZ_BUILD_DATE=$RELEASE_TIMESTAMP
 export MOZILLA_OFFICIAL=1
 export BUILD_OFFICIAL=1
 export MOZ_TELEMETRY_REPORTING=1
+export MACH_USE_SYSTEM_PYTHON=1
 %if 0%{?suse_version} <= 1320
 export CC=gcc-9
 %else
@@ -377,22 +390,23 @@ cat << EOF
 %limit_build -m 2000
 %endif
 # TODO: Check if this can be removed
-export MOZ_DEBUG_FLAGS="-pipe"
+#export MOZ_DEBUG_FLAGS="-pipe"
 cat << EOF > $MOZCONFIG
 %endif
 mk_add_options MOZILLA_OFFICIAL=1
 mk_add_options BUILD_OFFICIAL=1
 mk_add_options MOZ_MAKE_FLAGS=%{?jobs:-j%jobs}
 mk_add_options MOZ_OBJDIR=$RPM_BUILD_DIR/obj
+ac_add_options --disable-bootstrap
 ac_add_options --prefix=%{_prefix}
 ac_add_options --libdir=%{_libdir}
 ac_add_options --includedir=%{_includedir}
 ac_add_options --enable-application=comm/mail
 ac_add_options --enable-release
-%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
-ac_add_options --enable-default-toolkit=cairo-gtk3
-%else
+%if 0%{wayland_supported}
 ac_add_options --enable-default-toolkit=cairo-gtk3-wayland
+%else
+ac_add_options --enable-default-toolkit=cairo-gtk3
 %endif
 # bmo#1441155 - Disable the generation of Rust debug symbols on Linux32
 %ifarch %ix86 %arm
@@ -408,9 +422,8 @@ ac_add_options --disable-elf-hack
 #%endif
 ac_add_options --with-system-nspr
 ac_add_options --with-system-nss
+%if 0%{useccache} != 0
 ac_add_options --with-ccache
-%if %{localize}
-ac_add_options --with-l10n-base=$RPM_BUILD_DIR/l10n
 %endif
 ac_add_options --with-system-zlib
 ac_add_options --disable-updater
@@ -440,7 +453,7 @@ ac_add_options --enable-optimize="-O1"
 %endif
 %ifarch x86_64
 # LTO needs newer toolchain stack only (at least GCC 8.2.1 (r268506)
-%if 0%{?suse_version} > 1500
+%if 0%{?suse_version} > 1500 && 0%{?suse_version} < 1550
 ac_add_options --enable-lto
 %if 0%{?do_profiling}
 ac_add_options MOZ_PGO=1
@@ -453,17 +466,9 @@ ac_add_options --enable-valgrind
 %endif
 EOF
 %if !%{with only_print_mozconfig}
-%ifarch ppc64 s390x s390
-# NOTE: Currently, system-icu is too old, so we can't build with that,
-#       but have to generate the .dat-file freshly. This seems to be a
-#       less fragile approach anyways.
-# ac_add_options --with-system-icu
-echo "Generate big endian version of config/external/icu/data/icud58l.dat"
-./mach python intl/icu_sources_data.py .
-ls -l config/external/icu/data
-rm -f config/external/icu/data/icudt*l.dat
-%endif
+%if 0%{useccache} != 0
 ccache -s
+%endif
 %if 0%{?do_profiling}
 xvfb-run --server-args="-screen 0 1920x1080x24" \
 %endif
@@ -471,16 +476,39 @@ xvfb-run --server-args="-screen 0 1920x1080x24" \
 
 # build additional locales
 %if %localize
-mkdir -p %{buildroot}%{progdir}/extensions/
 truncate -s 0 %{_tmppath}/translations.{common,other}
+# langpack-build can not be done in parallel easily (see https://bugzilla.mozilla.org/show_bug.cgi?id=1660943)
+# Therefore, we have to have a separate obj-dir for each language
+# We do this, by creating a mozconfig-template with the necessary switches
+# and a placeholder obj-dir, which gets copied and modified for each language
+
+# Create mozconfig-template for langbuild
+cat << EOF > ${MOZCONFIG}_LANG
+mk_add_options MOZILLA_OFFICIAL=1
+mk_add_options BUILD_OFFICIAL=1
+mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../obj_LANG
+ac_add_options --enable-application=comm/mail
+ac_add_options --prefix=%{_prefix}
+ac_add_options --with-l10n-base=$RPM_BUILD_DIR/l10n
+ac_add_options --disable-updater
+ac_add_options --enable-official-branding
+EOF
+mkdir -p $RPM_BUILD_DIR/langpacks_artifacts/
+
 sed -r '/^(ja-JP-mac|en-US|$)/d;s/ .*$//' $RPM_BUILD_DIR/%{source_prefix}/comm/mail/locales/shipped-locales \
-    | xargs -n 1 -I {} /bin/sh -c '
+    | xargs -n 1 %{?jobs:-P %jobs} -I {} /bin/sh -c '
         locale=$1
-        ./mach build langpack-$locale
-        cp -rL ../obj/dist/xpi-stage/locale-$locale \
-           %{buildroot}%{progdir}/extensions/langpack-$locale@thunderbird.mozilla.org
-        # remove prefs and profile defaults from langpack
-        rm -rf %{buildroot}%{progdir}/extensions/langpack-$locale@thunderbird.mozilla.org/defaults
+        cp ${MOZCONFIG}_LANG ${MOZCONFIG}_$locale
+        sed -i "s|obj_LANG|obj_$locale|" ${MOZCONFIG}_$locale
+        export MOZCONFIG=${MOZCONFIG}_$locale
+        # nsinstall is needed for langpack-build. It is already built by `./mach build`, but building it again is very fast
+        ./mach build config/nsinstall langpack-$locale
+        cp -rL ../obj_$locale/dist/xpi-stage/locale-$locale \
+           $RPM_BUILD_DIR/langpacks_artifacts/langpack-$locale@thunderbird.mozilla.org
+        rm -rf $RPM_BUILD_DIR/langpacks_artifacts/langpack-$locale@thunderbird.mozilla.org/defaults
+        rm -rf $RPM_BUILD_DIR/langpacks_artifacts/langpack-$locale@thunderbird.mozilla.org/hyphenation
+        # Build systems like to run out of disc-space, so we delete the build-dir here (we copied already all relevant files)
+        rm -rf ../obj_$locale/
         # check against the fixed common list and sort into the right filelist
         _matched=0
         for _match in ar ca cs da de el en-GB es-AR es-CL es-ES fi fr hu it ja ko nb-NO nl pl pt-BR pt-PT ru sv-SE zh-CN zh-TW; do
@@ -491,7 +519,9 @@ sed -r '/^(ja-JP-mac|en-US|$)/d;s/ .*$//' $RPM_BUILD_DIR/%{source_prefix}/comm/m
           >> %{_tmppath}/translations.$_l10ntarget
 ' -- {}
 %endif
-%endif # only_print_mozconfig
+
+ccache -s
+%endif
 
 %install
 cd $RPM_BUILD_DIR/obj
@@ -502,6 +532,8 @@ make -C comm/mail/installer STRIP=/bin/true MOZ_PKG_FATAL_WARNINGS=0
 # copy tree into RPM_BUILD_ROOT
 mkdir -p %{buildroot}%{progdir}
 cp -rf $RPM_BUILD_DIR/obj/dist/%{progname}/* %{buildroot}%{progdir}
+mkdir -p %{buildroot}%{progdir}/extensions
+cp -rf $RPM_BUILD_DIR/langpacks_artifacts/* %{buildroot}%{progdir}/extensions/
 
 # remove some executable permissions
 find %{buildroot}%{progdir} \
@@ -521,6 +553,7 @@ mkdir --parents %{buildroot}%{_bindir}/
 sed "s:%%PREFIX:%{_prefix}:g
 s:%%PROGDIR:%{progdir}:g
 s:%%APPNAME:%{progname}:g
+s:%%WAYLAND_SUPPORTED:%{wayland_supported}:g
 s:%%PROFILE:.thunderbird:g" \
   %{SOURCE3} > %{buildroot}%{progdir}/%{progname}.sh
 chmod 755 %{buildroot}%{progdir}/%{progname}.sh
@@ -603,8 +636,6 @@ exit 0
 %{progdir}/application.ini
 %{progdir}/dependentlibs.list
 %{progdir}/fonts/
-%dir %{progdir}/gtk2
-%{progdir}/gtk2/libmozgtk.so
 %{progdir}/*.so
 %{progdir}/omni.ja
 %{progdir}/pingsender
@@ -621,7 +652,6 @@ exit 0
 %dir %{progdir}/chrome/
 %{progdir}/chrome/icons/
 %{progdir}/defaults/
-%{progdir}/features/
 %{progdir}/isp/
 %{_datadir}/appdata/
 %{_datadir}/applications/%{desktop_file_name}.desktop
