@@ -26,8 +26,8 @@
 # major 69
 # mainver %major.99
 %define major          91
-%define mainver        %major.0
-%define orig_version   91.0
+%define mainver        %major.0.3
+%define orig_version   91.0.3
 %define orig_suffix    %{nil}
 %define update_channel release
 %define source_prefix  thunderbird-%{orig_version}
@@ -36,7 +36,7 @@
 %define do_profiling   0
 
 # upstream default is clang (to use gcc for large parts set to 0)
-%define clang_build    1
+%define clang_build    0
 
 # PIE, full relro
 %define build_hardened 1
@@ -97,7 +97,7 @@ BuildRequires:  rust >= 1.51
 # Newer sle/leap/tw use parallel versioned rust releases which have
 # a different method for provides that we can use to request a
 # specific version
-BuildRequires:   rust+cargo >= 1.51
+BuildRequires:  rust+cargo >= 1.51
 %endif
 %if 0%{useccache} != 0
 BuildRequires:  ccache
@@ -206,6 +206,7 @@ Patch25:        mozilla-bmo998749.patch
 Patch26:        mozilla-bmo1626236.patch
 Patch27:        mozilla-s390x-skia-gradient.patch
 Patch28:        mozilla-libavcodec58_91.patch
+Patch29:        mozilla-silence-no-return-type.patch
 %endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 PreReq:         /bin/sh
@@ -305,6 +306,7 @@ fi
 %patch26 -p1
 %patch27 -p1
 %patch28 -p1
+%patch29 -p1
 %endif
 
 %build
@@ -343,6 +345,7 @@ export MOZ_BUILD_DATE=$RELEASE_TIMESTAMP
 export MOZILLA_OFFICIAL=1
 export BUILD_OFFICIAL=1
 export MOZ_TELEMETRY_REPORTING=1
+export MOZ_REQUIRE_SIGNING=
 export MACH_USE_SYSTEM_PYTHON=1
 %if 0%{?suse_version} <= 1320
 export CC=gcc-9
@@ -381,6 +384,7 @@ echo "export MOZCONFIG=\"$MOZCONFIG\""
 echo "export MOZILLA_OFFICIAL=1"
 echo "export BUILD_OFFICIAL=1"
 echo "export MOZ_TELEMETRY_REPORTING=1"
+echo "export MOZ_REQUIRE_SIGNING="
 echo ""
 cat << EOF
 %else
