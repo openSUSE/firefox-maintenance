@@ -19,10 +19,6 @@
 %define _dwz_low_mem_die_limit  40000000
 %define _dwz_max_die_limit     200000000
 
-%if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150100
-#!BuildIgnore: post-build-checks
-%endif
-
 # changed with every update
 # orig_version vs. mainver: To have beta-builds
 # FF70beta3 would be released as FF69.99
@@ -233,6 +229,7 @@ Patch25:        mozilla-bmo998749.patch
 Patch26:        mozilla-bmo1626236.patch
 Patch27:        mozilla-s390x-skia-gradient.patch
 Patch28:        mozilla-libavcodec58_91.patch
+Patch29:        mozilla-silence-no-return-type.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -361,6 +358,7 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch26 -p1
 %patch27 -p1
 %patch28 -p1
+%patch29 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
