@@ -3,13 +3,13 @@
 # Date 1558452408 -7200
 #      Tue May 21 17:26:48 2019 +0200
 # Node ID 602e92722e765a3c238d3b96b26c0c8063b5eeb4
-# Parent  cb0089687ab899846b8229c3741261d50101340e
+# Parent  07fc9b9cd202263aef0043cf2dac3a754ce57c52
 [mq]: mozilla-s390-context.patch
 
 diff --git a/js/src/wasm/WasmSignalHandlers.cpp b/js/src/wasm/WasmSignalHandlers.cpp
 --- a/js/src/wasm/WasmSignalHandlers.cpp
 +++ b/js/src/wasm/WasmSignalHandlers.cpp
-@@ -150,16 +150,20 @@ using mozilla::DebugOnly;
+@@ -149,16 +149,20 @@ using mozilla::DebugOnly;
  #    define FP_sig(p) ((p)->uc_mcontext.mc_fp)
  #    define SP_sig(p) ((p)->uc_mcontext.mc_i7)
  #  endif
@@ -30,7 +30,7 @@ diff --git a/js/src/wasm/WasmSignalHandlers.cpp b/js/src/wasm/WasmSignalHandlers
  #  define RSP_sig(p) ((p)->uc_mcontext.__gregs[_REG_RSP])
  #  define RBP_sig(p) ((p)->uc_mcontext.__gregs[_REG_RBP])
  #  define R11_sig(p) ((p)->uc_mcontext.__gregs[_REG_R11])
-@@ -381,18 +385,23 @@ struct macos_arm_context {
+@@ -368,18 +372,23 @@ struct macos_aarch64_context {
  #  define FP_sig(p) RFP_sig(p)
  #  define SP_sig(p) RSP_sig(p)
  #  define LR_sig(p) R31_sig(p)

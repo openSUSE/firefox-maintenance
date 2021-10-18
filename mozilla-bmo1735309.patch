@@ -1,0 +1,345 @@
+diff --git a/.cargo/config.in b/.cargo/config.in
+--- a/.cargo/config.in
++++ b/.cargo/config.in
+@@ -12,11 +12,6 @@
+ replace-with = "vendored-sources"
+ rev = "85551909b95a5cf553a85dbcddfa5f117cfbbe0e"
+ 
+-[source."https://github.com/mozilla/neqo"]
+-git = "https://github.com/mozilla/neqo"
+-replace-with = "vendored-sources"
+-tag = "v0.4.28"
+-
+ [source."https://github.com/mozilla/mp4parse-rust"]
+ git = "https://github.com/mozilla/mp4parse-rust"
+ replace-with = "vendored-sources"
+@@ -92,6 +87,11 @@
+ replace-with = "vendored-sources"
+ rev = "27a1dae3796d33d23812f2bb8c7e3b5aea18b521"
+ 
++[source."https://github.com/ddragana/neqo/"]
++branch = "pr_1247"
++git = "https://github.com/ddragana/neqo/"
++replace-with = "vendored-sources"
++
+ [source."https://github.com/bytecodealliance/wasmtime"]
+ git = "https://github.com/bytecodealliance/wasmtime"
+ replace-with = "vendored-sources"
+diff --git a/Cargo.lock b/Cargo.lock
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -2770,7 +2770,7 @@
+  "libc",
+  "libloading 0.5.2",
+  "lucet-module-wasmsbx",
+- "memoffset",
++ "memoffset 0.5.6",
+  "nix",
+  "num-derive",
+  "num-traits",
+@@ -3231,7 +3231,7 @@
+ [[package]]
+ name = "neqo-common"
+ version = "0.4.28"
+-source = "git+https://github.com/mozilla/neqo?tag=v0.4.28#c3d909e40d2ee68e2937b7dac1831a27520bf460"
++source = "git+https://github.com/ddragana/neqo/?branch=pr_1247#0dc6eb8a337e1402172f83d9c999c1b9166d1aca"
+ dependencies = [
+  "chrono",
+  "env_logger",
+@@ -3244,7 +3244,7 @@
+ [[package]]
+ name = "neqo-crypto"
+ version = "0.4.28"
+-source = "git+https://github.com/mozilla/neqo?tag=v0.4.28#c3d909e40d2ee68e2937b7dac1831a27520bf460"
++source = "git+https://github.com/ddragana/neqo/?branch=pr_1247#0dc6eb8a337e1402172f83d9c999c1b9166d1aca"
+ dependencies = [
+  "bindgen",
+  "log",
+@@ -3257,7 +3257,7 @@
+ [[package]]
+ name = "neqo-http3"
+ version = "0.4.28"
+-source = "git+https://github.com/mozilla/neqo?tag=v0.4.28#c3d909e40d2ee68e2937b7dac1831a27520bf460"
++source = "git+https://github.com/ddragana/neqo/?branch=pr_1247#0dc6eb8a337e1402172f83d9c999c1b9166d1aca"
+ dependencies = [
+  "log",
+  "neqo-common",
+@@ -3271,7 +3271,7 @@
+ [[package]]
+ name = "neqo-qpack"
+ version = "0.4.28"
+-source = "git+https://github.com/mozilla/neqo?tag=v0.4.28#c3d909e40d2ee68e2937b7dac1831a27520bf460"
++source = "git+https://github.com/ddragana/neqo/?branch=pr_1247#0dc6eb8a337e1402172f83d9c999c1b9166d1aca"
+ dependencies = [
+  "lazy_static",
+  "log",
+@@ -3285,7 +3285,7 @@
+ [[package]]
+ name = "neqo-transport"
+ version = "0.4.28"
+-source = "git+https://github.com/mozilla/neqo?tag=v0.4.28#c3d909e40d2ee68e2937b7dac1831a27520bf460"
++source = "git+https://github.com/ddragana/neqo/?branch=pr_1247#0dc6eb8a337e1402172f83d9c999c1b9166d1aca"
+ dependencies = [
+  "indexmap",
+  "lazy_static",
+diff --git a/netwerk/socket/neqo_glue/Cargo.toml b/netwerk/socket/neqo_glue/Cargo.toml
+--- a/netwerk/socket/neqo_glue/Cargo.toml
++++ b/netwerk/socket/neqo_glue/Cargo.toml
+@@ -8,10 +8,10 @@
+ name = "neqo_glue"
+ 
+ [dependencies]
+-neqo-http3 = { tag = "v0.4.28", git = "https://github.com/mozilla/neqo" }
+-neqo-transport = { tag = "v0.4.28", git = "https://github.com/mozilla/neqo" }
+-neqo-common = { tag = "v0.4.28", git = "https://github.com/mozilla/neqo" }
+-neqo-qpack = { tag = "v0.4.28", git = "https://github.com/mozilla/neqo" }
++neqo-http3 = { git = "https://github.com/ddragana/neqo/", branch="pr_1247" }
++neqo-transport = { git = "https://github.com/ddragana/neqo/", branch="pr_1247" }
++neqo-common = { git = "https://github.com/ddragana/neqo/", branch="pr_1247" }
++neqo-qpack = { git = "https://github.com/ddragana/neqo/", branch="pr_1247" }
+ nserror = { path = "../../../xpcom/rust/nserror" }
+ nsstring = { path = "../../../xpcom/rust/nsstring" }
+ xpcom = { path = "../../../xpcom/rust/xpcom" }
+@@ -20,7 +20,7 @@
+ qlog = "0.4.0"
+ 
+ [dependencies.neqo-crypto]
+-tag = "v0.4.28"
+-git = "https://github.com/mozilla/neqo"
++git = "https://github.com/ddragana/neqo/"
++branch="pr_1247"
+ default-features = false
+ features = ["gecko"]
+diff --git a/netwerk/test/http3server/Cargo.toml b/netwerk/test/http3server/Cargo.toml
+--- a/netwerk/test/http3server/Cargo.toml
++++ b/netwerk/test/http3server/Cargo.toml
+@@ -5,17 +5,17 @@
+ edition = "2018"
+ 
+ [dependencies]
+-neqo-transport = { tag = "v0.4.28", git = "https://github.com/mozilla/neqo" }
+-neqo-common = { tag = "v0.4.28", git = "https://github.com/mozilla/neqo" }
+-neqo-http3 = { tag = "v0.4.28", git = "https://github.com/mozilla/neqo" }
+-neqo-qpack = { tag = "v0.4.28", git = "https://github.com/mozilla/neqo" }
++neqo-transport = { git = "https://github.com/ddragana/neqo/", branch="pr_1247" }
++neqo-common = { git = "https://github.com/ddragana/neqo/", branch="pr_1247" }
++neqo-http3 = { git = "https://github.com/ddragana/neqo/", branch="pr_1247" }
++neqo-qpack = { git = "https://github.com/ddragana/neqo/", branch="pr_1247" }
+ mio = "0.6.17"
+ mio-extras = "2.0.5"
+ log = "0.4.0"
+ 
+ [dependencies.neqo-crypto]
+-tag = "v0.4.28"
+-git = "https://github.com/mozilla/neqo"
++git = "https://github.com/ddragana/neqo/"
++branch="pr_1247"
+ default-features = false
+ features = ["gecko"]
+ 
+diff --git a/third_party/rust/neqo-crypto/.cargo-checksum.json b/third_party/rust/neqo-crypto/.cargo-checksum.json
+--- a/third_party/rust/neqo-crypto/.cargo-checksum.json
++++ b/third_party/rust/neqo-crypto/.cargo-checksum.json
+@@ -1 +1 @@
+-{"files":{"Cargo.toml":"d69edddfbe830720c227d018226a493ca524cc421f862d443ac32407b477490b","TODO":"ac0f1c2ebcca03f5b3c0cc56c5aedbb030a4b511e438bc07a57361c789f91e9f","bindings/bindings.toml":"26f85b25967a21522c7185914c8a31afee3e93bf5c5548341b27f708ea1ecede","bindings/mozpkix.hpp":"77072c8bb0f6eb6bfe8cbadc111dcd92e0c79936d13f2e501aae1e5d289a6675","bindings/nspr_err.h":"2d5205d017b536c2d838bcf9bc4ec79f96dd50e7bb9b73892328781f1ee6629d","bindings/nspr_error.h":"e41c03c77b8c22046f8618832c9569fbcc7b26d8b9bbc35eea7168f35e346889","bindings/nspr_io.h":"085b289849ef0e77f88512a27b4d9bdc28252bd4d39c6a17303204e46ef45f72","bindings/nspr_time.h":"2e637fd338a5cf0fd3fb0070a47f474a34c2a7f4447f31b6875f5a9928d0a261","bindings/nss_ciphers.h":"95ec6344a607558b3c5ba8510f463b6295f3a2fb3f538a01410531045a5f62d1","bindings/nss_init.h":"ef49045063782fb612aff459172cc6a89340f15005808608ade5320ca9974310","bindings/nss_p11.h":"0b81e64fe6db49b2ecff94edd850be111ef99ec11220e88ceb1c67be90143a78","bindings/nss_secerr.h":"713e8368bdae5159af7893cfa517dabfe5103cede051dee9c9557c850a2defc6","bindings/nss_ssl.h":"af222fb957b989e392e762fa2125c82608a0053aff4fb97e556691646c88c335","bindings/nss_sslerr.h":"24b97f092183d8486f774cdaef5030d0249221c78343570d83a4ee5b594210ae","bindings/nss_sslopt.h":"b7807eb7abdad14db6ad7bc51048a46b065a0ea65a4508c95a12ce90e59d1eea","build.rs":"238238eca9a6428996b96ac2a4d6aa5f206b2892f6e9922e12e74e34fe39d47e","src/aead.rs":"140f77ffb5016836c970c39c6c3a42db9581a14b797b9cd05386d0dd0831fe63","src/aead_fuzzing.rs":"4e60d5a2ee6dedfd08602fa36318239e731244825df2cb801ca1d88f5f2a41c1","src/agent.rs":"9c413275bfa0a6f0c736d9925b4d5978d6b8c8a8ddb1c047b60e69ae1820858e","src/agentio.rs":"995e54772d6000d2773a2c57d67fc80756cab47dacfb4915e1ee49c5906d8495","src/auth.rs":"e821dac1511691151a6e64b7c7130a07d941dffad4529b2631f20ddd07d3f20c","src/cert.rs":"94450b248eed218b9227861ed81e557a543c0c88868fe1a434dc9c9f0f9651ae","src/constants.rs":"998e77bee88197a240032c1bfbddcff417a25ba82e576a0d2fe18ee9b63cefc7","src/ech.rs":"1d7b8760cd4e3cb2800fc9ff5fb2b1c89170fd379e43a9e1c626b7df0a59c6d3","src/err.rs":"38482dc0184802a5a503f540456f3af829641179eba32ed8ee7cc5d6a0afc6b3","src/exp.rs":"61586662407359c1ecb8ed4987bc3c702f26ba2e203a091a51b6d6363cbd510f","src/ext.rs":"361277879194dc32f741b8d1894afe5fd3fcc8eb244f7dd5914eeb959b85717d","src/hkdf.rs":"8d05bffddbd9950baa1d4920d42d29e3970caa308b32c1e59b9704dc257d87ab","src/hp.rs":"46a2023c421d89fda8d09b356b648272857fd20ee5cf5829143ac88402b32e4b","src/lib.rs":"2e486b5b18dcc6bf624080396e5f401fb0bed63db6dcd5e11c7614b7ce1bc196","src/once.rs":"b9850384899a1a016e839743d3489c0d4d916e1973746ef8c89872105d7d9736","src/p11.rs":"3e01b513b982fbc0b75bd66deeab8a9a355ede753091d2076c06111d36ecaf02","src/prio.rs":"38664072cafc4f7ce2dfe2e1e029afe87c423e01a60066c25a736644cb0ce379","src/replay.rs":"6c6a41c4d837ecd14e0dda05e9bf9a2eb6f3f4c3cc6eb8e41156dbd6bf3b1113","src/result.rs":"cef34dfcb907723e195b56501132e4560e250b327783cb5e41201da5b63e9b5c","src/secrets.rs":"48790a330994d892742048000bd12460b7eee2c3daaa444481b8527406d0a4c7","src/selfencrypt.rs":"036a6a22bd0ce9ee849a986f6faad4a550de3551bd53de1f71a7d7d9b4206e5b","src/ssl.rs":"821dbe19590a8716327628a1df7ba4184a9df454227eac60f0e793bc426fc315","src/time.rs":"b71fa74ad979d78765dd037c12f5e97eefb9fefc91be8f7c6f45e74b66ac11fc","tests/aead.rs":"98a737643ca41b2f36f6eda5a5dcb2acd420650ef22ab0a8cbed16c423734cc7","tests/agent.rs":"c191782187cb344186195fe377d9f351f2454e5b437f8d4ad88ec3edc8608a5d","tests/ext.rs":"eba9f03accdd598e38292ac88263a81b367d60d5a736a43117a3663de105ec48","tests/handshake.rs":"6ea3e5b3bc889d201b55f959b658a848c0ada54c956bda087b2ac8897a24a786","tests/hkdf.rs":"539235e9dcf2a56b72961a9a04f0080409adf6bf465bfad7c30026421b2d4326","tests/hp.rs":"e52a7d2f4387f2dfe8bfe1da5867e8e0d3eb51e171c6904e18b18c4343536af8","tests/init.rs":"baf680de62f5b06f38a112192a2e9a2ac9492f2cdbdf5f4b749ef18c94c9ac35","tests/selfencrypt.rs":"1125c858ec4e0a6994f34d162aa066cb003c61b324f268529ea04bcb641347cb"},"package":null}
+\ No newline at end of file
++{"files":{"Cargo.toml":"d69edddfbe830720c227d018226a493ca524cc421f862d443ac32407b477490b","TODO":"ac0f1c2ebcca03f5b3c0cc56c5aedbb030a4b511e438bc07a57361c789f91e9f","bindings/bindings.toml":"d136f82a333b0ee1499e7858fdfc3d630f7ff37501a3c51028a4eeb7e2f136b4","bindings/mozpkix.hpp":"77072c8bb0f6eb6bfe8cbadc111dcd92e0c79936d13f2e501aae1e5d289a6675","bindings/nspr_err.h":"2d5205d017b536c2d838bcf9bc4ec79f96dd50e7bb9b73892328781f1ee6629d","bindings/nspr_error.h":"e41c03c77b8c22046f8618832c9569fbcc7b26d8b9bbc35eea7168f35e346889","bindings/nspr_io.h":"085b289849ef0e77f88512a27b4d9bdc28252bd4d39c6a17303204e46ef45f72","bindings/nspr_time.h":"2e637fd338a5cf0fd3fb0070a47f474a34c2a7f4447f31b6875f5a9928d0a261","bindings/nss_ciphers.h":"95ec6344a607558b3c5ba8510f463b6295f3a2fb3f538a01410531045a5f62d1","bindings/nss_init.h":"ef49045063782fb612aff459172cc6a89340f15005808608ade5320ca9974310","bindings/nss_p11.h":"0b81e64fe6db49b2ecff94edd850be111ef99ec11220e88ceb1c67be90143a78","bindings/nss_secerr.h":"713e8368bdae5159af7893cfa517dabfe5103cede051dee9c9557c850a2defc6","bindings/nss_ssl.h":"af222fb957b989e392e762fa2125c82608a0053aff4fb97e556691646c88c335","bindings/nss_sslerr.h":"24b97f092183d8486f774cdaef5030d0249221c78343570d83a4ee5b594210ae","bindings/nss_sslopt.h":"b7807eb7abdad14db6ad7bc51048a46b065a0ea65a4508c95a12ce90e59d1eea","build.rs":"238238eca9a6428996b96ac2a4d6aa5f206b2892f6e9922e12e74e34fe39d47e","src/aead.rs":"140f77ffb5016836c970c39c6c3a42db9581a14b797b9cd05386d0dd0831fe63","src/aead_fuzzing.rs":"4e60d5a2ee6dedfd08602fa36318239e731244825df2cb801ca1d88f5f2a41c1","src/agent.rs":"9c413275bfa0a6f0c736d9925b4d5978d6b8c8a8ddb1c047b60e69ae1820858e","src/agentio.rs":"995e54772d6000d2773a2c57d67fc80756cab47dacfb4915e1ee49c5906d8495","src/auth.rs":"e821dac1511691151a6e64b7c7130a07d941dffad4529b2631f20ddd07d3f20c","src/cert.rs":"94450b248eed218b9227861ed81e557a543c0c88868fe1a434dc9c9f0f9651ae","src/constants.rs":"998e77bee88197a240032c1bfbddcff417a25ba82e576a0d2fe18ee9b63cefc7","src/ech.rs":"1d7b8760cd4e3cb2800fc9ff5fb2b1c89170fd379e43a9e1c626b7df0a59c6d3","src/err.rs":"38482dc0184802a5a503f540456f3af829641179eba32ed8ee7cc5d6a0afc6b3","src/exp.rs":"61586662407359c1ecb8ed4987bc3c702f26ba2e203a091a51b6d6363cbd510f","src/ext.rs":"361277879194dc32f741b8d1894afe5fd3fcc8eb244f7dd5914eeb959b85717d","src/hkdf.rs":"3ff432cc9d40e1dc56e9f983b54b593647c4063a5ae0f16de0a64d033ac9bd94","src/hp.rs":"46a2023c421d89fda8d09b356b648272857fd20ee5cf5829143ac88402b32e4b","src/lib.rs":"2e486b5b18dcc6bf624080396e5f401fb0bed63db6dcd5e11c7614b7ce1bc196","src/once.rs":"b9850384899a1a016e839743d3489c0d4d916e1973746ef8c89872105d7d9736","src/p11.rs":"3e01b513b982fbc0b75bd66deeab8a9a355ede753091d2076c06111d36ecaf02","src/prio.rs":"38664072cafc4f7ce2dfe2e1e029afe87c423e01a60066c25a736644cb0ce379","src/replay.rs":"6c6a41c4d837ecd14e0dda05e9bf9a2eb6f3f4c3cc6eb8e41156dbd6bf3b1113","src/result.rs":"cef34dfcb907723e195b56501132e4560e250b327783cb5e41201da5b63e9b5c","src/secrets.rs":"48790a330994d892742048000bd12460b7eee2c3daaa444481b8527406d0a4c7","src/selfencrypt.rs":"4a9af42ccefbc77c65baedf00ef389de4fa7ed855d7ab3b60542b5931050667d","src/ssl.rs":"821dbe19590a8716327628a1df7ba4184a9df454227eac60f0e793bc426fc315","src/time.rs":"b71fa74ad979d78765dd037c12f5e97eefb9fefc91be8f7c6f45e74b66ac11fc","tests/aead.rs":"a0fe826aa3bfcce22dbe1b06b74823cb2334331ffe6ce6152952613e9e1ccae5","tests/agent.rs":"c191782187cb344186195fe377d9f351f2454e5b437f8d4ad88ec3edc8608a5d","tests/ext.rs":"eba9f03accdd598e38292ac88263a81b367d60d5a736a43117a3663de105ec48","tests/handshake.rs":"6ea3e5b3bc889d201b55f959b658a848c0ada54c956bda087b2ac8897a24a786","tests/hkdf.rs":"47830c1ea58a02d100522bdde6fabc02bb447ccb85affa0cdc44bc25da1be32a","tests/hp.rs":"92e062538c01fa7a474225714ed238d846ceb8c8feb9d79eb05be6111b00fb1e","tests/init.rs":"baf680de62f5b06f38a112192a2e9a2ac9492f2cdbdf5f4b749ef18c94c9ac35","tests/selfencrypt.rs":"1125c858ec4e0a6994f34d162aa066cb003c61b324f268529ea04bcb641347cb"},"package":null}
+\ No newline at end of file
+diff --git a/third_party/rust/neqo-crypto/bindings/bindings.toml b/third_party/rust/neqo-crypto/bindings/bindings.toml
+--- a/third_party/rust/neqo-crypto/bindings/bindings.toml
++++ b/third_party/rust/neqo-crypto/bindings/bindings.toml
+@@ -163,7 +163,7 @@
+     "PK11_GetKeyData",
+     "PK11_GetMechanism",
+     "PK11_HPKE_Serialize",
+-    "PK11_ImportSymKey",
++    "PK11_ImportDataKey",
+     "PK11_ReadRawAttribute",
+     "PK11_ReferenceSymKey",
+     "SECITEM_FreeItem",
+@@ -196,11 +196,10 @@
+     "CKM_AES_ECB",
+     "CKM_AES_GCM",
+     "CKM_EC_KEY_PAIR_GEN",
++    "CKM_HKDF_DERIVE",
+     "CKM_INVALID_MECHANISM",
+     "CKM_NSS_CHACHA20_CTR",
+     "CKM_NSS_CHACHA20_POLY1305",
+-    "CKM_NSS_HKDF_SHA256",
+-    "CKM_NSS_HKDF_SHA384",
+     "PK11_ATTR_INSENSITIVE",
+     "PK11_ATTR_PRIVATE",
+     "PK11_ATTR_PUBLIC",
+diff --git a/third_party/rust/neqo-crypto/src/hkdf.rs b/third_party/rust/neqo-crypto/src/hkdf.rs
+--- a/third_party/rust/neqo-crypto/src/hkdf.rs
++++ b/third_party/rust/neqo-crypto/src/hkdf.rs
+@@ -10,8 +10,8 @@
+ };
+ use crate::err::{Error, Res};
+ use crate::p11::{
+-    random, Item, PK11Origin, PK11SymKey, PK11_ImportSymKey, Slot, SymKey, CKA_DERIVE,
+-    CKM_NSS_HKDF_SHA256, CKM_NSS_HKDF_SHA384, CK_ATTRIBUTE_TYPE, CK_MECHANISM_TYPE,
++    random, Item, PK11Origin, PK11SymKey, PK11_ImportDataKey, Slot, SymKey, CKA_DERIVE,
++    CKM_HKDF_DERIVE, CK_ATTRIBUTE_TYPE, CK_MECHANISM_TYPE,
+ };
+ 
+ use std::convert::TryFrom;
+@@ -52,27 +52,22 @@
+ /// # Errors
+ /// Only if NSS fails.
+ pub fn generate_key(version: Version, cipher: Cipher) -> Res<SymKey> {
+-    import_key(version, cipher, &random(key_size(version, cipher)?))
++    import_key(version, &random(key_size(version, cipher)?))
+ }
+ 
+ /// Import a symmetric key for use with HKDF.
+ ///
+ /// # Errors
+ /// Errors returned if the key buffer is an incompatible size or the NSS functions fail.
+-pub fn import_key(version: Version, cipher: Cipher, buf: &[u8]) -> Res<SymKey> {
++pub fn import_key(version: Version, buf: &[u8]) -> Res<SymKey> {
+     if version != TLS_VERSION_1_3 {
+         return Err(Error::UnsupportedVersion);
+     }
+-    let mech = match cipher {
+-        TLS_AES_128_GCM_SHA256 | TLS_CHACHA20_POLY1305_SHA256 => CKM_NSS_HKDF_SHA256,
+-        TLS_AES_256_GCM_SHA384 => CKM_NSS_HKDF_SHA384,
+-        _ => return Err(Error::UnsupportedCipher),
+-    };
+     let slot = Slot::internal()?;
+     let key_ptr = unsafe {
+-        PK11_ImportSymKey(
++        PK11_ImportDataKey(
+             *slot,
+-            CK_MECHANISM_TYPE::from(mech),
++            CK_MECHANISM_TYPE::from(CKM_HKDF_DERIVE),
+             PK11Origin::PK11_OriginUnwrap,
+             CK_ATTRIBUTE_TYPE::from(CKA_DERIVE),
+             &mut Item::wrap(buf),
+diff --git a/third_party/rust/neqo-crypto/src/selfencrypt.rs b/third_party/rust/neqo-crypto/src/selfencrypt.rs
+--- a/third_party/rust/neqo-crypto/src/selfencrypt.rs
++++ b/third_party/rust/neqo-crypto/src/selfencrypt.rs
+@@ -41,7 +41,7 @@
+ 
+     fn make_aead(&self, k: &SymKey, salt: &[u8]) -> Res<Aead> {
+         debug_assert_eq!(salt.len(), Self::SALT_LENGTH);
+-        let salt = hkdf::import_key(self.version, self.cipher, salt)?;
++        let salt = hkdf::import_key(self.version, salt)?;
+         let secret = hkdf::extract(self.version, self.cipher, Some(&salt), k)?;
+         Aead::new(self.version, self.cipher, &secret, "neqo self")
+     }
+diff --git a/third_party/rust/neqo-crypto/tests/aead.rs b/third_party/rust/neqo-crypto/tests/aead.rs
+--- a/third_party/rust/neqo-crypto/tests/aead.rs
++++ b/third_party/rust/neqo-crypto/tests/aead.rs
+@@ -26,7 +26,6 @@
+ 
+     let secret = hkdf::import_key(
+         TLS_VERSION_1_3,
+-        cipher,
+         &[
+             0x47, 0xb2, 0xea, 0xea, 0x6c, 0x26, 0x6e, 0x32, 0xc0, 0x69, 0x7a, 0x9e, 0x2a, 0x89,
+             0x8b, 0xdf, 0x5c, 0x4f, 0xb3, 0xe5, 0xac, 0x34, 0xf0, 0xe5, 0x49, 0xbf, 0x2c, 0x58,
+diff --git a/third_party/rust/neqo-crypto/tests/hkdf.rs b/third_party/rust/neqo-crypto/tests/hkdf.rs
+--- a/third_party/rust/neqo-crypto/tests/hkdf.rs
++++ b/third_party/rust/neqo-crypto/tests/hkdf.rs
+@@ -38,8 +38,8 @@
+ fn import_keys(cipher: Cipher) -> (SymKey, SymKey) {
+     let l = cipher_hash_len(cipher);
+     (
+-        hkdf::import_key(TLS_VERSION_1_3, cipher, &SALT[0..l]).expect("import salt"),
+-        hkdf::import_key(TLS_VERSION_1_3, cipher, &IKM[0..l]).expect("import IKM"),
++        hkdf::import_key(TLS_VERSION_1_3, &SALT[0..l]).expect("import salt"),
++        hkdf::import_key(TLS_VERSION_1_3, &IKM[0..l]).expect("import IKM"),
+     )
+ }
+ 
+diff --git a/third_party/rust/neqo-crypto/tests/hp.rs b/third_party/rust/neqo-crypto/tests/hp.rs
+--- a/third_party/rust/neqo-crypto/tests/hp.rs
++++ b/third_party/rust/neqo-crypto/tests/hp.rs
+@@ -9,7 +9,7 @@
+ use test_fixture::fixture_init;
+ 
+ fn make_hp(cipher: Cipher) -> HpKey {
+-    let ikm = hkdf::import_key(TLS_VERSION_1_3, cipher, &[0; 16]).expect("import IKM");
++    let ikm = hkdf::import_key(TLS_VERSION_1_3, &[0; 16]).expect("import IKM");
+     let prk = hkdf::extract(TLS_VERSION_1_3, cipher, None, &ikm).expect("extract works");
+     HpKey::extract(TLS_VERSION_1_3, cipher, &prk, "hp").expect("extract label works")
+ }
+diff --git a/third_party/rust/neqo-transport/.cargo-checksum.json b/third_party/rust/neqo-transport/.cargo-checksum.json
+--- a/third_party/rust/neqo-transport/.cargo-checksum.json
++++ b/third_party/rust/neqo-transport/.cargo-checksum.json
+@@ -1 +1 @@
+-{"files":{"Cargo.toml":"3455dc33fc70b594be56f5b0e8ff857ba79ce8646cb2fbc6c9eea3f6e428cf05","TODO":"d759cb804b32fa9d96ea8d3574a3c4073da9fe6a0b02b708a0e22cce5a5b4a0f","src/ackrate.rs":"cd288796a35329761f8da8963e83fca3083d08e813ec741e7f3f37c8465a60ce","src/addr_valid.rs":"9042f2b3c4de283d7c7d3b0c828453013173be5b11f025f48a32ba441f6c5c91","src/cc/classic_cc.rs":"47fa9dc840a580fc32fb7d763c92b1b7e401e018822c7df42aa3f0e8be236dcc","src/cc/cubic.rs":"f43449dde372b098bf27d4ccf3d31d8276935bc021343a1478e8a21647b5ba6f","src/cc/mod.rs":"7a7eeecebdbe2ea610c41fe1ae77083070f26158d60c0d32fd49e63302568e73","src/cc/new_reno.rs":"ec8a604abf5de8db738d4d96ebaad24c757a47828af0091fdab4e54d1edf5bc7","src/cc/tests/cubic.rs":"88ed30285c3fb7bfb55ed3ec127210d805982fca9b5882fb3a28f1302567f9fe","src/cc/tests/mod.rs":"1567bf0ddaff5cb679217f2fd65f01e15a302b9b9e68b69f3e617dcaf7b3e5ec","src/cc/tests/new_reno.rs":"6068715ace20d831718a5b5a4e7e1d37f83c02a5b870dc6c2289166407d741db","src/cid.rs":"bcf36cb211634317de299e93aba768897b6d93428294779571ecbda90813545a","src/connection/idle.rs":"e3c902858737de89e2e8955796c6e60dcfbcffaf58b3a1c4473fed04c7eae55c","src/connection/mod.rs":"1123159837e8be4dab110af961e4a11be92c5737d7dc778af728e9a510edeb80","src/connection/params.rs":"a6f67a270acc3bf4c33ebd59681483b5abad7a23a4ec9578dd14d1ce2fe454b6","src/connection/saved.rs":"b70f81635e210102208790ef308a0dea4b7e87900e6083ca6b299d4c1d5b9058","src/connection/state.rs":"e4505b12784756ee8ad4ed60b3ef75d9e3abaaafd4d6ef1c212544e393c9ed85","src/connection/test_internal.rs":"f3ebfe97b25c9c716d41406066295e5aff4e96a3051ef4e2b5fb258282bbc14c","src/connection/tests/ackrate.rs":"6530705d78fa86eb257195337979e35ce0186ccbced15ecd3ebbf730ff16f100","src/connection/tests/cc.rs":"90e71e2c7e2b70c98375ac4815a0b0deddce657e7afc2ab67e5c9029c6596526","src/connection/tests/close.rs":"f02522c5a525a24601227904c9f176f884114d7b23a3db04cb38e0694a21672a","src/connection/tests/fuzzing.rs":"ef96fb5c3af63fbc44da70bdbc73a16234443332ba812282db6da876b07db861","src/connection/tests/handshake.rs":"e01362c04f78ef9f258d1386bb286ad1c6c8fc2c2e1043348be05d5d85383144","src/connection/tests/idle.rs":"2a488f31f4f2473a6953688fab7ce6a63d0ec96690977cac23291d03263a8ca4","src/connection/tests/keys.rs":"aa99f858a9aee3f6160ce44e4b2abc39b01b6973f0112d0840aaff1151e9eb6d","src/connection/tests/migration.rs":"5fd7efa936d76e9ab7c52efb59cf1c4a4dd3a03f6a2a1f60747d1572c7d0ef00","src/connection/tests/mod.rs":"ee61062e7cca4a2939f31ad8318efdee1e8418fdd083af9a7fa7d89e7b23f896","src/connection/tests/priority.rs":"468f9178ba3b720607a155dce906bb2394adbe8309ddb8dacc4201b4d300f76b","src/connection/tests/recovery.rs":"b4177ef09274d6aea38515392d8a94248792d6b4c04589c471a40c6d4b01609f","src/connection/tests/resumption.rs":"359a388fe515502dd20b5ebdb5d6f7ff2d85798a14a38e8d97706a4cdf88383e","src/connection/tests/stream.rs":"7b37ccce7b35b1d7dd93d3b1d7165101cdba18b7cbc42c47254a0b0aa36d380a","src/connection/tests/vn.rs":"086b5a249f244b9e783231876f6e549f1481dd0136c9a19f9852a3d166bef172","src/connection/tests/zerortt.rs":"4e82c5f2d549b3cf75f311f2ed7825947c55277d9564b36df2de77c18818f9d0","src/crypto.rs":"ccae01d7b3ee4b3e1b8653b4d7f3d99e287260f33fdcd9ad698000cde86f7a56","src/dump.rs":"72c090345ec5d10b71b1d708e303afc1cbf029abb18b1f176f048855c45dda1a","src/events.rs":"e6d75954f467b7e0ce4bd6338ab9d27ff1d121a2fc5602026f51912d45a1623a","src/fc.rs":"e400097e000cdd7ebe8020e082bb2d14fc8d16dacd44b9af6227af6bb3161cda","src/flow_mgr.rs":"7512a5ed545caf08ec6e100fb179ad96039c9e185cf1f455a561e8b282d292e0","src/frame.rs":"9637f1acfe3df675bd57243532df41c94ebc1a25aea050de87c23bae9a6b83e3","src/lib.rs":"fe2c93c1b215ae5e58080c454e29ddb9723050e7fb5372e5204eeaea78a1e52e","src/pace.rs":"6c6a67ae4300f0af3670bae76478741348e56d2090245ce6c014fa85f066fe01","src/packet/mod.rs":"cbad6015ebd27876107935b834688e53aab581d296d04eb49b2cd0f7efec84f2","src/packet/retry.rs":"4323bf888626a808e3be4a889a853fe7cea215c1bf4c7a1b4b23fdbc3c2521b5","src/path.rs":"cd400d41bfd25e1d496ceef3b5ca130320153eeddd644119689e69fb7cf394a8","src/qlog.rs":"6e631b514d5d286c05e6e56cbf51cbcf9278ec13fa087bbc1daac093e06fa4fb","src/recovery.rs":"28929e6e0b5a9d297cb9961228515f3d2db1adb078183b64efd58f441f017f0f","src/recv_stream.rs":"26bf29b988c87c9ddacd0c69cd5157c719306a1bbf05e29420a6d923d22b76b3","src/rtt.rs":"a332ef5fc8c9bbee8494e11a83104d80689030ba127ffb1e995f24738a14ae3c","src/send_stream.rs":"374a9069d1a2bc7723b81160fa829e6c44d861d38a6cec2b91da0806134e7675","src/sender.rs":"07f8030e2a341ac0496016d46a06b2b1778f268c8b9abc8ae66c1482fdc72653","src/server.rs":"5aa34a042284c2f3a8e95baba9b815693e5d18f7ce39e4d05bccaa1127ab0272","src/stats.rs":"5afd83e84cdc3a5273d964385f27f09d46a9d6a2bcfdf0e33781dd4c2cbdb80b","src/stream_id.rs":"c5794d0991b98a490618fe0554ce2d6efd1612493f92feb72adad0deb1aefc89","src/streams.rs":"bb5b841fbf23c385fb444e08acc264f0af0d0a6be49b386a5ea19a2fb6013e98","src/tparams.rs":"df8ecb2e5f3625a7e3fb51632b20432a66e4ab8901d27963fe659b22ae2325be","src/tracking.rs":"e728699298cda297e6c7670aca4a11f7b72ef07d395af1930b703cc03ed7fc6d","tests/common/mod.rs":"ab776536b5db66017c59235e53400e3ac22de6c93549bdbe7e1958bfc38fd415","tests/conn_vectors.rs":"1801e7bd91db40e343efd56b30dc12bbe83048211f3aa6b4c0cca7cf065b1384","tests/connection.rs":"fe9b7069b34fea7f5154e9b1ea3bffb290a4aa9a7c97c30992c51fa7a6ad6673","tests/network.rs":"a986c22da7132ec843a44c4bcb5a7d2726132aa27a47a8ea91634cd88e1b763b","tests/retry.rs":"ed217392c9681e5bbc294028038b7fd256252ab8e3e343c9c2cec56c60568f02","tests/server.rs":"496cc3630ec55631fcc87df5023dd3047dceb6d1f4b34cfd842d7ffcf53ec5e1","tests/sim/connection.rs":"51c582423dd4f4b2484d0ee790235ce9b4677f936a6c8ce09a6c3d3da9b3e519","tests/sim/delay.rs":"9efa722adb89e37262369e9f3c67405f0acc8c24997271811e48df9e856e5a8d","tests/sim/drop.rs":"bd89e5c71cdd1b27cd755faaedd87d5feadf2f424df721a7df41a51bcebcbb58","tests/sim/mod.rs":"9a930682cf92e7279bccdd2145f19ff17f5aa950994e7b3e25749651511c2753","tests/sim/net.rs":"597f4d37bc26c3d82eeeaa6d14dd03bc2be3930686df2b293748b43c07c497d7","tests/sim/rng.rs":"2c90b0bbaf0c952ebee232deb3594f7a86af387737b15474de3e97ee6b623d90","tests/sim/taildrop.rs":"5c505d150f0071e8cc2d540b3a817a6942fdf13df32f1fbc6822952f2e146176"},"package":null}
+\ No newline at end of file
++{"files":{"Cargo.toml":"3455dc33fc70b594be56f5b0e8ff857ba79ce8646cb2fbc6c9eea3f6e428cf05","TODO":"d759cb804b32fa9d96ea8d3574a3c4073da9fe6a0b02b708a0e22cce5a5b4a0f","src/ackrate.rs":"cd288796a35329761f8da8963e83fca3083d08e813ec741e7f3f37c8465a60ce","src/addr_valid.rs":"9042f2b3c4de283d7c7d3b0c828453013173be5b11f025f48a32ba441f6c5c91","src/cc/classic_cc.rs":"47fa9dc840a580fc32fb7d763c92b1b7e401e018822c7df42aa3f0e8be236dcc","src/cc/cubic.rs":"f43449dde372b098bf27d4ccf3d31d8276935bc021343a1478e8a21647b5ba6f","src/cc/mod.rs":"7a7eeecebdbe2ea610c41fe1ae77083070f26158d60c0d32fd49e63302568e73","src/cc/new_reno.rs":"ec8a604abf5de8db738d4d96ebaad24c757a47828af0091fdab4e54d1edf5bc7","src/cc/tests/cubic.rs":"88ed30285c3fb7bfb55ed3ec127210d805982fca9b5882fb3a28f1302567f9fe","src/cc/tests/mod.rs":"1567bf0ddaff5cb679217f2fd65f01e15a302b9b9e68b69f3e617dcaf7b3e5ec","src/cc/tests/new_reno.rs":"6068715ace20d831718a5b5a4e7e1d37f83c02a5b870dc6c2289166407d741db","src/cid.rs":"bcf36cb211634317de299e93aba768897b6d93428294779571ecbda90813545a","src/connection/idle.rs":"e3c902858737de89e2e8955796c6e60dcfbcffaf58b3a1c4473fed04c7eae55c","src/connection/mod.rs":"1123159837e8be4dab110af961e4a11be92c5737d7dc778af728e9a510edeb80","src/connection/params.rs":"a6f67a270acc3bf4c33ebd59681483b5abad7a23a4ec9578dd14d1ce2fe454b6","src/connection/saved.rs":"b70f81635e210102208790ef308a0dea4b7e87900e6083ca6b299d4c1d5b9058","src/connection/state.rs":"e4505b12784756ee8ad4ed60b3ef75d9e3abaaafd4d6ef1c212544e393c9ed85","src/connection/test_internal.rs":"f3ebfe97b25c9c716d41406066295e5aff4e96a3051ef4e2b5fb258282bbc14c","src/connection/tests/ackrate.rs":"6530705d78fa86eb257195337979e35ce0186ccbced15ecd3ebbf730ff16f100","src/connection/tests/cc.rs":"90e71e2c7e2b70c98375ac4815a0b0deddce657e7afc2ab67e5c9029c6596526","src/connection/tests/close.rs":"f02522c5a525a24601227904c9f176f884114d7b23a3db04cb38e0694a21672a","src/connection/tests/fuzzing.rs":"ef96fb5c3af63fbc44da70bdbc73a16234443332ba812282db6da876b07db861","src/connection/tests/handshake.rs":"e01362c04f78ef9f258d1386bb286ad1c6c8fc2c2e1043348be05d5d85383144","src/connection/tests/idle.rs":"2a488f31f4f2473a6953688fab7ce6a63d0ec96690977cac23291d03263a8ca4","src/connection/tests/keys.rs":"aa99f858a9aee3f6160ce44e4b2abc39b01b6973f0112d0840aaff1151e9eb6d","src/connection/tests/migration.rs":"5fd7efa936d76e9ab7c52efb59cf1c4a4dd3a03f6a2a1f60747d1572c7d0ef00","src/connection/tests/mod.rs":"ee61062e7cca4a2939f31ad8318efdee1e8418fdd083af9a7fa7d89e7b23f896","src/connection/tests/priority.rs":"468f9178ba3b720607a155dce906bb2394adbe8309ddb8dacc4201b4d300f76b","src/connection/tests/recovery.rs":"b4177ef09274d6aea38515392d8a94248792d6b4c04589c471a40c6d4b01609f","src/connection/tests/resumption.rs":"359a388fe515502dd20b5ebdb5d6f7ff2d85798a14a38e8d97706a4cdf88383e","src/connection/tests/stream.rs":"7b37ccce7b35b1d7dd93d3b1d7165101cdba18b7cbc42c47254a0b0aa36d380a","src/connection/tests/vn.rs":"086b5a249f244b9e783231876f6e549f1481dd0136c9a19f9852a3d166bef172","src/connection/tests/zerortt.rs":"4e82c5f2d549b3cf75f311f2ed7825947c55277d9564b36df2de77c18818f9d0","src/crypto.rs":"2b886642c22db39a3149f8ab7ac9322a593458ecb56e2d485cbbf4357554f795","src/dump.rs":"72c090345ec5d10b71b1d708e303afc1cbf029abb18b1f176f048855c45dda1a","src/events.rs":"e6d75954f467b7e0ce4bd6338ab9d27ff1d121a2fc5602026f51912d45a1623a","src/fc.rs":"e400097e000cdd7ebe8020e082bb2d14fc8d16dacd44b9af6227af6bb3161cda","src/flow_mgr.rs":"7512a5ed545caf08ec6e100fb179ad96039c9e185cf1f455a561e8b282d292e0","src/frame.rs":"9637f1acfe3df675bd57243532df41c94ebc1a25aea050de87c23bae9a6b83e3","src/lib.rs":"fe2c93c1b215ae5e58080c454e29ddb9723050e7fb5372e5204eeaea78a1e52e","src/pace.rs":"6c6a67ae4300f0af3670bae76478741348e56d2090245ce6c014fa85f066fe01","src/packet/mod.rs":"cbad6015ebd27876107935b834688e53aab581d296d04eb49b2cd0f7efec84f2","src/packet/retry.rs":"52b160481c59739742bd9ad4ec8768c8eeddc0d02bd3596e09a2a3ccfa52d41d","src/path.rs":"cd400d41bfd25e1d496ceef3b5ca130320153eeddd644119689e69fb7cf394a8","src/qlog.rs":"6e631b514d5d286c05e6e56cbf51cbcf9278ec13fa087bbc1daac093e06fa4fb","src/recovery.rs":"28929e6e0b5a9d297cb9961228515f3d2db1adb078183b64efd58f441f017f0f","src/recv_stream.rs":"26bf29b988c87c9ddacd0c69cd5157c719306a1bbf05e29420a6d923d22b76b3","src/rtt.rs":"a332ef5fc8c9bbee8494e11a83104d80689030ba127ffb1e995f24738a14ae3c","src/send_stream.rs":"374a9069d1a2bc7723b81160fa829e6c44d861d38a6cec2b91da0806134e7675","src/sender.rs":"07f8030e2a341ac0496016d46a06b2b1778f268c8b9abc8ae66c1482fdc72653","src/server.rs":"5aa34a042284c2f3a8e95baba9b815693e5d18f7ce39e4d05bccaa1127ab0272","src/stats.rs":"5afd83e84cdc3a5273d964385f27f09d46a9d6a2bcfdf0e33781dd4c2cbdb80b","src/stream_id.rs":"c5794d0991b98a490618fe0554ce2d6efd1612493f92feb72adad0deb1aefc89","src/streams.rs":"bb5b841fbf23c385fb444e08acc264f0af0d0a6be49b386a5ea19a2fb6013e98","src/tparams.rs":"df8ecb2e5f3625a7e3fb51632b20432a66e4ab8901d27963fe659b22ae2325be","src/tracking.rs":"e728699298cda297e6c7670aca4a11f7b72ef07d395af1930b703cc03ed7fc6d","tests/common/mod.rs":"7057030b55fa5f23d71455f2f8206aa9aaff585222db804a748dc8f87db9523b","tests/conn_vectors.rs":"1801e7bd91db40e343efd56b30dc12bbe83048211f3aa6b4c0cca7cf065b1384","tests/connection.rs":"fe9b7069b34fea7f5154e9b1ea3bffb290a4aa9a7c97c30992c51fa7a6ad6673","tests/network.rs":"a986c22da7132ec843a44c4bcb5a7d2726132aa27a47a8ea91634cd88e1b763b","tests/retry.rs":"ed217392c9681e5bbc294028038b7fd256252ab8e3e343c9c2cec56c60568f02","tests/server.rs":"496cc3630ec55631fcc87df5023dd3047dceb6d1f4b34cfd842d7ffcf53ec5e1","tests/sim/connection.rs":"51c582423dd4f4b2484d0ee790235ce9b4677f936a6c8ce09a6c3d3da9b3e519","tests/sim/delay.rs":"9efa722adb89e37262369e9f3c67405f0acc8c24997271811e48df9e856e5a8d","tests/sim/drop.rs":"bd89e5c71cdd1b27cd755faaedd87d5feadf2f424df721a7df41a51bcebcbb58","tests/sim/mod.rs":"9a930682cf92e7279bccdd2145f19ff17f5aa950994e7b3e25749651511c2753","tests/sim/net.rs":"597f4d37bc26c3d82eeeaa6d14dd03bc2be3930686df2b293748b43c07c497d7","tests/sim/rng.rs":"2c90b0bbaf0c952ebee232deb3594f7a86af387737b15474de3e97ee6b623d90","tests/sim/taildrop.rs":"5c505d150f0071e8cc2d540b3a817a6942fdf13df32f1fbc6822952f2e146176"},"package":null}
+\ No newline at end of file
+diff --git a/third_party/rust/neqo-transport/src/crypto.rs b/third_party/rust/neqo-transport/src/crypto.rs
+--- a/third_party/rust/neqo-transport/src/crypto.rs
++++ b/third_party/rust/neqo-transport/src/crypto.rs
+@@ -432,14 +432,8 @@
+         let initial_secret = hkdf::extract(
+             TLS_VERSION_1_3,
+             cipher,
+-            Some(
+-                hkdf::import_key(TLS_VERSION_1_3, cipher, salt)
+-                    .as_ref()
+-                    .unwrap(),
+-            ),
+-            hkdf::import_key(TLS_VERSION_1_3, cipher, dcid)
+-                .as_ref()
+-                .unwrap(),
++            Some(hkdf::import_key(TLS_VERSION_1_3, salt).as_ref().unwrap()),
++            hkdf::import_key(TLS_VERSION_1_3, dcid).as_ref().unwrap(),
+         )
+         .unwrap();
+ 
+@@ -1094,8 +1088,7 @@
+         let app_read = |epoch| CryptoDxAppData {
+             dx: read(epoch),
+             cipher: TLS_AES_128_GCM_SHA256,
+-            next_secret: hkdf::import_key(TLS_VERSION_1_3, TLS_AES_128_GCM_SHA256, &[0xaa; 32])
+-                .unwrap(),
++            next_secret: hkdf::import_key(TLS_VERSION_1_3, &[0xaa; 32]).unwrap(),
+         };
+         Self {
+             initial: Some(CryptoState {
+@@ -1120,8 +1113,7 @@
+             0x00, 0xa1, 0x54, 0x43, 0xf1, 0x82, 0x03, 0xa0, 0x7d, 0x60, 0x60, 0xf6, 0x88, 0xf3,
+             0x0f, 0x21, 0x63, 0x2b,
+         ];
+-        let secret =
+-            hkdf::import_key(TLS_VERSION_1_3, TLS_CHACHA20_POLY1305_SHA256, SECRET).unwrap();
++        let secret = hkdf::import_key(TLS_VERSION_1_3, SECRET).unwrap();
+         let app_read = |epoch| CryptoDxAppData {
+             dx: CryptoDxState {
+                 direction: CryptoDxDirection::Read,
+diff --git a/third_party/rust/neqo-transport/src/packet/retry.rs b/third_party/rust/neqo-transport/src/packet/retry.rs
+--- a/third_party/rust/neqo-transport/src/packet/retry.rs
++++ b/third_party/rust/neqo-transport/src/packet/retry.rs
+@@ -28,7 +28,7 @@
+     #[cfg(debug_assertions)]
+     ::neqo_crypto::assert_initialized();
+ 
+-    let secret = hkdf::import_key(TLS_VERSION_1_3, TLS_AES_128_GCM_SHA256, secret).unwrap();
++    let secret = hkdf::import_key(TLS_VERSION_1_3, secret).unwrap();
+     Aead::new(TLS_VERSION_1_3, TLS_AES_128_GCM_SHA256, &secret, "quic ").unwrap()
+ }
+ thread_local!(static RETRY_AEAD_29: RefCell<Aead> = RefCell::new(make_aead(RETRY_SECRET_29)));
+diff --git a/third_party/rust/neqo-transport/tests/common/mod.rs b/third_party/rust/neqo-transport/tests/common/mod.rs
+--- a/third_party/rust/neqo-transport/tests/common/mod.rs
++++ b/third_party/rust/neqo-transport/tests/common/mod.rs
+@@ -121,13 +121,11 @@
+         TLS_VERSION_1_3,
+         TLS_AES_128_GCM_SHA256,
+         Some(
+-            hkdf::import_key(TLS_VERSION_1_3, TLS_AES_128_GCM_SHA256, INITIAL_SALT)
++            hkdf::import_key(TLS_VERSION_1_3, INITIAL_SALT)
+                 .as_ref()
+                 .unwrap(),
+         ),
+-        hkdf::import_key(TLS_VERSION_1_3, TLS_AES_128_GCM_SHA256, dcid)
+-            .as_ref()
+-            .unwrap(),
++        hkdf::import_key(TLS_VERSION_1_3, dcid).as_ref().unwrap(),
+     )
+     .unwrap();

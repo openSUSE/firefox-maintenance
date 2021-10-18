@@ -1,12 +1,12 @@
 # HG changeset patch
-# Parent  f9f5af4c88f2f3172a4f30d7e42bd2131bf24146
+# Parent  e66ee2abf627f4bf8974d8cb9b3cd386070742fe
 This fixes a broken build for gcc < 9 on ppc64le.
 This patch can be removed for newer gcc-versions.
 
 diff --git a/js/xpconnect/src/XPCWrappedNative.cpp b/js/xpconnect/src/XPCWrappedNative.cpp
 --- a/js/xpconnect/src/XPCWrappedNative.cpp
 +++ b/js/xpconnect/src/XPCWrappedNative.cpp
-@@ -1072,17 +1072,21 @@ class MOZ_STACK_CLASS CallMethodHelper f
+@@ -1073,17 +1073,21 @@ class MOZ_STACK_CLASS CallMethodHelper f
                                                 uint32_t* result);
  
    MOZ_ALWAYS_INLINE bool GetInterfaceTypeFromParam(const nsXPTType& type,
@@ -29,7 +29,7 @@ diff --git a/js/xpconnect/src/XPCWrappedNative.cpp b/js/xpconnect/src/XPCWrapped
        paramIndex += 1;
      }
      if (paramIndex >= mOptArgcIndex) {
-@@ -1119,17 +1123,21 @@ class MOZ_STACK_CLASS CallMethodHelper f
+@@ -1120,17 +1124,21 @@ class MOZ_STACK_CLASS CallMethodHelper f
  
    {
      // Success checked later.

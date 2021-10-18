@@ -1,5 +1,5 @@
 # HG changeset patch
-# Parent  883d2c7fec80b9714ccfefa461a02f5b09e3ee09
+# Parent  9a81c514ee8e4c47359b9a44228ec6f2465b7104
 Problem description: Tab-titles that are too long to fit into a tab get faded out.
                      On big endian this is broken and instead of fading out, the
                      tab gets white and the font transparent, leading to an unreadable
@@ -13,7 +13,7 @@ Side-effects: I have not yet found an unwanted side-effect.
 diff --git a/gfx/2d/DrawTargetSkia.cpp b/gfx/2d/DrawTargetSkia.cpp
 --- a/gfx/2d/DrawTargetSkia.cpp
 +++ b/gfx/2d/DrawTargetSkia.cpp
-@@ -1856,16 +1856,24 @@ void DrawTargetSkia::PushLayerWithBlend(
+@@ -1929,16 +1929,24 @@ void DrawTargetSkia::PushLayerWithBlend(
    }
  
    SkCanvas::SaveLayerRec saveRec(

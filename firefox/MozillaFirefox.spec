@@ -28,8 +28,8 @@
 # major 69
 # mainver %major.99
 %define major          91
-%define mainver        %major.0.1
-%define orig_version   91.0.1
+%define mainver        %major.2.0
+%define orig_version   91.2.0
 %define orig_suffix    esr
 %define update_channel release
 %define branding       1
@@ -211,7 +211,6 @@ Patch3:         mozilla-ntlm-full-path.patch
 Patch4:         mozilla-aarch64-startup-crash.patch
 Patch6:         mozilla-sandbox-fips.patch
 Patch7:         mozilla-fix-aarch64-libopus.patch
-Patch8:         mozilla-disable-wasm-emulate-arm-unaligned-fp-access.patch
 Patch9:         mozilla-s390-context.patch
 Patch10:        mozilla-pgo.patch
 Patch11:        mozilla-reduce-rust-debuginfo.patch
@@ -230,9 +229,11 @@ Patch26:        mozilla-bmo1626236.patch
 Patch27:        mozilla-s390x-skia-gradient.patch
 Patch28:        mozilla-libavcodec58_91.patch
 Patch29:        mozilla-silence-no-return-type.patch
+Patch30:        mozilla-bmo1735309.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
+Patch103:       firefox-i586-conflict-typedef-error.patch
 %endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post): coreutils shared-mime-info desktop-file-utils
@@ -340,7 +341,6 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch4 -p1
 %patch6 -p1
 %patch7 -p1
-%patch8 -p1
 %patch9 -p1
 %patch10 -p1
 %patch11 -p1
@@ -359,9 +359,11 @@ cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %patch27 -p1
 %patch28 -p1
 %patch29 -p1
+%patch30 -p1
 # Firefox
 %patch101 -p1
 %patch102 -p1
+%patch103 -p1
 %endif
 
 %build

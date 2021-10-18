@@ -23,13 +23,6 @@ index 09f3e7292f..3581baf2aa 100644
  
  
  [patch.crates-io.cranelift-codegen]
-@@ -105,4 +106,4 @@ path = "third_party/rust/mio"
- 
- # Patch failure 0.1.8 to disable the backtrace feature by default. See bug 1608157.
- [patch.crates-io.failure]
--path = "third_party/rust/failure"
-\ No newline at end of file
-+path = "third_party/rust/failure"
 diff --git a/gfx/skia/skia/include/codec/SkEncodedOrigin.h b/gfx/skia/skia/include/codec/SkEncodedOrigin.h
 index 2eed1c6ac6..49d0309034 100644
 --- a/gfx/skia/skia/include/codec/SkEncodedOrigin.h

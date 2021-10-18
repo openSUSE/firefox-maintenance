@@ -1,0 +1,51 @@
+# HG changeset patch
+# Parent  46c6ca04c48b6ba86e0cf6e1cf2bab8014a29f1f
+This fixes a broken build on 32 bit i586.
+
+diff --git a/modules/fdlibm/src/e_rem_pio2.cpp b/modules/fdlibm/src/e_rem_pio2.cpp
+--- a/modules/fdlibm/src/e_rem_pio2.cpp
++++ b/modules/fdlibm/src/e_rem_pio2.cpp
+@@ -42,16 +42,20 @@ two24 =  1.67772160000000000000e+07, /* 
+ invpio2 =  6.36619772367581382433e-01, /* 0x3FE45F30, 0x6DC9C883 */
+ pio2_1  =  1.57079632673412561417e+00, /* 0x3FF921FB, 0x54400000 */
+ pio2_1t =  6.07710050650619224932e-11, /* 0x3DD0B461, 0x1A626331 */
+ pio2_2  =  6.07710050630396597660e-11, /* 0x3DD0B461, 0x1A600000 */
+ pio2_2t =  2.02226624879595063154e-21, /* 0x3BA3198A, 0x2E037073 */
+ pio2_3  =  2.02226624871116645580e-21, /* 0x3BA3198A, 0x2E000000 */
+ pio2_3t =  8.47842766036889956997e-32; /* 0x397B839A, 0x252049C1 */
+ 
++#if defined(i386) || defined(__i386__) || defined(__i386)
++typedef __double_t  double_t;
++#endif
++
+ #ifdef INLINE_REM_PIO2
+ static inline
+ #endif
+ int
+ __ieee754_rem_pio2(double x, double *y)
+ {
+ 	double z,w,t,r,fn;
+ 	double tx[3],ty[2];
+diff --git a/modules/fdlibm/src/math_private.h b/modules/fdlibm/src/math_private.h
+--- a/modules/fdlibm/src/math_private.h
++++ b/modules/fdlibm/src/math_private.h
+@@ -26,17 +26,19 @@
+ #include "mozilla/EndianUtils.h"
+ 
+ /*
+  * Emulate FreeBSD internal double types.
+  * Adapted from https://github.com/freebsd/freebsd-src/search?q=__double_t
+  */
+ 
+ typedef double      __double_t;
++#if !defined(i386) && !defined(__i386__) && !defined(__i386)
+ typedef __double_t  double_t;
++#endif
+ 
+ /*
+  * The original fdlibm code used statements like:
+  *	n0 = ((*(int*)&one)>>29)^1;		* index of high word *
+  *	ix0 = *(n0+(int*)&x);			* high word of x *
+  *	ix1 = *((1-n0)+(int*)&x);		* low word of x *
+  * to dig two 32 bit words out of the 64 bit IEEE floating point
+  * value.  That is non-ANSI, and, moreover, the gcc instruction
