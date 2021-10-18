@@ -26,8 +26,8 @@
 # major 69
 # mainver %major.99
 %define major          91
-%define mainver        %major.0.3
-%define orig_version   91.0.3
+%define mainver        %major.2.0
+%define orig_version   91.2.0
 %define orig_suffix    %{nil}
 %define update_channel release
 %define source_prefix  thunderbird-%{orig_version}
@@ -189,7 +189,6 @@ Patch3:         mozilla-ntlm-full-path.patch
 Patch4:         mozilla-aarch64-startup-crash.patch
 Patch6:         mozilla-sandbox-fips.patch
 Patch7:         mozilla-fix-aarch64-libopus.patch
-Patch8:         mozilla-disable-wasm-emulate-arm-unaligned-fp-access.patch
 Patch9:         mozilla-s390-context.patch
 Patch11:        mozilla-reduce-rust-debuginfo.patch
 Patch13:        mozilla-bmo1005535.patch
@@ -207,6 +206,8 @@ Patch26:        mozilla-bmo1626236.patch
 Patch27:        mozilla-s390x-skia-gradient.patch
 Patch28:        mozilla-libavcodec58_91.patch
 Patch29:        mozilla-silence-no-return-type.patch
+Patch30:        mozilla-bmo531915.patch
+Patch31:        mozilla-bmo1735309.patch
 %endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 PreReq:         /bin/sh
@@ -289,7 +290,6 @@ fi
 %patch4 -p1
 %patch6 -p1
 %patch7 -p1
-%patch8 -p1
 %patch9 -p1
 %patch11 -p1
 %patch13 -p1
@@ -307,6 +307,8 @@ fi
 %patch27 -p1
 %patch28 -p1
 %patch29 -p1
+%patch30 -p1
+%patch31 -p1
 %endif
 
 %build
