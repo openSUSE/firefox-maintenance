@@ -145,7 +145,6 @@ BuildRequires:  clang6-devel
 %else
 BuildRequires:  clang-devel >= 5
 %endif
-BuildRequires:  pkgconfig(gdk-x11-2.0)
 BuildRequires:  pkgconfig(glib-2.0) >= 2.22
 BuildRequires:  pkgconfig(gobject-2.0)
 BuildRequires:  pkgconfig(gtk+-3.0) >= 3.14.0
