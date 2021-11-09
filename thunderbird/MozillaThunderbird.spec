@@ -26,8 +26,8 @@
 # major 69
 # mainver %major.99
 %define major          91
-%define mainver        %major.2.0
-%define orig_version   91.2.0
+%define mainver        %major.3.0
+%define orig_version   91.3.0
 %define orig_suffix    %{nil}
 %define update_channel release
 %define source_prefix  thunderbird-%{orig_version}
@@ -134,7 +134,6 @@ BuildRequires:  clang6-devel
 %else
 BuildRequires:  clang-devel >= 5
 %endif
-BuildRequires:  pkgconfig(gdk-x11-2.0)
 BuildRequires:  pkgconfig(glib-2.0) >= 2.22
 BuildRequires:  pkgconfig(gobject-2.0)
 BuildRequires:  pkgconfig(gtk+-3.0) >= 3.14.0
@@ -207,7 +206,7 @@ Patch27:        mozilla-s390x-skia-gradient.patch
 Patch28:        mozilla-libavcodec58_91.patch
 Patch29:        mozilla-silence-no-return-type.patch
 Patch30:        mozilla-bmo531915.patch
-Patch31:        mozilla-bmo1735309.patch
+Patch31:        mozilla-bmo1724679.patch
 %endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 PreReq:         /bin/sh
@@ -390,7 +389,7 @@ echo "export MOZ_REQUIRE_SIGNING="
 echo ""
 cat << EOF
 %else
-%ifarch ppc64 ppc64le
+%ifarch aarch64 ppc64 ppc64le
 %limit_build -m 2500
 %else
 %limit_build -m 2000
