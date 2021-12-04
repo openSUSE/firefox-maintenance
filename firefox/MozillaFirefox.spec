@@ -29,8 +29,8 @@
 # major 69
 # mainver %major.99
 %define major          94
-%define mainver        %major.0
-%define orig_version   94.0
+%define mainver        %major.0.2
+%define orig_version   94.0.2
 %define orig_suffix    %{nil}
 %define update_channel release
 %define branding       1
@@ -113,7 +113,6 @@ BuildRequires:  ccache
 %endif
 BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
-BuildRequires:  libidl-devel
 BuildRequires:  libiw-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
