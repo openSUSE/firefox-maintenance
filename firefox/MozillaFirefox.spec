@@ -28,8 +28,8 @@
 # major 69
 # mainver %major.99
 %define major          91
-%define mainver        %major.3.0
-%define orig_version   91.3.0
+%define mainver        %major.4.1
+%define orig_version   91.4.1
 %define orig_suffix    esr
 %define update_channel release
 %define branding       1
@@ -122,7 +122,7 @@ BuildRequires:  libiw-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.32
-BuildRequires:  mozilla-nss-devel >= 3.68
+BuildRequires:  mozilla-nss-devel >= 3.68.2
 BuildRequires:  nasm >= 2.14
 BuildRequires:  nodejs10 >= 10.22.1
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
