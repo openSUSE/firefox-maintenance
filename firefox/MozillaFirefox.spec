@@ -28,9 +28,9 @@
 # orig_suffix b3
 # major 69
 # mainver %major.99
-%define major          94
+%define major          95
 %define mainver        %major.0.2
-%define orig_version   94.0.2
+%define orig_version   95.0.2
 %define orig_suffix    %{nil}
 %define update_channel release
 %define branding       1
@@ -492,6 +492,8 @@ ac_add_options --with-mozilla-api-keyfile=%{SOURCE18}
 ac_add_options --with-google-safebrowsing-api-keyfile=%{SOURCE19}
 ac_add_options --with-unsigned-addon-scopes=app
 ac_add_options --allow-addon-sideload
+# at least temporary until the "wasi-sysroot" issue is solved
+ac_add_options --without-wasm-sandboxed-libraries
 %if %branding
 ac_add_options --enable-official-branding
 %endif
@@ -548,6 +550,7 @@ mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../obj_LANG
 ac_add_options --prefix=%{_prefix}
 ac_add_options --with-l10n-base=$RPM_BUILD_DIR/l10n
 ac_add_options --disable-updater
+ac_add_options --without-wasm-sandboxed-libraries
 %if %branding
 ac_add_options --enable-official-branding
 %endif
