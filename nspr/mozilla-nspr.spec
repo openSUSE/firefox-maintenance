@@ -16,11 +16,11 @@
 # Please submit bugfixes or comments via https://bugs.opensuse.org/
 #
 
-# define if ccache should be used or not
+
 %define useccache     1
 
 Name:           mozilla-nspr
-Version:        4.32
+Version:        4.33
 Release:        0
 Summary:        Netscape Portable Runtime
 License:        MPL-2.0
