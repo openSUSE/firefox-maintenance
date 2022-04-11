@@ -28,8 +28,8 @@
 # major 69
 # mainver %major.99
 %define major          91
-%define mainver        %major.7.1
-%define orig_version   91.7.1
+%define mainver        %major.8.0
+%define orig_version   91.8.0
 %define orig_suffix    esr
 %define update_channel release
 %define branding       1
@@ -103,7 +103,7 @@ BuildRequires:  gcc9-c++
 BuildRequires:  gcc-c++
 %endif
 %if 0%{?suse_version} < 1550 && 0%{?sle_version} < 150300
-# Greater than 1.43 breaks esr78. This is the old requires syntax
+# Greater than 1.53 breaks esr91. This is the old requires syntax
 # for single-version rust.
 BuildRequires:  cargo >= 1.53
 BuildRequires:  cargo < 1.54
@@ -113,8 +113,8 @@ BuildRequires:  rust < 1.54
 # Newer sle/leap/tw use parallel versioned rust releases which have
 # a different method for provides that we can use to request a
 # specific version
-BuildRequires:   rust+cargo >= 1.53
-BuildRequires:   rust+cargo < 1.54
+BuildRequires:   rust1.53
+BuildRequires:   cargo1.53
 %endif
 %if 0%{useccache} != 0
 BuildRequires:  ccache
@@ -197,7 +197,7 @@ Source9:        firefox.js
 Source11:       firefox.1
 Source12:       mozilla-get-app-id
 Source13:       spellcheck.js
-Source14:       https://github.com/openSUSE/firefox-scripts/raw/4503820/create-tar.sh
+Source14:       https://github.com/openSUSE/firefox-scripts/raw/e5addd5/create-tar.sh
 Source15:       firefox-appdata.xml
 Source16:       %{name}.changes
 Source17:       firefox-search-provider.ini
