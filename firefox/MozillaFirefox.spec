@@ -28,9 +28,9 @@
 # orig_suffix b3
 # major 69
 # mainver %major.99
-%define major          97
+%define major          99
 %define mainver        %major.0.1
-%define orig_version   97.0.1
+%define orig_version   99.0.1
 %define orig_suffix    %{nil}
 %define update_channel release
 %define branding       1
@@ -114,7 +114,7 @@ BuildRequires:  libiw-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.33
-BuildRequires:  mozilla-nss-devel >= 3.74
+BuildRequires:  mozilla-nss-devel >= 3.76.1
 BuildRequires:  nasm >= 2.14
 BuildRequires:  nodejs >= 10.22.1
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
@@ -684,12 +684,6 @@ FIN
 # fdupes
 %fdupes %{buildroot}%{progdir}
 %fdupes %{buildroot}%{_datadir}
-
-%clean
-rm -rf %{buildroot}
-%if %localize
-rm -rf %{_tmppath}/translations.*
-%endif
 
 %post
 # update mime and desktop database
