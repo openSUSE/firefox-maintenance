@@ -29,9 +29,9 @@
 # major 69
 # mainver %major.99
 %define major          101
-%define mainver        %major.0.1
-%define orig_version   101.0.1
-%define orig_suffix    %{nil}
+%define mainver        %major.99
+%define orig_version   102.0
+%define orig_suffix    b6
 %define update_channel release
 %define branding       1
 %define devpkg         1
