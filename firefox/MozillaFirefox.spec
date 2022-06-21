@@ -178,7 +178,9 @@ Source1:        MozillaFirefox.desktop
 Source2:        MozillaFirefox-rpmlintrc
 Source3:        mozilla.sh.in
 Source4:        tar_stamps
+%if %{localize}
 Source7:        l10n-%{orig_version}%{orig_suffix}.tar.xz
+%endif
 Source8:        firefox-mimeinfo.xml
 Source9:        firefox.js
 Source11:       firefox.1
@@ -353,10 +355,14 @@ if test "$kdehelperversion" != %{kde_helper_version}; then
   echo fix kde helper version in the .spec file
   exit 1
 fi
-
-source %{SOURCE4}
+# When doing only_print_mozconfig, this file isn't necessarily available, so skip it
+cp %{SOURCE4} .obsenv.sh
+%else
+# We need to make sure its empty
+echo "" > .obsenv.sh
 %endif
 
+cat >> .obsenv.sh <<EOF
 export CARGO_HOME=${RPM_BUILD_DIR}/%{srcname}-%{orig_version}/.cargo
 export MOZ_SOURCE_CHANGESET=$RELEASE_TAG
 export SOURCE_REPO=$RELEASE_REPO
@@ -392,27 +398,12 @@ export CFLAGS="$CFLAGS -mminimal-toc"
 %endif
 export CXXFLAGS="$CFLAGS"
 export MOZCONFIG=$RPM_BUILD_DIR/mozconfig
-%if %{with only_print_mozconfig}
-echo "export CC=$CC"
-echo "export CXX=$CXX"
-echo "export CFLAGS=\"$CFLAGS\""
-echo "export CXXFLAGS=\"$CXXFLAGS\""
-echo "export LDFLAGS=\"$LDFLAGS\""
-echo "export RUSTFLAGS=\"$RUSTFLAGS\""
-echo "export CARGO_HOME=\"$CARGO_HOME\""
-echo "export PATH=\"$PATH\""
-echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH\""
-echo "export PKG_CONFIG_PATH=\"$PKG_CONFIG_PATH\""
-echo "export MOZCONFIG=\"$MOZCONFIG\""
-echo "export MOZILLA_OFFICIAL=1"
-echo "export BUILD_OFFICIAL=1"
-echo "export MOZ_TELEMETRY_REPORTING=1"
-echo ""
-cat << EOF
-%else
-%limit_build -m 2560
+EOF
+# Done with env-variables.
+source ./.obsenv.sh
+
+# Generating mozconfig
 cat << EOF > $MOZCONFIG
-%endif
 mk_add_options MOZILLA_OFFICIAL=1
 mk_add_options BUILD_OFFICIAL=1
 mk_add_options MOZ_MAKE_FLAGS=%{?jobs:-j%jobs}
@@ -498,7 +489,15 @@ ac_add_options MOZ_PGO=1
 %endif
 %endif
 EOF
-%if !%{with only_print_mozconfig}
+
+%if %{with only_print_mozconfig}
+cat ./.obsenv.sh
+cat $MOZCONFIG
+%else
+%ifarch aarch64 %arm ppc64 ppc64le
+%limit_build -m 2000
+%endif
+
 %if 0%{useccache} != 0
 ccache -s
 %endif
