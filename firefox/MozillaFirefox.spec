@@ -213,18 +213,17 @@ Patch8:         mozilla-reduce-rust-debuginfo.patch
 Patch9:         mozilla-bmo1005535.patch
 Patch10:        mozilla-bmo1568145.patch
 Patch11:        mozilla-bmo1504834-part1.patch
-Patch12:        mozilla-bmo1504834-part2.patch
 Patch13:        mozilla-bmo1504834-part3.patch
 Patch14:        mozilla-bmo1512162.patch
 Patch15:        mozilla-fix-top-level-asm.patch
-Patch16:        mozilla-bmo1504834-part4.patch
 Patch17:        mozilla-bmo849632.patch
 Patch18:        mozilla-bmo998749.patch
-Patch19:        mozilla-bmo1626236.patch
 Patch20:        mozilla-s390x-skia-gradient.patch
 Patch21:        mozilla-libavcodec58_91.patch
 Patch22:        mozilla-silence-no-return-type.patch
 Patch23:        mozilla-bmo531915.patch
+Patch25:        one_swizzle_to_rule_them_all.patch
+Patch26:        svg-rendering.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -345,12 +344,6 @@ find . -regex ".*\.c\|.*\.cpp\|.*\.h" -exec sed -i "s/__DATE__/${DATE}/g;s/__TIM
 sed -i "s/python3/python36/g" configure.in
 sed -i "s/python3/python36/g" mach
 export PYTHON3=/usr/bin/python36
-%endif
-
-# Webrender does not support big endian yet, so we are forcing it off
-# see: https://bugzilla.mozilla.org/show_bug.cgi?id=1716707
-%ifarch s390x ppc64
-echo 'pref("gfx.webrender.force-disabled", true);' >> %{SOURCE9}
 %endif
 
 #
