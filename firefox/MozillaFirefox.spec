@@ -31,7 +31,7 @@
 %define major          101
 %define mainver        %major.99
 %define orig_version   102.0
-%define orig_suffix    b6
+%define orig_suffix    %{nil}
 %define update_channel release
 %define branding       1
 %define devpkg         1
@@ -91,19 +91,23 @@ BuildRequires:  dbus-1-glib-devel
 BuildRequires:  dejavu-fonts
 BuildRequires:  fdupes
 BuildRequires:  memory-constraints
-%if 0%{?suse_version} <= 1320
-BuildRequires:  gcc9-c++
+%if 0%{?sle_version} <= 150300
+BuildRequires:  gcc11-c++
 %else
 BuildRequires:  gcc-c++
 %endif
 %if 0%{?suse_version} < 1550 && 0%{?sle_version} < 150300
-BuildRequires:  cargo >= 1.57
-BuildRequires:  rust >= 1.57
+BuildRequires:  cargo >= 1.59
+BuildRequires:  rust >= 1.59
 %else
 # Newer sle/leap/tw use parallel versioned rust releases which have
 # a different method for provides that we can use to request a
 # specific version
+# minimal requirement:
 BuildRequires:  rust+cargo >= 1.59
+# actually used upstream:
+BuildRequires:  cargo1.60
+BuildRequires:  rust1.60
 %endif
 %if 0%{useccache} != 0
 BuildRequires:  ccache
@@ -113,8 +117,8 @@ BuildRequires:  libcurl-devel
 BuildRequires:  libiw-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
-BuildRequires:  mozilla-nspr-devel >= 4.33
-BuildRequires:  mozilla-nss-devel >= 3.78.1
+BuildRequires:  mozilla-nspr-devel >= 4.34
+BuildRequires:  mozilla-nss-devel >= 3.79
 BuildRequires:  nasm >= 2.14
 BuildRequires:  nodejs >= 10.22.1
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
@@ -367,8 +371,8 @@ export MOZILLA_OFFICIAL=1
 export BUILD_OFFICIAL=1
 export MOZ_TELEMETRY_REPORTING=1
 export MACH_USE_SYSTEM_PYTHON=1
-%if 0%{?suse_version} <= 1320
-export CC=gcc-9
+%if 0%{?sle_version} <= 150300
+export CC=gcc-11
 %else
 %if 0%{?clang_build} == 0
 export CC=gcc
