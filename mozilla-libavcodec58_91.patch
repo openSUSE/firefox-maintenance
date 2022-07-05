@@ -1,25 +1,16 @@
 # HG changeset patch
-# Parent  63747fd31719c6e4f7810512a3c57e75a02b8bfd
+# Parent  3802b7b2b99885f3ad4d2ec3e2c157e38d04a168
 
-diff --git a/dom/media/platforms/ffmpeg/FFmpegRuntimeLinker.cpp b/dom/media/platforms/ffmpeg/FFmpegRuntimeLinker.cpp
---- a/dom/media/platforms/ffmpeg/FFmpegRuntimeLinker.cpp
-+++ b/dom/media/platforms/ffmpeg/FFmpegRuntimeLinker.cpp
-@@ -34,16 +34,18 @@ static const char* sLibs[] = {
-   "libavcodec.55.dylib",
-   "libavcodec.54.dylib",
-   "libavcodec.53.dylib",
- #elif defined(XP_OPENBSD)
-   "libavcodec.so", // OpenBSD hardly controls the major/minor library version
-                    // of ffmpeg and update it regulary on ABI/API changes
+Index: firefox-102.0/dom/media/platforms/ffmpeg/FFmpegRuntimeLinker.cpp
+===================================================================
+--- firefox-102.0.orig/dom/media/platforms/ffmpeg/FFmpegRuntimeLinker.cpp
++++ firefox-102.0/dom/media/platforms/ffmpeg/FFmpegRuntimeLinker.cpp
+@@ -40,6 +40,8 @@ static const char* sLibs[] = {
  #else
    "libavcodec.so.59",
+   "libavcodec.so.58",
 +  "libavcodec.so.58.134",
 +  "libavcodec.so.58.91",
-   "libavcodec.so.58",
    "libavcodec-ffmpeg.so.58",
    "libavcodec-ffmpeg.so.57",
    "libavcodec-ffmpeg.so.56",
-   "libavcodec.so.57",
-   "libavcodec.so.56",
-   "libavcodec.so.55",
-   "libavcodec.so.54",
