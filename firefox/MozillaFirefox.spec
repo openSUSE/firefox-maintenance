@@ -28,8 +28,8 @@
 # orig_suffix b3
 # major 69
 # mainver %major.99
-%define major          101
-%define mainver        %major.99
+%define major          102
+%define mainver        %major.0
 %define orig_version   102.0
 %define orig_suffix    %{nil}
 %define update_channel release
