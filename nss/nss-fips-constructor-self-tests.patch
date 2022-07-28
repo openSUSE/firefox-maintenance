@@ -784,7 +784,7 @@ Index: nss/lib/freebl/loader.c
 +BL_FIPSRepeatIntegrityCheck(void)
 +{
 +    if (!vector && PR_SUCCESS != freebl_RunLoaderOnce())
-+        return SECFailure;
++        return;
 +    (vector->p_BL_FIPSRepeatIntegrityCheck)();
 +}
 +

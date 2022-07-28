@@ -477,7 +477,7 @@ Index: nss/lib/softoken/fips_algorithms.h
      /* -------------- RSA Multipart Signing Operations -------------------- */
      { CKM_SHA224_RSA_PKCS, { RSA_FB_KEY, CKF_SGN }, RSA_FB_STEP, SFTKFIPSNone },
      { CKM_SHA256_RSA_PKCS, { RSA_FB_KEY, CKF_SGN }, RSA_FB_STEP, SFTKFIPSNone },
-@@ -76,9 +79,18 @@ SFTKFIPSAlgorithmList sftk_fips_mechs[]
+@@ -76,13 +79,18 @@ SFTKFIPSAlgorithmList sftk_fips_mechs[]
      { CKM_SHA384_RSA_PKCS_PSS, { RSA_FB_KEY, CKF_SGN }, RSA_FB_STEP, SFTKFIPSNone },
      { CKM_SHA512_RSA_PKCS_PSS, { RSA_FB_KEY, CKF_SGN }, RSA_FB_STEP, SFTKFIPSNone },
      /* ------------------------- DSA Operations --------------------------- */
@@ -492,12 +492,16 @@ Index: nss/lib/softoken/fips_algorithms.h
 +
 +#if 0
      { CKM_DSA_PARAMETER_GEN, { DSA_FB_KEY, CKF_KPG }, DSA_FB_STEP, SFTKFIPSNone },
+-    { CKM_DSA_SHA224, { DSA_FB_KEY, CKF_SGN }, DSA_FB_STEP, SFTKFIPSNone },
+-    { CKM_DSA_SHA256, { DSA_FB_KEY, CKF_SGN }, DSA_FB_STEP, SFTKFIPSNone },
+-    { CKM_DSA_SHA384, { DSA_FB_KEY, CKF_SGN }, DSA_FB_STEP, SFTKFIPSNone },
+-    { CKM_DSA_SHA512, { DSA_FB_KEY, CKF_SGN }, DSA_FB_STEP, SFTKFIPSNone },
 +#endif
 +
-     { CKM_DSA_SHA224, { DSA_FB_KEY, CKF_SGN }, DSA_FB_STEP, SFTKFIPSNone },
-     { CKM_DSA_SHA256, { DSA_FB_KEY, CKF_SGN }, DSA_FB_STEP, SFTKFIPSNone },
-     { CKM_DSA_SHA384, { DSA_FB_KEY, CKF_SGN }, DSA_FB_STEP, SFTKFIPSNone },
-@@ -90,7 +102,10 @@ SFTKFIPSAlgorithmList sftk_fips_mechs[]
+     /* -------------------- Diffie Hellman Operations --------------------- */
+     /* no diffie hellman yet */
+     { CKM_DH_PKCS_KEY_PAIR_GEN, { DH_FB_KEY, CKF_KPG }, DH_FB_STEP, SFTKFIPSDH },
+@@ -90,7 +98,10 @@ SFTKFIPSAlgorithmList sftk_fips_mechs[]
      /* -------------------- Elliptic Curve Operations --------------------- */
      { CKM_EC_KEY_PAIR_GEN, { EC_FB_KEY, CKF_KPG }, EC_FB_STEP, SFTKFIPSECC },
      { CKM_ECDH1_DERIVE, { EC_FB_KEY, CKF_KEA }, EC_FB_STEP, SFTKFIPSECC },
@@ -508,7 +512,7 @@ Index: nss/lib/softoken/fips_algorithms.h
      { CKM_ECDSA_SHA224, { EC_FB_KEY, CKF_SGN }, EC_FB_STEP, SFTKFIPSECC },
      { CKM_ECDSA_SHA256, { EC_FB_KEY, CKF_SGN }, EC_FB_STEP, SFTKFIPSECC },
      { CKM_ECDSA_SHA384, { EC_FB_KEY, CKF_SGN }, EC_FB_STEP, SFTKFIPSECC },
-@@ -100,8 +115,11 @@ SFTKFIPSAlgorithmList sftk_fips_mechs[]
+@@ -100,8 +111,11 @@ SFTKFIPSAlgorithmList sftk_fips_mechs[]
      { CKM_AES_KEY_GEN, { AES_FB_KEY, CKF_GEN }, AES_FB_STEP, SFTKFIPSNone },
      { CKM_AES_ECB, { AES_FB_KEY, CKF_ENC }, AES_FB_STEP, SFTKFIPSNone },
      { CKM_AES_CBC, { AES_FB_KEY, CKF_ENC }, AES_FB_STEP, SFTKFIPSNone },
@@ -520,7 +524,7 @@ Index: nss/lib/softoken/fips_algorithms.h
      { CKM_AES_CMAC, { AES_FB_KEY, CKF_SGN }, AES_FB_STEP, SFTKFIPSNone },
      { CKM_AES_CMAC_GENERAL, { AES_FB_KEY, CKF_SGN }, AES_FB_STEP, SFTKFIPSNone },
      { CKM_AES_CBC_PAD, { AES_FB_KEY, CKF_ENC }, AES_FB_STEP, SFTKFIPSNone },
-@@ -111,8 +129,11 @@ SFTKFIPSAlgorithmList sftk_fips_mechs[]
+@@ -111,8 +125,11 @@ SFTKFIPSAlgorithmList sftk_fips_mechs[]
      { CKM_AES_KEY_WRAP, { AES_FB_KEY, CKF_ENC }, AES_FB_STEP, SFTKFIPSNone },
      { CKM_AES_KEY_WRAP_PAD, { AES_FB_KEY, CKF_ENC }, AES_FB_STEP, SFTKFIPSNone },
      { CKM_AES_KEY_WRAP_KWP, { AES_FB_KEY, CKF_ENC }, AES_FB_STEP, SFTKFIPSNone },
@@ -532,7 +536,7 @@ Index: nss/lib/softoken/fips_algorithms.h
      /* ------------------------- Hashing Operations ----------------------- */
      { CKM_SHA224, { 0, 0, CKF_HSH }, 1, SFTKFIPSNone },
      { CKM_SHA224_HMAC, { 112, 224, CKF_SGN }, 1, SFTKFIPSNone },
-@@ -127,41 +148,44 @@ SFTKFIPSAlgorithmList sftk_fips_mechs[]
+@@ -127,41 +144,44 @@ SFTKFIPSAlgorithmList sftk_fips_mechs[]
      { CKM_SHA512_HMAC, { 256, 512, CKF_SGN }, 1, SFTKFIPSNone },
      { CKM_SHA512_HMAC_GENERAL, { 256, 512, CKF_SGN }, 1, SFTKFIPSNone },
      /* --------------------- Secret Key Operations ------------------------ */
