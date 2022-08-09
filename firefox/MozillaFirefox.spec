@@ -28,9 +28,9 @@
 # orig_suffix b3
 # major 69
 # mainver %major.99
-%define major          102
+%define major          103
 %define mainver        %major.0.1
-%define orig_version   102.0.1
+%define orig_version   103.0.1
 %define orig_suffix    %{nil}
 %define update_channel release
 %define branding       1
@@ -91,7 +91,7 @@ BuildRequires:  dbus-1-glib-devel
 BuildRequires:  dejavu-fonts
 BuildRequires:  fdupes
 BuildRequires:  memory-constraints
-%if 0%{?sle_version} <= 150300
+%if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150400
 BuildRequires:  gcc11-c++
 %else
 BuildRequires:  gcc-c++
@@ -106,8 +106,8 @@ BuildRequires:  rust >= 1.59
 # minimal requirement:
 BuildRequires:  rust+cargo >= 1.59
 # actually used upstream:
-BuildRequires:  cargo1.60
-BuildRequires:  rust1.60
+BuildRequires:  cargo1.61
+BuildRequires:  rust1.61
 %endif
 %if 0%{useccache} != 0
 BuildRequires:  ccache
@@ -118,7 +118,7 @@ BuildRequires:  libiw-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.34
-BuildRequires:  mozilla-nss-devel >= 3.79
+BuildRequires:  mozilla-nss-devel >= 3.80
 BuildRequires:  nasm >= 2.14
 BuildRequires:  nodejs >= 10.22.1
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
@@ -128,7 +128,7 @@ BuildRequires:  python36
 BuildRequires:  python3 >= 3.5
 BuildRequires:  python3-devel
 %endif
-BuildRequires:  rust-cbindgen >= 0.23.0
+BuildRequires:  rust-cbindgen >= 0.24.3
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
 BuildRequires:  xorg-x11-libXt-devel
@@ -370,7 +370,7 @@ export MOZILLA_OFFICIAL=1
 export BUILD_OFFICIAL=1
 export MOZ_TELEMETRY_REPORTING=1
 export MACH_USE_SYSTEM_PYTHON=1
-%if 0%{?sle_version} <= 150300
+%if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150400
 export CC=gcc-11
 %else
 %if 0%{?clang_build} == 0
@@ -399,6 +399,10 @@ EOF
 # Done with env-variables.
 source ./.obsenv.sh
 
+%ifarch aarch64 %arm ppc64 ppc64le
+%limit_build -m 2000
+%endif
+
 # Generating mozconfig
 cat << EOF > $MOZCONFIG
 mk_add_options MOZILLA_OFFICIAL=1
@@ -425,7 +429,7 @@ ac_add_options --enable-debug-symbols=-g1
 ac_add_options --disable-install-strip
 # building with elf-hack started to fail everywhere with FF73
 #%if 0%{?suse_version} > 1549
-%ifnarch aarch64 ppc64 ppc64le s390x
+%ifarch %arm %ix86 x86_64
 ac_add_options --disable-elf-hack
 %endif
 #%endif
@@ -491,9 +495,6 @@ EOF
 cat ./.obsenv.sh
 cat $MOZCONFIG
 %else
-%ifarch aarch64 %arm ppc64 ppc64le
-%limit_build -m 2000
-%endif
 
 %if 0%{useccache} != 0
 ccache -s
