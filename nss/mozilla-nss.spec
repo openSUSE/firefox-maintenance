@@ -17,14 +17,14 @@
 #
 
 
-%global nss_softokn_fips_version 3.79
+%global nss_softokn_fips_version 3.80
 %define NSPR_min_version 4.34
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 %define nssdbdir %{_sysconfdir}/pki/nssdb
 Name:           mozilla-nss
-Version:        3.79
+Version:        3.80
 Release:        0
-%define underscore_version 3_79
+%define underscore_version 3_80
 Summary:        Network Security Services
 License:        MPL-2.0
 Group:          System/Libraries
@@ -65,6 +65,7 @@ Patch19:        nss-fips-cavs-dsa-fixes.patch
 Patch20:        nss-fips-cavs-rsa-fixes.patch
 Patch21:        nss-fips-approved-crypto-non-ec.patch
 Patch22:        nss-fips-zeroization.patch
+Patch23:        nss-fips-tls-allow-md5-prf.patch
 Patch24:        nss-fips-use-strong-random-pool.patch
 Patch25:        nss-fips-detect-fips-mode-fixes.patch
 Patch26:        nss-fips-combined-hash-sign-dsa-ecdsa.patch
@@ -73,6 +74,7 @@ Patch37:        nss-fips-fix-missing-nspr.patch
 Patch38:        nss-fips-stricter-dh.patch
 Patch40:        nss-fips-180-3-csp-clearing.patch
 Patch41:        nss-fips-pbkdf-kat-compliance.patch
+Patch42:        nss-fips-tests-skip.patch
 Patch44:        nss-fips-tests-enable-fips.patch
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 # aarch64 + gcc4.8 fails to build on SLE-12 due to undefined references
@@ -223,6 +225,7 @@ cd nss
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
+%patch23 -p1
 %patch24 -p1
 %patch25 -p1
 %patch26 -p1
@@ -231,6 +234,7 @@ cd nss
 %patch38 -p1
 %patch40 -p1
 %patch41 -p1
+%patch42 -p1
 %patch44 -p1
 
 # additional CA certificates
