@@ -747,46 +747,27 @@ new file mode 100644
 +
 +#endif // nsKDEUtils
 diff --git a/uriloader/exthandler/HandlerServiceParent.cpp b/uriloader/exthandler/HandlerServiceParent.cpp
+index 6eefb48..08dfb1e 100644
 --- a/uriloader/exthandler/HandlerServiceParent.cpp
 +++ b/uriloader/exthandler/HandlerServiceParent.cpp
-@@ -7,17 +7,17 @@
- #include "mozilla/ipc/ProtocolUtils.h"
- #include "mozilla/Logging.h"
- #include "HandlerServiceParent.h"
- #include "nsIHandlerService.h"
- #include "nsIMIMEInfo.h"
+@@ -12,7 +12,7 @@
  #include "ContentHandlerService.h"
  #include "nsStringEnumerator.h"
  #ifdef MOZ_WIDGET_GTK
 -#  include "unix/nsGNOMERegistry.h"
 +#  include "unix/nsCommonRegistry.h"
  #endif
- 
+
  using mozilla::dom::ContentHandlerService;
- using mozilla::dom::HandlerApp;
- using mozilla::dom::HandlerInfo;
- using mozilla::dom::RemoteHandlerApp;
- 
- namespace {
-@@ -299,17 +299,17 @@ mozilla::ipc::IPCResult HandlerServicePa
- mozilla::ipc::IPCResult HandlerServiceParent::RecvExistsForProtocolOS(
-     const nsCString& aProtocolScheme, bool* aHandlerExists) {
-   if (aProtocolScheme.Length() > MAX_SCHEME_LENGTH) {
-     *aHandlerExists = false;
-     return IPC_OK();
-   }
+@@ -305,7 +305,7 @@ mozilla::ipc::IPCResult HandlerServiceParent::RecvExistsForProtocolOS(
  #ifdef MOZ_WIDGET_GTK
    // Check the GNOME registry for a protocol handler
--  *aHandlerExists = nsGNOMERegistry::HandlerExists(aProtocolScheme.get());
-+  *aHandlerExists = nsCommonRegistry::HandlerExists(aProtocolScheme.get());
+   *aHandlerExists =
+-      nsGNOMERegistry::HandlerExists(PromiseFlatCString(aProtocolScheme).get());
++      nsCommonRegistry::HandlerExists(PromiseFlatCString(aProtocolScheme).get());
  #else
    *aHandlerExists = false;
  #endif
-   return IPC_OK();
- }
- 
- /*
-  * Check if a handler exists for the provided protocol. Check the datastore
 diff --git a/uriloader/exthandler/moz.build b/uriloader/exthandler/moz.build
 --- a/uriloader/exthandler/moz.build
 +++ b/uriloader/exthandler/moz.build
@@ -1145,14 +1126,10 @@ diff --git a/uriloader/exthandler/unix/nsMIMEInfoUnix.cpp b/uriloader/exthandler
    nsresult rv;
    nsCOMPtr<nsIIOService> ioservice =
 diff --git a/uriloader/exthandler/unix/nsOSHelperAppService.cpp b/uriloader/exthandler/unix/nsOSHelperAppService.cpp
+index 8b5820b..256f947 100644
 --- a/uriloader/exthandler/unix/nsOSHelperAppService.cpp
 +++ b/uriloader/exthandler/unix/nsOSHelperAppService.cpp
-@@ -5,17 +5,17 @@
-  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
- 
- #include <sys/types.h>
- #include <sys/stat.h>
- 
+@@ -10,7 +10,7 @@
  #include "nsOSHelperAppService.h"
  #include "nsMIMEInfoUnix.h"
  #ifdef MOZ_WIDGET_GTK
@@ -1161,17 +1138,7 @@ diff --git a/uriloader/exthandler/unix/nsOSHelperAppService.cpp b/uriloader/exth
  #  ifdef MOZ_BUILD_APP_IS_BROWSER
  #    include "nsIToolkitShellService.h"
  #    include "nsIGNOMEShellService.h"
- #  endif
- #endif
- #include "nsISupports.h"
- #include "nsString.h"
- #include "nsReadableUtils.h"
-@@ -1025,17 +1025,17 @@ nsresult nsOSHelperAppService::GetHandle
- 
- nsresult nsOSHelperAppService::OSProtocolHandlerExists(
-     const char* aProtocolScheme, bool* aHandlerExists) {
-   nsresult rv = NS_OK;
- 
+@@ -1107,7 +1107,7 @@ nsresult nsOSHelperAppService::OSProtocolHandlerExists(
    if (!XRE_IsContentProcess()) {
  #ifdef MOZ_WIDGET_GTK
      // Check the GNOME registry for a protocol handler
@@ -1180,17 +1147,7 @@ diff --git a/uriloader/exthandler/unix/nsOSHelperAppService.cpp b/uriloader/exth
  #else
      *aHandlerExists = false;
  #endif
-   } else {
-     *aHandlerExists = false;
-     nsCOMPtr<nsIHandlerService> handlerSvc =
-         do_GetService(NS_HANDLERSERVICE_CONTRACTID, &rv);
-     if (NS_SUCCEEDED(rv) && handlerSvc) {
-@@ -1045,17 +1045,17 @@ nsresult nsOSHelperAppService::OSProtoco
-   }
- 
-   return rv;
- }
- 
+@@ -1127,7 +1127,7 @@ nsresult nsOSHelperAppService::OSProtocolHandlerExists(
  NS_IMETHODIMP nsOSHelperAppService::GetApplicationDescription(
      const nsACString& aScheme, nsAString& _retval) {
  #ifdef MOZ_WIDGET_GTK
@@ -1199,49 +1156,24 @@ diff --git a/uriloader/exthandler/unix/nsOSHelperAppService.cpp b/uriloader/exth
    return _retval.IsEmpty() ? NS_ERROR_NOT_AVAILABLE : NS_OK;
  #else
    return NS_ERROR_NOT_AVAILABLE;
- #endif
- }
- 
- NS_IMETHODIMP nsOSHelperAppService::IsCurrentAppOSDefaultForProtocol(
-     const nsACString& aScheme, bool* _retval) {
-@@ -1148,17 +1148,17 @@ already_AddRefed<nsMIMEInfoBase> nsOSHel
-   nsresult rv =
-       LookUpTypeAndDescription(NS_ConvertUTF8toUTF16(aFileExt), majorType,
-                                minorType, mime_types_description, true);
- 
-   if (NS_FAILED(rv) || majorType.IsEmpty()) {
+@@ -1232,7 +1232,7 @@ already_AddRefed<nsMIMEInfoBase> nsOSHelperAppService::GetFromExtension(
  #ifdef MOZ_WIDGET_GTK
-     LOG(("Looking in GNOME registry\n"));
+     LOG("Looking in GNOME registry\n");
      RefPtr<nsMIMEInfoBase> gnomeInfo =
 -        nsGNOMERegistry::GetFromExtension(aFileExt);
 +        nsCommonRegistry::GetFromExtension(aFileExt);
      if (gnomeInfo) {
-       LOG(("Got MIMEInfo from GNOME registry\n"));
+       LOG("Got MIMEInfo from GNOME registry\n");
        return gnomeInfo.forget();
-     }
- #endif
- 
-     rv = LookUpTypeAndDescription(NS_ConvertUTF8toUTF16(aFileExt), majorType,
-                                   minorType, mime_types_description, false);
-@@ -1261,17 +1261,17 @@ already_AddRefed<nsMIMEInfoBase> nsOSHel
- 
-   // Now look up our extensions
-   nsAutoString extensions, mime_types_description;
-   LookUpExtensionsAndDescription(majorType, minorType, extensions,
-                                  mime_types_description);
- 
+@@ -1347,7 +1347,7 @@ already_AddRefed<nsMIMEInfoBase> nsOSHelperAppService::GetFromType(
+
  #ifdef MOZ_WIDGET_GTK
    if (handler.IsEmpty()) {
 -    RefPtr<nsMIMEInfoBase> gnomeInfo = nsGNOMERegistry::GetFromType(aMIMEType);
 +    RefPtr<nsMIMEInfoBase> gnomeInfo = nsCommonRegistry::GetFromType(aMIMEType);
      if (gnomeInfo) {
-       LOG(
-           ("Got MIMEInfo from GNOME registry without extensions; setting them "
-            "to %s\n",
-            NS_LossyConvertUTF16toASCII(extensions).get()));
- 
-       NS_ASSERTION(!gnomeInfo->HasExtensions(), "How'd that happen?");
-       gnomeInfo->SetFileExtensions(NS_ConvertUTF16toUTF8(extensions));
+       LOG("Got MIMEInfo from GNOME registry without extensions; setting them "
+           "to %s\n",
 diff --git a/widget/gtk/moz.build b/widget/gtk/moz.build
 --- a/widget/gtk/moz.build
 +++ b/widget/gtk/moz.build
