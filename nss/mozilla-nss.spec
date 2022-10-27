@@ -74,6 +74,8 @@ Patch38:        nss-fips-stricter-dh.patch
 Patch40:        nss-fips-180-3-csp-clearing.patch
 Patch41:        nss-fips-pbkdf-kat-compliance.patch
 Patch44:        nss-fips-tests-enable-fips.patch
+Patch45:        nss-fips-drbg-libjitter.patch
+Patch46:        nss-allow-slow-tests.patch
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 # aarch64 + gcc4.8 fails to build on SLE-12 due to undefined references
 BuildRequires:  gcc9-c++
@@ -84,6 +86,8 @@ BuildRequires:  pkgconfig
 BuildRequires:  pkgconfig(nspr) >= %{NSPR_min_version}
 BuildRequires:  pkgconfig(sqlite3)
 BuildRequires:  pkgconfig(zlib)
+BuildRequires:  jitterentropy-devel
+Requires(pre):  libjitterentropy3
 Requires(pre):  libfreebl3 >= %{nss_softokn_fips_version}
 Requires(pre):  libsoftokn3 >= %{nss_softokn_fips_version}
 Requires(pre):  mozilla-nspr >= %{NSPR_min_version}
@@ -232,6 +236,8 @@ cd nss
 %patch40 -p1
 %patch41 -p1
 %patch44 -p1
+%patch45 -p1
+%patch46 -p1
 
 # additional CA certificates
 #cd security/nss/lib/ckfw/builtins

@@ -159,7 +159,7 @@ Index: nss/lib/freebl/fips-selftest.inc
 +    abort();
 +}
 +
-+/* check whether FIPS moode is mandated by the kernel */
++/* check whether FIPS mode is mandated by the kernel */
 +static int
 +fips_isWantedProc(void)
 +{
@@ -257,7 +257,7 @@ Index: nss/lib/freebl/fips-selftest.inc
 +    }
 +    fips_requests += fips_isWantedEnv();
 +
-+    return fips_requests;
++    return fips_requests < 1 ? 0 : 1;
 +}
 +
 +static PRBool
@@ -1098,14 +1098,19 @@ Index: nss/lib/softoken/fips.h
 ===================================================================
 --- /dev/null
 +++ nss/lib/softoken/fips.h
-@@ -0,0 +1,10 @@
+@@ -0,0 +1,15 @@
 +#ifndef FIPS_H
 +#define FIPS_H
 +
++#include "prtypes.h"
 +#include "softoken.h"
 +
-+CK_RV FIPS_cryptoSelftestSoftoken(void);
++SEC_BEGIN_PROTOS
++
 +CK_RV sftk_fipsPowerUpSelfTest(void);
++extern void sftk_FIPSRepeatIntegrityCheck(void);
++
++SEC_END_PROTOS
 +
 +#endif
 +
@@ -1596,14 +1601,14 @@ Index: nss/lib/softoken/manifest.mn
 ===================================================================
 --- nss.orig/lib/softoken/manifest.mn
 +++ nss/lib/softoken/manifest.mn
-@@ -31,6 +31,7 @@ PRIVATE_EXPORTS = \
- 	softkver.h \
- 	sdb.h \
- 	sftkdbt.h \
+@@ -22,6 +22,7 @@ endif
+ EXPORTS = \
+ 	lowkeyi.h \
+ 	lowkeyti.h \
 +	fips.h \
  	$(NULL)
  
- CSRCS = \
+ PRIVATE_EXPORTS = \
 @@ -55,6 +56,7 @@ CSRCS = \
  	softkver.c  \
  	tlsprf.c   \
@@ -1644,3 +1649,15 @@ Index: nss/lib/freebl/ldvector.c
      };
  
  const FREEBLVector*
+Index: nss/lib/softoken/softokn.def
+===================================================================
+--- nss.orig/lib/softoken/softokn.def
++++ nss/lib/softoken/softokn.def
+@@ -34,6 +34,7 @@ NSC_GetInterfaceList;
+ C_GetInterface;
+ FC_GetInterface;
+ NSC_GetInterface;
++sftk_FIPSRepeatIntegrityCheck;
+ ;+    local:
+ ;+       *;
+ ;+};
