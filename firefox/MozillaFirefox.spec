@@ -29,8 +29,8 @@
 # major 69
 # mainver %major.99
 %define major          102
-%define mainver        %major.1.0
-%define orig_version   102.1.0
+%define mainver        %major.4.0
+%define orig_version   102.4.0
 %define orig_suffix    esr
 %define update_channel release
 %define branding       1
@@ -222,6 +222,7 @@ Patch23:        mozilla-bmo531915.patch
 Patch25:        one_swizzle_to_rule_them_all.patch
 Patch26:        svg-rendering.patch
 Patch27:        mozilla-bmo1775202.patch
+Patch28:        mozilla-partial-revert-1768632.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
