@@ -29,8 +29,8 @@
 # major 69
 # mainver %major.99
 %define major          102
-%define mainver        %major.1.2
-%define orig_version   102.1.2
+%define mainver        %major.4.0
+%define orig_version   102.4.0
 %define orig_suffix    %{nil}
 %define update_channel release
 %define source_prefix  thunderbird-%{orig_version}
@@ -41,6 +41,9 @@
 # upstream default is clang (to use gcc for large parts set to 0)
 %define clang_build    0
 
+# PIE, full relro
+%define build_hardened 1
+
 %bcond_with only_print_mozconfig
 
 %bcond_without mozilla_tb_kde4
@@ -48,7 +51,7 @@
 %bcond_without mozilla_tb_optimize_for_size
 
 # define if ccache should be used or not
-%define useccache     0
+%define useccache     1
 
 # Firefox only supports i686
 %ifarch %ix86
@@ -68,8 +71,12 @@ BuildArch:      i686
 %define __provides_exclude ^lib.*\\.so.*$
 %define __requires_exclude ^(libmoz.*|liblgpllibs.*|libxul.*|libldap.*|libldif.*|libprldap.*|librnp.*)$
 %define localize 1
+%ifarch %ix86 x86_64
+%define crashreporter 1
+%else
 %define crashreporter 0
-%define with_pipewire0_3 1
+%endif
+%define with_pipewire0_3  1
 %define wayland_supported 1
 %if 0%{?sle_version} > 0 && 0%{?sle_version} < 150200
 # pipewire is too old on Leap <=15.1
@@ -90,19 +97,8 @@ BuildRequires:  gcc11-c++
 %else
 BuildRequires:  gcc-c++
 %endif
-%if 0%{?suse_version} < 1550 && 0%{?sle_version} < 150300
-BuildRequires:  cargo >= 1.59
-BuildRequires:  rust >= 1.59
-%else
-# Newer sle/leap/tw use parallel versioned rust releases which have
-# a different method for provides that we can use to request a
-# specific version
-# minimal requirement:
-BuildRequires:  rust+cargo >= 1.59
-# actually used upstream:
-BuildRequires:  cargo1.60
 BuildRequires:  rust1.60
-%endif
+BuildRequires:  cargo1.60
 %if 0%{useccache} != 0
 BuildRequires:  ccache
 %endif
@@ -111,7 +107,7 @@ BuildRequires:  libcurl-devel
 BuildRequires:  mozilla-nspr-devel >= 4.34
 BuildRequires:  mozilla-nss-devel >= 3.79
 BuildRequires:  nasm >= 2.14
-BuildRequires:  nodejs >= 10.22.1
+BuildRequires:  nodejs10 >= 10.22.1
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 BuildRequires:  python-libxml2
 BuildRequires:  python36
@@ -119,10 +115,11 @@ BuildRequires:  python36
 BuildRequires:  python3 >= 3.5
 BuildRequires:  python3-devel
 %endif
-BuildRequires:  rust-cbindgen >= 0.24.0
+BuildRequires:  rust-cbindgen >= 0.23.0
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
 BuildRequires:  xorg-x11-libXt-devel
+BuildRequires:  libXtst-devel
 %if 0%{?do_profiling}
 BuildRequires:  xvfb-run
 %endif
@@ -206,7 +203,9 @@ Patch19:        mozilla-silence-no-return-type.patch
 Patch20:        mozilla-bmo531915.patch
 Patch21:        one_swizzle_to_rule_them_all.patch
 Patch22:        svg-rendering.patch
-Patch23:        mozilla-newer-cbindgen.patch
+Patch23:        mozilla-bmo1775202.patch
+Patch24:        mozilla-partial-revert-1768632.patch
+Patch25:        mozilla-newer-cbindgen.patch
 %endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 PreReq:         /bin/sh
@@ -296,6 +295,8 @@ fi
 %patch21 -p1
 %patch22 -p1
 %patch23 -p1
+%patch24 -p1
+%patch25 -p1
 %endif
 
 %build
@@ -321,10 +322,14 @@ if test "$kdehelperversion" != %{kde_helper_version}; then
   exit 1
 fi
 %endif
-
-source %{SOURCE4}
+# When doing only_print_mozconfig, this file isn't necessarily available, so skip it
+cp %{SOURCE4} .obsenv.sh
+%else
+# We need to make sure its empty
+echo "" > .obsenv.sh
 %endif
 
+cat >> .obsenv.sh <<EOF
 export CARGO_HOME=${RPM_BUILD_DIR}/%{srcname}-%{orig_version}/.cargo
 export MOZ_SOURCE_CHANGESET=$RELEASE_TAG
 export SOURCE_REPO=$RELEASE_REPO
@@ -350,10 +355,10 @@ export CFLAGS="$CFLAGS -fimplicit-constexpr"
 %ifarch %arm %ix86
 # Limit RAM usage during link
 export LDFLAGS="${LDFLAGS} -Wl,--no-keep-memory -Wl,--reduce-memory-overheads"
-# A lie to prevent -Wl,--gc-sections being set which requires more memory than 32bit can offer
-export GC_SECTIONS_BREAKS_DEBUG_RANGES=yes
 %endif
+%if 0%{?build_hardened}
 export LDFLAGS="${LDFLAGS} -fPIC -Wl,-z,relro,-z,now"
+%endif
 %ifarch ppc64 ppc64le
 %if 0%{?clang_build} == 0
 export CFLAGS="$CFLAGS -mminimal-toc"
@@ -361,34 +366,12 @@ export CFLAGS="$CFLAGS -mminimal-toc"
 %endif
 export CXXFLAGS="$CFLAGS"
 export MOZCONFIG=$RPM_BUILD_DIR/mozconfig
-%if %{with only_print_mozconfig}
-echo "export CC=$CC"
-echo "export CXX=$CXX"
-echo "export CFLAGS=\"$CFLAGS\""
-echo "export CXXFLAGS=\"$CXXFLAGS\""
-echo "export LDFLAGS=\"$LDFLAGS\""
-echo "export RUSTFLAGS=\"$RUSTFLAGS\""
-echo "export CARGO_HOME=\"$CARGO_HOME\""
-echo "export PATH=\"$PATH\""
-echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH\""
-echo "export PKG_CONFIG_PATH=\"$PKG_CONFIG_PATH\""
-echo "export MOZCONFIG=\"$MOZCONFIG\""
-echo "export MOZILLA_OFFICIAL=1"
-echo "export BUILD_OFFICIAL=1"
-echo "export MOZ_TELEMETRY_REPORTING=1"
-echo "export MOZ_REQUIRE_SIGNING="
-echo ""
-cat << EOF
-%else
-%ifarch aarch64 ppc64 ppc64le
-%limit_build -m 2500
-%else
-%limit_build -m 2000
-%endif
-# TODO: Check if this can be removed
-#export MOZ_DEBUG_FLAGS="-pipe"
+EOF
+# Done with env-variables.
+source ./.obsenv.sh
+
+# Generating mozconfig
 cat << EOF > $MOZCONFIG
-%endif
 mk_add_options MOZILLA_OFFICIAL=1
 mk_add_options BUILD_OFFICIAL=1
 mk_add_options MOZ_MAKE_FLAGS=%{?jobs:-j%jobs}
@@ -421,6 +404,9 @@ ac_add_options --with-system-nspr
 ac_add_options --with-system-nss
 %if 0%{useccache} != 0
 ac_add_options --with-ccache
+%endif
+%if %{localize}
+ac_add_options --with-l10n-base=$RPM_BUILD_DIR/l10n
 %endif
 ac_add_options --with-system-zlib
 ac_add_options --disable-updater
@@ -467,10 +453,19 @@ ac_add_options --enable-valgrind
 %endif
 %endif
 EOF
-%if !%{with only_print_mozconfig}
+
+%if %{with only_print_mozconfig}
+cat ./.obsenv.sh
+cat $MOZCONFIG
+%else
+%ifarch aarch64 %arm ppc64 ppc64le
+%limit_build -m 2000
+%endif
+
 %if 0%{useccache} != 0
 ccache -s
 %endif
+
 %if 0%{?do_profiling}
 xvfb-run --server-args="-screen 0 1920x1080x24" \
 %endif
