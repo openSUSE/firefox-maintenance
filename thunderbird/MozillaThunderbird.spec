@@ -29,8 +29,8 @@
 # major 69
 # mainver %major.99
 %define major          102
-%define mainver        %major.4.0
-%define orig_version   102.4.0
+%define mainver        %major.5.1
+%define orig_version   102.5.1
 %define orig_suffix    %{nil}
 %define update_channel release
 %define source_prefix  thunderbird-%{orig_version}
@@ -205,7 +205,6 @@ Patch21:        one_swizzle_to_rule_them_all.patch
 Patch22:        svg-rendering.patch
 Patch23:        mozilla-bmo1775202.patch
 Patch24:        mozilla-partial-revert-1768632.patch
-Patch25:        mozilla-newer-cbindgen.patch
 %endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 PreReq:         /bin/sh
@@ -296,7 +295,6 @@ fi
 %patch22 -p1
 %patch23 -p1
 %patch24 -p1
-%patch25 -p1
 %endif
 
 %build
