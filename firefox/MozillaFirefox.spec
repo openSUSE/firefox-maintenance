@@ -29,8 +29,8 @@
 # major 69
 # mainver %major.99
 %define major          102
-%define mainver        %major.4.0
-%define orig_version   102.4.0
+%define mainver        %major.5.0
+%define orig_version   102.5.0
 %define orig_suffix    esr
 %define update_channel release
 %define branding       1
@@ -53,15 +53,16 @@
 # SLE-12 doesn't have this macro
 %{!?_rpmmacrodir: %global _rpmmacrodir %{_rpmconfigdir}/macros.d}
 
+# No i586 on SLE-12, as the rpmlints are broken and can't handle the big rpms resulting from this build.
+%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
+ExclusiveArch: aarch64 ppc64le x86_64 s390x
+%else
 # Firefox only supports i686
 %ifarch %ix86
 ExclusiveArch:  i586 i686
 BuildArch:      i686
 %{expand:%%global optflags %(echo "%optflags"|sed -e s/i586/i686/) -march=i686 -mtune=generic}
 %endif
-
-%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
-ExclusiveArch: aarch64 ppc64le x86_64 s390x
 %endif
 
 # general build definitions
