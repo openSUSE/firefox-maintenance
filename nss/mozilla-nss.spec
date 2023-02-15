@@ -1,8 +1,8 @@
 #
 # spec file for package mozilla-nss
 #
-# Copyright (c) 2022 SUSE LLC
-# Copyright (c) 2006-2022 Wolfgang Rosenauer
+# Copyright (c) 2023 SUSE LLC
+# Copyright (c) 2006-2023 Wolfgang Rosenauer
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -17,14 +17,14 @@
 #
 
 
-%global nss_softokn_fips_version 3.83
-%define NSPR_min_version 4.34.1
+%global nss_softokn_fips_version 3.87
+%define NSPR_min_version 4.35
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 %define nssdbdir %{_sysconfdir}/pki/nssdb
 Name:           mozilla-nss
-Version:        3.83
+Version:        3.87
 Release:        0
-%define underscore_version 3_83
+%define underscore_version 3_87
 Summary:        Network Security Services
 License:        MPL-2.0
 Group:          System/Libraries
@@ -347,6 +347,9 @@ cp -L  bin/certutil \
        bin/signver \
        bin/ssltap \
        %{buildroot}%{_bindir}
+# copy man-pages
+mkdir -p %{buildroot}%{_mandir}/man1/
+cp -L  %{_builddir}/nss-%{version}/nss/doc/nroff/* %{buildroot}%{_mandir}/man1/
 # copy unsupported tools
 cp -L  bin/atob \
        bin/btoa \
@@ -461,6 +464,7 @@ fi
 %{_bindir}/*
 %exclude %{_sbindir}/setup-nsssysinit.sh
 %{_libexecdir}/nss/
+%{_mandir}/*/*
 %exclude %{_bindir}/nss-config
 %exclude %{_bindir}/nss-util-config
 
