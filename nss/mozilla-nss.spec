@@ -17,14 +17,14 @@
 #
 
 
-%global nss_softokn_fips_version 3.87
+%global nss_softokn_fips_version 3.89
 %define NSPR_min_version 4.35
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 %define nssdbdir %{_sysconfdir}/pki/nssdb
 Name:           mozilla-nss
-Version:        3.87
+Version:        3.89.1
 Release:        0
-%define underscore_version 3_87
+%define underscore_version 3_89_1
 Summary:        Network Security Services
 License:        MPL-2.0
 Group:          System/Libraries
@@ -146,7 +146,8 @@ any system or user configured modules.
 %package -n libfreebl3
 Summary:        Freebl library for the Network Security Services
 Group:          System/Libraries
-Recommends:     libfreebl3-hmac = %{version}-%{release}
+Provides:       libfreebl3-hmac = %{version}-%{release}
+Obsoletes:      libfreebl3-hmac < %{version}-%{release}
 
 %description -n libfreebl3
 Network Security Services (NSS) is a set of libraries designed to
@@ -157,20 +158,12 @@ certificates, and other security standards.
 
 This package installs the freebl library from NSS.
 
-%package -n libfreebl3-hmac
-Summary:        Freebl library checksums for the Network Security Services
-Group:          System/Libraries
-Requires:       libfreebl3 = %{version}-%{release}
-
-%description -n libfreebl3-hmac
-Checksums for libraries contained in the libfreebl3 package
-used in the FIPS 140-2 mode.
-
 %package -n libsoftokn3
 Summary:        Network Security Services Softoken Module
 Group:          System/Libraries
 Requires:       libfreebl3 = %{version}-%{release}
-Recommends:     libsoftokn3-hmac = %{version}-%{release}
+Provides:       libsoftokn3-hmac = %{version}-%{release}
+Obsoletes:      libsoftokn3-hmac < %{version}-%{release}
 
 %description -n libsoftokn3
 Network Security Services (NSS) is a set of libraries designed to
@@ -180,15 +173,6 @@ TLS v1.0, v1.1, v1.2, PKCS #5, PKCS #7, PKCS #11, PKCS #12, S/MIME, X.509 v3
 certificates, and other security standards.
 
 Network Security Services Softoken Cryptographic Module
-
-%package -n libsoftokn3-hmac
-Summary:        Network Security Services Softoken Module checksums
-Group:          System/Libraries
-Requires:       libsoftokn3 = %{version}-%{release}
-
-%description -n libsoftokn3-hmac
-Checksums for libraries contained in the libsoftokn3 package
-used in the FIPS 140-2 mode.
 
 %package certs
 Summary:        CA certificates for NSS
@@ -249,18 +233,14 @@ cd nss
 %else
 %global _lto_cflags %{_lto_cflags} -ffat-lto-objects
 %endif
+cd nss
+cat > ../obsenv.sh <<EOF
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 export CC=gcc-9
 # Yes, they use both...
 export CXX=g++-9
 export CCC=g++-9
 %endif
-cd nss
-modified="$(sed -n '/^----/n;s/ - .*$//;p;q' "%{SOURCE99}")"
-DATE="\"$(date -d "${modified}" "+%%b %%e %%Y")\""
-TIME="\"$(date -d "${modified}" "+%%R")\""
-find . -name '*.[ch]' -print -exec sed -i "s/__DATE__/${DATE}/g;s/__TIME__/${TIME}/g" {} +
-
 export NSS_ALLOW_SSLKEYLOGFILE=1
 export NSS_ENABLE_WERROR=0
 export NSS_NO_PKCS11_BYPASS=1
@@ -278,15 +258,31 @@ export NSS_USE_SYSTEM_SQLITE=1
 export NSS_ENABLE_FIPS_INDICATORS=1
 export NSS_FIPS_MODULE_ID="\"SUSE Linux Enterprise NSS %{version}-%{release}\""
 #export SQLITE_LIB_NAME=nsssqlite3
-MAKE_FLAGS="BUILD_OPT=1"
+export MAKE_FLAGS="BUILD_OPT=1"
+EOF
+
+source ../obsenv.sh
+
+modified="$(sed -n '/^----/n;s/ - .*$//;p;q' "%{SOURCE99}")"
+DATE="\"$(date -d "${modified}" "+%%b %%e %%Y")\""
+TIME="\"$(date -d "${modified}" "+%%R")\""
+find . -name '*.[ch]' -print -exec sed -i "s/__DATE__/${DATE}/g;s/__TIME__/${TIME}/g" {} +
+
 make %{?_smp_mflags} nss_build_all $MAKE_FLAGS
+
+%check
+cd nss
 # run testsuite
 %if 0%{?run_testsuite}
+cat > ../obstestenv.sh <<EOF
 export BUILD_OPT=1
 export HOST="localhost"
 export DOMSUF="localdomain"
 export USE_IP=TRUE
 export IP_ADDRESS="127.0.0.1"
+EOF
+source ../obsenv.sh
+source ../obstestenv.sh
 cd tests
 ./all.sh
 if grep "FAILED" ../../../tests_results/security/localhost.1/output.log ; then
@@ -478,16 +474,12 @@ fi
 %files -n libfreebl3
 %{_libdir}/libfreebl3.so
 %{_libdir}/libfreeblpriv3.so
-
-%files -n libfreebl3-hmac
 %{_libdir}/libfreebl3.chk
 %{_libdir}/libfreeblpriv3.chk
 
 %files -n libsoftokn3
 %{_libdir}/libsoftokn3.so
 %{_libdir}/libnssdbm3.so
-
-%files -n libsoftokn3-hmac
 %{_libdir}/libsoftokn3.chk
 %{_libdir}/libnssdbm3.chk
 
