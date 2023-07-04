@@ -28,10 +28,10 @@
 # orig_suffix b3
 # major 69
 # mainver %%major.99
-%define major          114
-%define mainver        %major.0.2
-%define orig_version   114.0.2
-%define orig_suffix    %{nil}
+%define major          115
+%define mainver        %major.0
+%define orig_version   115.0
+%define orig_suffix    esr
 %define update_channel release
 %define branding       1
 %define devpkg         1
@@ -42,17 +42,20 @@
 # upstream default is clang (to use gcc for large parts set to 0)
 %define clang_build    0
 
+# PIE, full relro
+%define build_hardened 1
+
 %bcond_with only_print_mozconfig
 
 # define if ccache should be used or not
-%define useccache     0
+%define useccache     1
 
 # SLE-12 doesn't have this macro
 %{!?_rpmmacrodir: %global _rpmmacrodir %{_rpmconfigdir}/macros.d}
 
 # No i586 on SLE-12, as the rpmlints are broken and can't handle the big rpms resulting from this build.
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
-ExclusiveArch:  aarch64 ppc64le x86_64 s390x
+ExclusiveArch: aarch64 ppc64le x86_64 s390x
 %else
 # Firefox only supports i686
 %ifarch %ix86
@@ -61,7 +64,6 @@ BuildArch:      i686
 %{expand:%%global optflags %(echo "%optflags"|sed -e s/i586/i686/) -march=i686 -mtune=generic -msse2}
 %endif
 %endif
-%{expand:%%global optflags %(echo "%optflags"|sed -e s/-flto=auto//) }
 
 # general build definitions
 %define progname firefox
@@ -98,12 +100,12 @@ BuildRequires:  dejavu-fonts
 BuildRequires:  fdupes
 BuildRequires:  memory-constraints
 %if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150500
-BuildRequires:  gcc11-c++
+BuildRequires:  gcc12-c++
 %else
 BuildRequires:  gcc-c++
 %endif
-BuildRequires:  cargo1.69
 BuildRequires:  rust1.69
+BuildRequires:  cargo1.69
 %if 0%{useccache} != 0
 BuildRequires:  ccache
 %endif
@@ -113,9 +115,9 @@ BuildRequires:  libiw-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.35
-BuildRequires:  mozilla-nss-devel >= 3.89.1
+BuildRequires:  mozilla-nss-devel >= 3.90
 BuildRequires:  nasm >= 2.14
-BuildRequires:  nodejs >= 10.22.1
+BuildRequires:  nodejs12 >= 12.22.12
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 BuildRequires:  libXtst-devel
 BuildRequires:  python-libxml2
@@ -226,7 +228,8 @@ Patch18:        mozilla-silence-no-return-type.patch
 Patch19:        mozilla-bmo531915.patch
 Patch20:        one_swizzle_to_rule_them_all.patch
 Patch21:        svg-rendering.patch
-Patch22:        mozilla-buildfixes.patch
+Patch28:        mozilla-partial-revert-1768632.patch
+Patch29:        mozilla-bmo1775202.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -245,7 +248,11 @@ Obsoletes:      tracker-miner-firefox < 0.15
 %if 0%{?devpkg} == 0
 Obsoletes:      %{name}-devel < %{version}
 %endif
-ExcludeArch:    armv6l armv6hl ppc ppc64 ppc64le
+# libproxy's mozjs pacrunner crashes FF (bnc#759123)
+%if 0%{?suse_version} < 1220
+Obsoletes:      libproxy1-pacrunner-mozjs <= 0.4.7
+%endif
+ExcludeArch:    armv6l armv6hl
 
 %description
 Mozilla Firefox is a standalone web browser, designed for standards
@@ -347,12 +354,12 @@ sed -i "s|potential_python_binary = f\"python3.{i}\"|potential_python_binary = f
 export PYTHON3=/usr/bin/python3.9
 %endif
 
-#
 kdehelperversion=$(cat toolkit/xre/nsKDEUtils.cpp | grep '#define KMOZILLAHELPER_VERSION' | cut -d ' ' -f 3)
 if test "$kdehelperversion" != %{kde_helper_version}; then
   echo fix kde helper version in the .spec file
   exit 1
 fi
+
 # When doing only_print_mozconfig, this file isn't necessarily available, so skip it
 cp %{SOURCE4} .obsenv.sh
 %else
@@ -372,16 +379,11 @@ export BUILD_OFFICIAL=1
 export MOZ_TELEMETRY_REPORTING=1
 export MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE=system
 export CFLAGS="%{optflags}"
-%if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150500
-export CC=gcc-11
-export CXX=g++-11
-%else
 %if 0%{?clang_build} == 0
-export CC=gcc
-export CXX=g++
+export CC=gcc-12
+export CXX=g++-12
 %if 0%{?gcc_version:%{gcc_version}} >= 12
 export CFLAGS="\$CFLAGS -fimplicit-constexpr"
-%endif
 %endif
 %endif
 %ifarch %arm %ix86
@@ -390,15 +392,13 @@ export LDFLAGS="\$LDFLAGS -Wl,--no-keep-memory -Wl,--reduce-memory-overheads"
 # A lie to prevent -Wl,--gc-sections being set which requires more memory than 32bit can offer
 export GC_SECTIONS_BREAKS_DEBUG_RANGES=yes
 %endif
+%if 0%{?build_hardened}
 export LDFLAGS="\$LDFLAGS -fPIC -Wl,-z,relro,-z,now"
+%endif
 %ifarch ppc64 ppc64le
 %if 0%{?clang_build} == 0
-export CFLAGS="\$CFLAGS -mminimal-toc"
+#export CFLAGS="\$CFLAGS -mminimal-toc"
 %endif
-%endif
-%ifarch %ix86
-# Not enough memory on 32-bit systems, reduce debug info.
-export CFLAGS="\$CFLAGS -g1"
 %endif
 export CXXFLAGS="\$CFLAGS"
 export MOZCONFIG=$RPM_BUILD_DIR/mozconfig
@@ -490,7 +490,7 @@ ac_add_options --enable-optimize="-O1"
 %ifarch x86_64
 # LTO needs newer toolchain stack only (at least GCC 8.2.1 (r268506)
 %if 0%{?suse_version} > 1500
-#ac_add_options --enable-lto
+ac_add_options --enable-lto
 %if 0%{?do_profiling}
 ac_add_options MOZ_PGO=1
 %endif
