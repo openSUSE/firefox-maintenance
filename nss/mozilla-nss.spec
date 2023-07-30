@@ -17,14 +17,14 @@
 #
 
 
-%global nss_softokn_fips_version 3.89
+%global nss_softokn_fips_version 3.91
 %define NSPR_min_version 4.35
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 %define nssdbdir %{_sysconfdir}/pki/nssdb
 Name:           mozilla-nss
-Version:        3.89.1
+Version:        3.91
 Release:        0
-%define underscore_version 3_89_1
+%define underscore_version 3_91
 Summary:        Network Security Services
 License:        MPL-2.0
 Group:          System/Libraries
@@ -65,7 +65,6 @@ Patch19:        nss-fips-cavs-dsa-fixes.patch
 Patch20:        nss-fips-cavs-rsa-fixes.patch
 Patch21:        nss-fips-approved-crypto-non-ec.patch
 Patch22:        nss-fips-zeroization.patch
-Patch23:        nss-fips-tls-allow-md5-prf.patch
 Patch24:        nss-fips-use-strong-random-pool.patch
 Patch25:        nss-fips-detect-fips-mode-fixes.patch
 Patch26:        nss-fips-combined-hash-sign-dsa-ecdsa.patch
@@ -74,8 +73,10 @@ Patch37:        nss-fips-fix-missing-nspr.patch
 Patch38:        nss-fips-stricter-dh.patch
 Patch40:        nss-fips-180-3-csp-clearing.patch
 Patch41:        nss-fips-pbkdf-kat-compliance.patch
-Patch42:        nss-fips-tests-skip.patch
 Patch44:        nss-fips-tests-enable-fips.patch
+Patch45:        nss-fips-drbg-libjitter.patch
+Patch46:        nss-allow-slow-tests.patch
+Patch47:        nss-fips-pct-pubkeys.patch
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 # aarch64 + gcc4.8 fails to build on SLE-12 due to undefined references
 BuildRequires:  gcc9-c++
@@ -86,6 +87,12 @@ BuildRequires:  pkgconfig
 BuildRequires:  pkgconfig(nspr) >= %{NSPR_min_version}
 BuildRequires:  pkgconfig(sqlite3)
 BuildRequires:  pkgconfig(zlib)
+%if 0%{?sle_version} >= 150400
+BuildRequires:  jitterentropy-devel
+# Libjitter needs to be present before AND after the install
+Requires(pre):  libjitterentropy3
+Requires:       libjitterentropy3
+%endif
 Requires:       libfreebl3 >= %{nss_softokn_fips_version}
 Requires:       libsoftokn3 >= %{nss_softokn_fips_version}
 Requires:       mozilla-nspr >= %{NSPR_min_version}
@@ -209,7 +216,6 @@ cd nss
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
-%patch23 -p1
 %patch24 -p1
 %patch25 -p1
 %patch26 -p1
@@ -218,8 +224,13 @@ cd nss
 %patch38 -p1
 %patch40 -p1
 %patch41 -p1
-%patch42 -p1
 %patch44 -p1
+# Libjitter only for SLE15 SP4+
+%if 0%{?sle_version} >= 150400
+%patch45 -p1
+%endif
+%patch46 -p1
+%patch47 -p1
 
 # additional CA certificates
 #cd security/nss/lib/ckfw/builtins
@@ -346,6 +357,9 @@ cp -L  bin/certutil \
 # copy man-pages
 mkdir -p %{buildroot}%{_mandir}/man1/
 cp -L  %{_builddir}/nss-%{version}/nss/doc/nroff/* %{buildroot}%{_mandir}/man1/
+# Fix conflict with perl-PAR-Packer which has a pp-exe in _bindir
+mkdir -p %{buildroot}%{_mandir}/man7/
+mv %{buildroot}%{_mandir}/man1/pp.1 %{buildroot}%{_mandir}/man7/pp.7
 # copy unsupported tools
 cp -L  bin/atob \
        bin/btoa \
@@ -446,7 +460,6 @@ fi
 %{_libdir}/libnssutil3.so
 %{_libdir}/libsmime3.so
 %{_libdir}/libssl3.so
-#%%{_libdir}/libnsssqlite3.so
 
 %files devel
 %defattr(644, root, root, 755)
