@@ -29,8 +29,8 @@
 # major 69
 # mainver %major.99
 %define major          115
-%define mainver        %major.0.1
-%define orig_version   115.0.1
+%define mainver        %major.3.1
+%define orig_version   115.3.1
 %define orig_suffix    %nil
 %define update_channel release
 %define source_prefix  thunderbird-%{orig_version}
@@ -201,8 +201,8 @@ Patch18:        mozilla-silence-no-return-type.patch
 Patch19:        mozilla-bmo531915.patch
 Patch20:        one_swizzle_to_rule_them_all.patch
 Patch21:        svg-rendering.patch
+Patch22:        mozilla-fix-broken-ffmpeg.patch
 Patch28:        mozilla-partial-revert-1768632.patch
-Patch29:        mozilla-bmo1775202.patch
 %endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 PreReq:         /bin/sh
@@ -321,11 +321,6 @@ export GC_SECTIONS_BREAKS_DEBUG_RANGES=yes
 %endif
 %if 0%{?build_hardened}
 export LDFLAGS="\$LDFLAGS -fPIC -Wl,-z,relro,-z,now"
-%endif
-%ifarch ppc64 ppc64le
-%if 0%{?clang_build} == 0
-export CFLAGS="\$CFLAGS -mminimal-toc"
-%endif
 %endif
 export CXXFLAGS="\$CFLAGS"
 export MOZCONFIG=$RPM_BUILD_DIR/mozconfig
