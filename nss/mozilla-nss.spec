@@ -43,6 +43,7 @@ Source9:        pkcs11.txt
 #Source10:       PayPalEE.cert
 Source11:       nss-util.pc.in
 Source13:       nss-util-config.in
+Source98:       fixed-certs-bmo1813401.tar.gz
 Source99:       %{name}.changes
 Patch1:         nss-opt.patch
 Patch2:         system-nspr.patch
@@ -78,6 +79,7 @@ Patch45:        nss-fips-drbg-libjitter.patch
 Patch46:        nss-allow-slow-tests.patch
 Patch47:        nss-fips-pct-pubkeys.patch
 Patch48:        nss-fix-bmo1836925.patch
+Patch49:        nss-fix-bmo1813401.patch
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 # aarch64 + gcc4.8 fails to build on SLE-12 due to undefined references
 BuildRequires:  gcc9-c++
@@ -233,6 +235,11 @@ cd nss
 %patch46 -p1
 %patch47 -p1
 %patch48 -p1
+%patch49 -p1
+
+# GNU patch can't handle git binary changes, so we split off the 
+# binaries into it's own tarball and overwrite the old ones here
+tar xvf %{SOURCE98}
 
 # additional CA certificates
 #cd security/nss/lib/ckfw/builtins
