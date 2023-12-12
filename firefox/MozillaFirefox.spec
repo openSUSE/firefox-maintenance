@@ -29,8 +29,8 @@
 # major 69
 # mainver %%major.99
 %define major          115
-%define mainver        %major.3.1
-%define orig_version   115.3.1
+%define mainver        %major.6.0
+%define orig_version   115.6.0
 %define orig_suffix    esr
 %define update_channel release
 %define branding       1
@@ -233,7 +233,6 @@ Patch18:        mozilla-silence-no-return-type.patch
 Patch19:        mozilla-bmo531915.patch
 Patch20:        one_swizzle_to_rule_them_all.patch
 Patch21:        svg-rendering.patch
-Patch22:        mozilla-fix-broken-ffmpeg.patch
 Patch28:        mozilla-partial-revert-1768632.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
