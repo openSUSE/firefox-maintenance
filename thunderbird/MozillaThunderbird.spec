@@ -29,8 +29,8 @@
 # major 69
 # mainver %major.99
 %define major          115
-%define mainver        %major.3.1
-%define orig_version   115.3.1
+%define mainver        %major.5.0
+%define orig_version   115.5.0
 %define orig_suffix    %nil
 %define update_channel release
 %define source_prefix  thunderbird-%{orig_version}
@@ -59,6 +59,8 @@ ExclusiveArch:  i586 i686
 BuildArch:      i686
 %{expand:%%global optflags %(echo "%optflags"|sed -e s/i586/i686/) -march=i686 -mtune=generic -msse2}
 %endif
+# Let mach set the appropriate LTO-flags for us, but correctly.
+%{expand:%%global optflags %(echo "%optflags"|sed -e s/-flto=auto//) }
 
 # general build definitions
 %define progname thunderbird
@@ -201,7 +203,6 @@ Patch18:        mozilla-silence-no-return-type.patch
 Patch19:        mozilla-bmo531915.patch
 Patch20:        one_swizzle_to_rule_them_all.patch
 Patch21:        svg-rendering.patch
-Patch22:        mozilla-fix-broken-ffmpeg.patch
 Patch28:        mozilla-partial-revert-1768632.patch
 %endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -322,6 +323,10 @@ export GC_SECTIONS_BREAKS_DEBUG_RANGES=yes
 %if 0%{?build_hardened}
 export LDFLAGS="\$LDFLAGS -fPIC -Wl,-z,relro,-z,now"
 %endif
+%ifarch %ix86
+# Not enough memory on 32-bit systems, reduce debug info.
+export CFLAGS="\$CFLAGS -g1"
+%endif
 export CXXFLAGS="\$CFLAGS"
 export MOZCONFIG=$RPM_BUILD_DIR/mozconfig
 EOF
@@ -403,7 +408,7 @@ ac_add_options --enable-optimize="-O1"
 %endif
 %ifarch x86_64
 # LTO needs newer toolchain stack only (at least GCC 8.2.1 (r268506)
-%if 0%{?suse_version} > 1500
+%if 0%{?suse_version} > 1600
 ac_add_options --enable-lto
 %if 0%{?do_profiling}
 ac_add_options MOZ_PGO=1
