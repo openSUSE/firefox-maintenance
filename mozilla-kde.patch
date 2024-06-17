@@ -1,19 +1,56 @@
-# HG changeset patch
-# User msirringhaus@suse.de
-# Date 1559294891 -7200
-#      Fri May 31 11:28:11 2019 +0200
-# Node ID c2aa7198fb925e7fde96abf65b6f68b9b755f112
-# Parent  eaadcfc5cb5ee0eed248051a657a69646334aad7
-Description: Add KDE integration to Firefox (toolkit parts)
-Author: Wolfgang Rosenauer <wolfgang@rosenauer.org>
-Author: Lubos Lunak <lunak@suse.com>
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Wolfgang Rosenauer <wolfgang@rosenauer.org>
+Date: Tue, 8 Aug 2023 16:13:48 +0300
+Subject: [PATCH] Add KDE integration to Firefox (toolkit parts)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
 Bug: https://bugzilla.mozilla.org/show_bug.cgi?id=140751
-     https://bugzilla.novell.com/show_bug.cgi?id=170055
+Bug: https://bugzilla.suse.com/show_bug.cgi?id=170055
+
+EDIT: Björn Bidar: Removed handling for obsolete special files
+
+Co-authored-by: Wolfgang Rosenauer <wolfgang@rosenauer.org>
+Co-authored-by: Lubos Lunak <lunak@suse.com>
+Co-authored-by: Björn Bidar <bjorn.bidar@thaodan.de>
+---
+ modules/libpref/Preferences.cpp               |   1 +
+ modules/libpref/moz.build                     |   4 +
+ python/mozbuild/mozpack/chrome/flags.py       |   1 +
+ python/mozbuild/mozpack/chrome/manifest.py    |   1 +
+ toolkit/components/downloads/moz.build        |   4 +
+ .../mozapps/downloads/HelperAppDlg.sys.mjs    |  70 +++--
+ .../unixproxy/nsUnixSystemProxySettings.cpp   |  29 ++
+ toolkit/xre/moz.build                         |   2 +
+ toolkit/xre/nsKDEUtils.cpp                    | 286 ++++++++++++++++++
+ toolkit/xre/nsKDEUtils.h                      |  53 ++++
+ uriloader/exthandler/HandlerServiceParent.cpp |   6 +-
+ uriloader/exthandler/moz.build                |   3 +
+ .../exthandler/unix/nsCommonRegistry.cpp      |  42 +++
+ uriloader/exthandler/unix/nsCommonRegistry.h  |  28 ++
+ uriloader/exthandler/unix/nsKDERegistry.cpp   |  75 +++++
+ uriloader/exthandler/unix/nsKDERegistry.h     |  35 +++
+ uriloader/exthandler/unix/nsMIMEInfoUnix.cpp  |  28 +-
+ .../exthandler/unix/nsOSHelperAppService.cpp  |  10 +-
+ widget/gtk/moz.build                          |   1 +
+ widget/gtk/nsFilePicker.cpp                   | 230 +++++++++++++-
+ widget/gtk/nsFilePicker.h                     |   6 +
+ xpcom/components/ManifestParser.cpp           |  10 +
+ xpcom/components/moz.build                    |   1 +
+ xpcom/io/nsLocalFileUnix.cpp                  |  20 +-
+ 24 files changed, 910 insertions(+), 36 deletions(-)
+ create mode 100644 toolkit/xre/nsKDEUtils.cpp
+ create mode 100644 toolkit/xre/nsKDEUtils.h
+ create mode 100644 uriloader/exthandler/unix/nsCommonRegistry.cpp
+ create mode 100644 uriloader/exthandler/unix/nsCommonRegistry.h
+ create mode 100644 uriloader/exthandler/unix/nsKDERegistry.cpp
+ create mode 100644 uriloader/exthandler/unix/nsKDERegistry.h
 
 diff --git a/modules/libpref/Preferences.cpp b/modules/libpref/Preferences.cpp
 --- a/modules/libpref/Preferences.cpp
 +++ b/modules/libpref/Preferences.cpp
-@@ -90,16 +90,17 @@
+@@ -92,16 +92,17 @@
  #include "PLDHashTable.h"
  #include "prdtoa.h"
  #include "prlink.h"
@@ -31,52 +68,6 @@ diff --git a/modules/libpref/Preferences.cpp b/modules/libpref/Preferences.cpp
  #ifdef MOZ_MEMORY
  #  include "mozmemory.h"
  #endif
-@@ -4901,16 +4902,26 @@ nsresult Preferences::InitInitialObjects
-     "unix.js"
- #  if defined(_AIX)
-     ,
-     "aix.js"
- #  endif
- #endif
-   };
- 
-+  if (nsKDEUtils::kdeSession()) {  // TODO what if some setup actually requires
-+                                   // the helper?
-+    for (int i = 0; i < MOZ_ARRAY_LENGTH(specialFiles); ++i) {
-+      if (*specialFiles[i] == '\0') {
-+        specialFiles[i] = "kde.js";
-+        break;
-+      }
-+    }
-+  }
-+
-   rv = pref_LoadPrefsInDir(defaultPrefDir, specialFiles,
-                            ArrayLength(specialFiles));
-   if (NS_FAILED(rv)) {
-     NS_WARNING("Error parsing application default preferences.");
-   }
- 
-   // Load jar:$app/omni.jar!/defaults/preferences/*.js
-   // or jar:$gre/omni.jar!/defaults/preferences/*.js.
-@@ -4975,17 +4986,17 @@ nsresult Preferences::InitInitialObjects
-       }
- 
-       nsCOMPtr<nsIFile> path = do_QueryInterface(elem);
-       if (!path) {
-         continue;
-       }
- 
-       // Do we care if a file provided by this process fails to load?
--      pref_LoadPrefsInDir(path, nullptr, 0);
-+      pref_LoadPrefsInDir(path, specialFiles, ArrayLength(specialFiles));
-     }
-   }
- 
- #if defined(MOZ_WIDGET_GTK)
-   // To ensure the system-wide preferences are not overwritten by
-   // firefox/browser/defauts/preferences/*.js we need to load
-   // the /etc/firefox/defaults/pref/*.js settings as last.
-   // Under Flatpak, the NS_OS_SYSTEM_CONFIG_DIR points to /app/etc/firefox
 diff --git a/modules/libpref/moz.build b/modules/libpref/moz.build
 --- a/modules/libpref/moz.build
 +++ b/modules/libpref/moz.build
@@ -164,7 +155,7 @@ diff --git a/toolkit/components/downloads/moz.build b/toolkit/components/downloa
 diff --git a/toolkit/mozapps/downloads/HelperAppDlg.sys.mjs b/toolkit/mozapps/downloads/HelperAppDlg.sys.mjs
 --- a/toolkit/mozapps/downloads/HelperAppDlg.sys.mjs
 +++ b/toolkit/mozapps/downloads/HelperAppDlg.sys.mjs
-@@ -1241,36 +1241,66 @@ nsUnknownContentTypeDialog.prototype = {
+@@ -1227,36 +1227,66 @@ nsUnknownContentTypeDialog.prototype = {
          params.handlerApp &&
          params.handlerApp.executable &&
          params.handlerApp.executable.isFile()
@@ -247,7 +238,7 @@ diff --git a/toolkit/mozapps/downloads/HelperAppDlg.sys.mjs b/toolkit/mozapps/do
        var nsIFilePicker = Ci.nsIFilePicker;
        var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
        fp.init(
-         this.mDialog,
+         this.mDialog.browsingContext,
          this.dialogElement("strings").getString("chooseAppFilePickerTitle"),
          nsIFilePicker.modeOpen
        );
@@ -292,7 +283,7 @@ diff --git a/toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp b/toolkit/sy
  nsUnixSystemProxySettings::GetMainThreadOnly(bool* aMainThreadOnly) {
    // dbus prevents us from being threadsafe, but this routine should not block
    // anyhow
-@@ -391,21 +395,46 @@ nsresult nsUnixSystemProxySettings::GetP
+@@ -388,24 +392,49 @@ nsresult nsUnixSystemProxySettings::GetP
    return NS_OK;
  }
  
@@ -334,11 +325,14 @@ diff --git a/toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp b/toolkit/sy
 +  return NS_OK;
 +}
 +
+ NS_IMETHODIMP
+ nsUnixSystemProxySettings::GetSystemWPADSetting(bool* aSystemWPADSetting) {
+   *aSystemWPADSetting = false;
+   return NS_OK;
+ }
+ 
  NS_IMPL_COMPONENT_FACTORY(nsUnixSystemProxySettings) {
    auto result = MakeRefPtr<nsUnixSystemProxySettings>();
-   result->Init();
-   return result.forget().downcast<nsISupports>();
- }
 diff --git a/toolkit/xre/moz.build b/toolkit/xre/moz.build
 --- a/toolkit/xre/moz.build
 +++ b/toolkit/xre/moz.build
@@ -389,9 +383,9 @@ new file mode 100644
 +#include <X11/Xlib.h>
 +// copied from X11/X.h as a hack since for an unknown
 +// reason it's not picked up from X11/X.h
-+#ifndef None
-+#  define None 0L /* universal null resource or null atom */
-+#endif
++//#ifndef None
++//#  define None 0L /* universal null resource or null atom */
++//#endif
 +
 +// #define DEBUG_KDE
 +#ifdef DEBUG_KDE
@@ -733,7 +727,7 @@ diff --git a/uriloader/exthandler/HandlerServiceParent.cpp b/uriloader/exthandle
  using mozilla::dom::RemoteHandlerApp;
  
  namespace {
-@@ -305,18 +305,18 @@ mozilla::ipc::IPCResult HandlerServicePa
+@@ -309,18 +309,18 @@ mozilla::ipc::IPCResult HandlerServicePa
  mozilla::ipc::IPCResult HandlerServiceParent::RecvExistsForProtocolOS(
      const nsACString& aProtocolScheme, bool* aHandlerExists) {
    if (aProtocolScheme.Length() > MAX_SCHEME_LENGTH) {
@@ -777,7 +771,7 @@ diff --git a/uriloader/exthandler/moz.build b/uriloader/exthandler/moz.build
      ]
  elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "windows":
      UNIFIED_SOURCES += [
-@@ -129,16 +131,17 @@ include("/ipc/chromium/chromium-config.m
+@@ -130,15 +132,16 @@ include("/ipc/chromium/chromium-config.m
  FINAL_LIBRARY = "xul"
  
  LOCAL_INCLUDES += [
@@ -794,7 +788,6 @@ diff --git a/uriloader/exthandler/moz.build b/uriloader/exthandler/moz.build
  
  if CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
      CXXFLAGS += CONFIG["MOZ_GTK3_CFLAGS"]
-     CXXFLAGS += CONFIG["MOZ_DBUS_GLIB_CFLAGS"]
 diff --git a/uriloader/exthandler/unix/nsCommonRegistry.cpp b/uriloader/exthandler/unix/nsCommonRegistry.cpp
 new file mode 100644
 --- /dev/null
@@ -998,7 +991,7 @@ new file mode 100644
 diff --git a/uriloader/exthandler/unix/nsMIMEInfoUnix.cpp b/uriloader/exthandler/unix/nsMIMEInfoUnix.cpp
 --- a/uriloader/exthandler/unix/nsMIMEInfoUnix.cpp
 +++ b/uriloader/exthandler/unix/nsMIMEInfoUnix.cpp
-@@ -1,48 +1,51 @@
+@@ -1,27 +1,30 @@
  /* -*- Mode: C++; tab-width: 3; indent-tabs-mode: nil; c-basic-offset: 2 -*-
   *
   * This Source Code Form is subject to the terms of the Mozilla Public
@@ -1011,6 +1004,8 @@ diff --git a/uriloader/exthandler/unix/nsMIMEInfoUnix.cpp b/uriloader/exthandler
  #include "nsIGIOService.h"
  #include "nsNetCID.h"
  #include "nsIIOService.h"
+ #include "nsLocalFile.h"
+ 
  #ifdef MOZ_ENABLE_DBUS
  #  include "nsDBusHandlerApp.h"
  #endif
@@ -1023,10 +1018,13 @@ diff --git a/uriloader/exthandler/unix/nsMIMEInfoUnix.cpp b/uriloader/exthandler
 +  return nsCommonRegistry::LoadURL(aURI);
  }
  
- NS_IMETHODIMP
- nsMIMEInfoUnix::GetHasDefaultHandler(bool* _retval) {
-   // if a default app is set, it means the application has been set from
-   // either /etc/mailcap or ${HOME}/.mailcap, in which case we don't want to
+ NS_IMETHODIMP nsMIMEInfoUnix::GetDefaultExecutable(nsIFile** aExecutable) {
+   // This needs to be implemented before FirefoxBridge will work on Linux.
+   // To implement this and be consistent, GetHasDefaultHandler and
+   // LaunchDefaultWithFile should probably be made to be consistent.
+   // Right now, they aren't. GetHasDefaultHandler reports true in cases
+   // where calling LaunchDefaultWithFile will fail due to not finding the
+@@ -37,25 +40,25 @@ nsMIMEInfoUnix::GetHasDefaultHandler(boo
    // give the GNOME answer.
    if (GetDefaultApplication()) {
      return nsMIMEInfoImpl::GetHasDefaultHandler(_retval);
@@ -1055,7 +1053,7 @@ diff --git a/uriloader/exthandler/unix/nsMIMEInfoUnix.cpp b/uriloader/exthandler
    if (*_retval) return NS_OK;
  
    return NS_OK;
-@@ -54,16 +57,31 @@ nsresult nsMIMEInfoUnix::LaunchDefaultWi
+@@ -67,16 +70,31 @@ nsresult nsMIMEInfoUnix::LaunchDefaultWi
    // give the GNOME answer.
    if (GetDefaultApplication()) {
      return nsMIMEInfoImpl::LaunchDefaultWithFile(aFile);
@@ -1223,10 +1221,10 @@ diff --git a/widget/gtk/nsFilePicker.cpp b/widget/gtk/nsFilePicker.cpp
  #include <unistd.h>
  
  #include "mozilla/Types.h"
+ #include "AsyncDBus.h"
  #include "nsGtkUtils.h"
  #include "nsIFileURL.h"
- #include "nsIGIOService.h"
-@@ -23,16 +24,18 @@
+@@ -25,16 +26,18 @@
  #include "nsArrayEnumerator.h"
  #include "nsEnumeratorUtils.h"
  #include "nsNetUtil.h"
@@ -1245,7 +1243,7 @@ diff --git a/widget/gtk/nsFilePicker.cpp b/widget/gtk/nsFilePicker.cpp
  #  include "Units.h"
  extern mozilla::LazyLogModule gWidgetLog;
  #  define LOG(args) MOZ_LOG(gWidgetLog, mozilla::LogLevel::Debug, args)
-@@ -237,17 +240,18 @@ nsFilePicker::AppendFilters(int32_t aFil
+@@ -302,17 +305,18 @@ nsFilePicker::AppendFilters(int32_t aFil
    mAllowURLs = !!(aFilterMask & filterAllowURLs);
    return nsBaseFilePicker::AppendFilters(aFilterMask);
  }
@@ -1265,19 +1263,18 @@ diff --git a/widget/gtk/nsFilePicker.cpp b/widget/gtk/nsFilePicker.cpp
  
    mFilters.AppendElement(filter);
    mFilterNames.AppendElement(name);
-@@ -347,16 +351,41 @@ nsresult nsFilePicker::Show(nsIFilePicke
-   return NS_OK;
- }
- 
- NS_IMETHODIMP
+@@ -416,16 +420,39 @@ NS_IMETHODIMP
  nsFilePicker::Open(nsIFilePickerShownCallback* aCallback) {
    // Can't show two dialogs concurrently with the same filepicker
-   if (mRunning) return NS_ERROR_NOT_AVAILABLE;
+   if (mFileChooser) return NS_ERROR_NOT_AVAILABLE;
+ 
+   if (MaybeBlockFilePicker(aCallback)) {
+     return NS_OK;
+   }
  
 +  // KDE file picker is not handled via callback
 +  if (nsKDEUtils::kdeSupport()) {
 +    mCallback = aCallback;
-+    mRunning = true;
 +    NS_ADDREF_THIS();
 +    g_idle_add(
 +        [](gpointer data) -> gboolean {
@@ -1290,7 +1287,6 @@ diff --git a/widget/gtk/nsFilePicker.cpp b/widget/gtk/nsFilePicker.cpp
 +          } else {
 +            queuedPicker->mResult = result;
 +          }
-+          queuedPicker->mRunning = false;
 +          NS_RELEASE(queuedPicker);
 +          return G_SOURCE_REMOVE;
 +        },
@@ -1307,7 +1303,7 @@ diff --git a/widget/gtk/nsFilePicker.cpp b/widget/gtk/nsFilePicker.cpp
    GtkFileChooserAction action = GetGtkFileChooserAction(mMode);
  
    const gchar* accept_button;
-@@ -628,16 +657,215 @@ void nsFilePicker::Done(void* file_choos
+@@ -707,16 +734,215 @@ void nsFilePicker::Done(void* file_choos
      mCallback->Done(result);
      mCallback = nullptr;
    } else {
@@ -1526,7 +1522,7 @@ diff --git a/widget/gtk/nsFilePicker.cpp b/widget/gtk/nsFilePicker.cpp
 diff --git a/widget/gtk/nsFilePicker.h b/widget/gtk/nsFilePicker.h
 --- a/widget/gtk/nsFilePicker.h
 +++ b/widget/gtk/nsFilePicker.h
-@@ -69,16 +69,22 @@ class nsFilePicker : public nsBaseFilePi
+@@ -71,16 +71,22 @@ class nsFilePicker : public nsBaseFilePi
    nsString mDefaultExtension;
  
    nsTArray<nsCString> mFilters;
@@ -1682,13 +1678,13 @@ diff --git a/xpcom/components/ManifestParser.cpp b/xpcom/components/ManifestPars
 diff --git a/xpcom/components/moz.build b/xpcom/components/moz.build
 --- a/xpcom/components/moz.build
 +++ b/xpcom/components/moz.build
-@@ -66,16 +66,17 @@ LOCAL_INCLUDES += [
-     "!..",
+@@ -67,16 +67,17 @@ LOCAL_INCLUDES += [
      "../base",
      "../build",
      "../ds",
      "/chrome",
      "/js/xpconnect/loader",
+     "/js/xpconnect/src",
      "/layout/build",
      "/modules/libjar",
 +    "/toolkit/xre",
@@ -1696,10 +1692,10 @@ diff --git a/xpcom/components/moz.build b/xpcom/components/moz.build
  
  if CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
      CXXFLAGS += CONFIG["MOZ_GTK3_CFLAGS"]
-     if CONFIG["MOZ_ENABLE_DBUS"]:
-         CXXFLAGS += CONFIG["MOZ_DBUS_GLIB_CFLAGS"]
  
  include("/ipc/chromium/chromium-config.mozbuild")
+ 
+ PYTHON_UNITTEST_MANIFESTS += [
 diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
 --- a/xpcom/io/nsLocalFileUnix.cpp
 +++ b/xpcom/io/nsLocalFileUnix.cpp
@@ -1721,7 +1717,7 @@ diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
  #  include "prmem.h"
  #  include "plbase64.h"
  
-@@ -2167,20 +2168,28 @@ nsLocalFile::SetPersistentDescriptor(con
+@@ -2205,20 +2206,28 @@ nsLocalFile::SetPersistentDescriptor(con
  
  NS_IMETHODIMP
  nsLocalFile::Reveal() {
@@ -1752,7 +1748,7 @@ diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
      ::CFRelease(url);
      return rv;
    }
-@@ -2192,16 +2201,23 @@ nsLocalFile::Reveal() {
+@@ -2230,16 +2239,23 @@ nsLocalFile::Reveal() {
  
  NS_IMETHODIMP
  nsLocalFile::Launch() {

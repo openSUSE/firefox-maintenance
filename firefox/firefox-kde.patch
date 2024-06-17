@@ -1,21 +1,40 @@
-# HG changeset patch
-# User msirringhaus@suse.de
-# Date 1559300151 -7200
-#      Fri May 31 12:55:51 2019 +0200
-# Node ID 54d41b0033b8d649d842a1f862c6fed8b9874dec
-# Parent  340817025937e2c69bb1643930d7dfdf63656a7b
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Martin Sirringhaus <msirringhaus@suse.de>
+Date: Tue, 8 Aug 2023 16:18:24 +0300
+Subject: [PATCH] Add KDE integration to Firefox
+
+Bug: https://bugzilla.mozilla.org/show_bug.cgi?id=140751
+Bug: https://bugzilla.suse.com/show_bug.cgi?id=170055
+
 How to apply this patch:
+
 1. Import and apply it
 2. cp browser/base/content/browser.xul browser/base/content/browser-kde.xul
 3. Find editBookmarkPanelDoneButton
 4. Replace #ifndef with #ifdef in the line above (this hanges the button order from Gnome-style to KDE-style)
 5. hg qrefresh
+---
+ browser/components/preferences/main.js        |  18 +++
+ browser/components/shell/moz.build            |   2 +
+ .../components/shell/nsKDEShellService.cpp    | 109 ++++++++++++++++++
+ browser/components/shell/nsKDEShellService.h  |  32 +++++
+ .../components/shell/nsUnixShellService.cpp   |  22 ++++
+ browser/components/shell/nsUnixShellService.h |  15 +++
+ 6 files changed, 198 insertions(+)
+ create mode 100644 browser/components/shell/nsKDEShellService.cpp
+ create mode 100644 browser/components/shell/nsKDEShellService.h
+ create mode 100644 browser/components/shell/nsUnixShellService.cpp
+ create mode 100644 browser/components/shell/nsUnixShellService.h
 
-Index: firefox-115.0/browser/components/preferences/main.js
-===================================================================
---- firefox-115.0.orig/browser/components/preferences/main.js
-+++ firefox-115.0/browser/components/preferences/main.js
-@@ -293,6 +293,13 @@ var gMainPane = {
+diff --git a/browser/components/preferences/main.js b/browser/components/preferences/main.js
+--- a/browser/components/preferences/main.js
++++ b/browser/components/preferences/main.js
+@@ -292,16 +292,23 @@ var gMainPane = {
+         }, backoffTimes[this._backoffIndex + 1 < backoffTimes.length ? this._backoffIndex++ : backoffTimes.length - 1]);
+       };
+ 
+       window.setTimeout(() => {
+         window.requestIdleCallback(pollForDefaultBrowser);
        }, backoffTimes[this._backoffIndex]);
      }
  
@@ -29,10 +48,20 @@ Index: firefox-115.0/browser/components/preferences/main.js
      this.initBrowserContainers();
      this.buildContentProcessCountMenuList();
  
-@@ -1762,6 +1769,17 @@ var gMainPane = {
-       }
+     this.updateDefaultPerformanceSettingsPref();
+ 
+     let defaultPerformancePref = Preferences.get(
+       "browser.preferences.defaultPerformanceSettings.enabled"
+     );
+@@ -1753,16 +1760,27 @@ var gMainPane = {
+ 
+       // Disable the set default button, so that the user doesn't try to hit it again
+       // while awaiting on setDefaultBrowser
+       let setDefaultButton = document.getElementById("setDefaultButton");
+       setDefaultButton.disabled = true;
+ 
        try {
-         shellSvc.setDefaultBrowser(true, false);
+         await shellSvc.setDefaultBrowser(false);
 +        if (kde_session == 1) {
 +          var shellObj = Components.classes["@mozilla.org/file/local;1"]
 +            .createInstance(Components.interfaces.nsILocalFile);
@@ -47,11 +76,20 @@ Index: firefox-115.0/browser/components/preferences/main.js
        } catch (ex) {
          console.error(ex);
          return;
-Index: firefox-115.0/browser/components/shell/moz.build
-===================================================================
---- firefox-115.0.orig/browser/components/shell/moz.build
-+++ firefox-115.0/browser/components/shell/moz.build
-@@ -36,6 +36,8 @@ elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "gt
+       } finally {
+         // Make sure to re-enable the default button when we're finished, regardless of the outcome
+         setDefaultButton.disabled = false;
+       }
+ 
+diff --git a/browser/components/shell/moz.build b/browser/components/shell/moz.build
+--- a/browser/components/shell/moz.build
++++ b/browser/components/shell/moz.build
+@@ -31,16 +31,18 @@ if CONFIG["MOZ_WIDGET_TOOLKIT"] == "coco
+     ]
+ elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
+     XPIDL_SOURCES += [
+         "nsIGNOMEShellService.idl",
+     ]
  
      SOURCES += [
          "nsGNOMEShellService.cpp",
@@ -60,11 +98,16 @@ Index: firefox-115.0/browser/components/shell/moz.build
      ]
      if CONFIG["MOZ_ENABLE_DBUS"]:
          SOURCES += [
-Index: firefox-115.0/browser/components/shell/nsKDEShellService.cpp
-===================================================================
+             "nsGNOMEShellDBusHelper.cpp",
+             "nsGNOMEShellSearchProvider.cpp",
+         ]
+         include("/ipc/chromium/chromium-config.mozbuild")
+ 
+diff --git a/browser/components/shell/nsKDEShellService.cpp b/browser/components/shell/nsKDEShellService.cpp
+new file mode 100644
 --- /dev/null
-+++ firefox-115.0/browser/components/shell/nsKDEShellService.cpp
-@@ -0,0 +1,109 @@
++++ b/browser/components/shell/nsKDEShellService.cpp
+@@ -0,0 +1,108 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* This Source Code Form is subject to the terms of the Mozilla Public
 + * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -120,8 +163,7 @@ Index: firefox-115.0/browser/components/shell/nsKDEShellService.cpp
 +}
 +
 +NS_IMETHODIMP
-+nsKDEShellService::SetDefaultBrowser(bool aClaimAllTypes,
-+                                     bool aForAllUsers)
++nsKDEShellService::SetDefaultBrowser(bool aForAllUsers)
 +{
 +    nsCOMPtr<nsIMutableArray> command = do_CreateInstance( NS_ARRAY_CONTRACTID );
 +    if (!command)
@@ -135,7 +177,7 @@ Index: firefox-115.0/browser/components/shell/nsKDEShellService.cpp
 +    cmdstr->SetData("SETDEFAULTBROWSER"_ns);
 +    command->AppendElement( cmdstr );
 +
-+    paramstr->SetData( aClaimAllTypes ? "ALLTYPES"_ns : "NORMAL"_ns );
++    paramstr->SetData("ALLTYPES"_ns);
 +    command->AppendElement( paramstr );
 +
 +    return nsKDEUtils::command( command ) ? NS_OK : NS_ERROR_FAILURE;
@@ -174,10 +216,10 @@ Index: firefox-115.0/browser/components/shell/nsKDEShellService.cpp
 +    return NS_ERROR_NOT_IMPLEMENTED;
 +}
 +
-Index: firefox-115.0/browser/components/shell/nsKDEShellService.h
-===================================================================
+diff --git a/browser/components/shell/nsKDEShellService.h b/browser/components/shell/nsKDEShellService.h
+new file mode 100644
 --- /dev/null
-+++ firefox-115.0/browser/components/shell/nsKDEShellService.h
++++ b/browser/components/shell/nsKDEShellService.h
 @@ -0,0 +1,32 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* This Source Code Form is subject to the terms of the Mozilla Public
@@ -211,10 +253,10 @@ Index: firefox-115.0/browser/components/shell/nsKDEShellService.h
 +};
 +
 +#endif // nskdeshellservice_h____
-Index: firefox-115.0/browser/components/shell/nsUnixShellService.cpp
-===================================================================
+diff --git a/browser/components/shell/nsUnixShellService.cpp b/browser/components/shell/nsUnixShellService.cpp
+new file mode 100644
 --- /dev/null
-+++ firefox-115.0/browser/components/shell/nsUnixShellService.cpp
++++ b/browser/components/shell/nsUnixShellService.cpp
 @@ -0,0 +1,22 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* This Source Code Form is subject to the terms of the Mozilla Public
@@ -238,10 +280,10 @@ Index: firefox-115.0/browser/components/shell/nsUnixShellService.cpp
 +        return nsKDEShellServiceConstructor( aIID, aResult );
 +    return nsGNOMEShellServiceConstructor( aIID, aResult );
 +}
-Index: firefox-115.0/browser/components/shell/nsUnixShellService.h
-===================================================================
+diff --git a/browser/components/shell/nsUnixShellService.h b/browser/components/shell/nsUnixShellService.h
+new file mode 100644
 --- /dev/null
-+++ firefox-115.0/browser/components/shell/nsUnixShellService.h
++++ b/browser/components/shell/nsUnixShellService.h
 @@ -0,0 +1,15 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* This Source Code Form is subject to the terms of the Mozilla Public

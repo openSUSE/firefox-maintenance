@@ -1,8 +1,8 @@
 #
-# spec file
+# spec file for package MozillaFirefox
 #
-# Copyright (c) 2023 SUSE LLC
-# Copyright (c) 2006-2023 Wolfgang Rosenauer <wr@rosenauer.org>
+# Copyright (c) 2024 SUSE LLC
+# Copyright (c) 2006-2024 Wolfgang Rosenauer <wr@rosenauer.org>
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -28,9 +28,9 @@
 # orig_suffix b3
 # major 69
 # mainver %%major.99
-%define major          116
-%define mainver        %major.0.3
-%define orig_version   116.0.3
+%define major          127
+%define mainver        %major.0
+%define orig_version   127.0
 %define orig_suffix    %{nil}
 %define update_channel release
 %define branding       1
@@ -73,7 +73,7 @@ BuildArch:      i686
 %define desktop_file_name %{progname}
 %define firefox_appid \{ec8030f7-c20a-464f-9b0e-13a3a9e97384\}
 %define __provides_exclude ^lib.*\\.so.*$
-%define __requires_exclude ^(libmoz.*|liblgpllibs.*|libxul.*)$
+%define __requires_exclude ^(libmoz.*|liblgpllibs.*|libxul.*|libgk.*)$
 %define localize 1
 %ifarch %ix86 x86_64
 %define crashreporter 1
@@ -97,14 +97,14 @@ BuildRequires:  dbus-1-glib-devel
 BuildRequires:  dejavu-fonts
 BuildRequires:  fdupes
 BuildRequires:  memory-constraints
-%if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150500
-BuildRequires:  gcc12
-BuildRequires:  gcc12-c++
+%if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150600
+BuildRequires:  gcc13
+BuildRequires:  gcc13-c++
 %else
 BuildRequires:  gcc-c++
 %endif
-BuildRequires:  cargo1.69
-BuildRequires:  rust1.69
+BuildRequires:  cargo1.76
+BuildRequires:  rust1.76
 %if 0%{useccache} != 0
 BuildRequires:  ccache
 %endif
@@ -114,7 +114,7 @@ BuildRequires:  libiw-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.35
-BuildRequires:  mozilla-nss-devel >= 3.91
+BuildRequires:  mozilla-nss-devel >= 3.100
 BuildRequires:  nasm >= 2.14
 BuildRequires:  nodejs >= 12.22.12
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
@@ -124,7 +124,7 @@ BuildRequires:  python39
 BuildRequires:  python39-curses
 BuildRequires:  python39-devel
 %else
-%if 0%{?sle_version} >= 150000 && 0%{?sle_version} <= 150500
+%if 0%{?sle_version} >= 150000 && 0%{?sle_version} <= 150600
 BuildRequires:  python39
 BuildRequires:  python39-curses
 BuildRequires:  python39-devel
@@ -134,7 +134,7 @@ BuildRequires:  python3-curses
 BuildRequires:  python3-devel
 %endif
 %endif
-BuildRequires:  rust-cbindgen >= 0.24.3
+BuildRequires:  rust-cbindgen >= 0.26
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
 BuildRequires:  xorg-x11-libXt-devel
@@ -228,19 +228,26 @@ Patch20:        one_swizzle_to_rule_them_all.patch
 Patch21:        svg-rendering.patch
 Patch22:        mozilla-partial-revert-1768632.patch
 Patch23:        mozilla-rust-disable-future-incompat.patch
+Patch24:        mozilla-bmo1822730.patch
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
 %endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post): coreutils shared-mime-info desktop-file-utils
-Requires(postun):shared-mime-info desktop-file-utils
+Requires(postun): shared-mime-info desktop-file-utils
 Requires:       %{name}-branding >= 68
 %requires_ge    mozilla-nspr
 %requires_ge    mozilla-nss
 %requires_ge    libfreetype6
 Recommends:     libcanberra0
 Recommends:     libpulse0
+# To make security-keys (e.g. Yubikey) work with FF, it needs the udev-rules installed.
+# A clean package with the most common rules exists only in SP3 onwards. `u2f-hosts` could be used on older
+# code streams, but it contains more than just the rules, so we're not recommending it here.
+%if 0%{?suse_version} >= 1600 || 0%{?sle_version} >= 150300
+Recommends:     libfido2-udev
+%endif
 # addon leads to startup crash (bnc#908892)
 Obsoletes:      tracker-miner-firefox < 0.15
 %if 0%{?devpkg} == 0
@@ -373,9 +380,9 @@ export BUILD_OFFICIAL=1
 export MOZ_TELEMETRY_REPORTING=1
 export MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE=system
 export CFLAGS="%{optflags}"
-%if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150500
-export CC=gcc-12
-export CXX=g++-12
+%if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150600
+export CC=gcc-13
+export CXX=g++-13
 %else
 %if 0%{?clang_build} == 0
 export CC=gcc
@@ -716,9 +723,7 @@ exit 0
 %{progdir}/*.so
 %{progdir}/glxtest
 %if 0%{wayland_supported}
-%ifarch %{arm} aarch64 %{ix86} x86_64
 %{progdir}/vaapitest
-%endif
 %endif
 %ifarch aarch64 riscv64 %arm
 %{progdir}/v4l2test
@@ -727,13 +732,12 @@ exit 0
 %{progdir}/fonts/
 %{progdir}/pingsender
 %{progdir}/platform.ini
-%{progdir}/plugin-container
 %if %crashreporter
 %{progdir}/crashreporter
-%{progdir}/crashreporter.ini
-%{progdir}/Throbber-small.gif
+#%{progdir}/crashreporter.ini
+#%{progdir}/Throbber-small.gif
 %{progdir}/minidump-analyzer
-%{progdir}/browser/crashreporter-override.ini
+#%{progdir}/browser/crashreporter-override.ini
 %endif
 %{_datadir}/applications/%{desktop_file_name}.desktop
 %{_datadir}/mime/packages/%{progname}.xml
