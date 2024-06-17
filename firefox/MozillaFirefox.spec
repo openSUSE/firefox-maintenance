@@ -28,10 +28,10 @@
 # orig_suffix b3
 # major 69
 # mainver %%major.99
-%define major          127
+%define major          128
 %define mainver        %major.0
-%define orig_version   127.0
-%define orig_suffix    %{nil}
+%define orig_version   128.0
+%define orig_suffix    b2
 %define update_channel release
 %define branding       1
 %define devpkg         1
@@ -42,25 +42,21 @@
 # upstream default is clang (to use gcc for large parts set to 0)
 %define clang_build    0
 
+# PIE, full relro
+%define build_hardened 1
+
 %bcond_with only_print_mozconfig
 
 # define if ccache should be used or not
-%define useccache     0
+%define useccache     1
 
 # SLE-12 doesn't have this macro
 %{!?_rpmmacrodir: %global _rpmmacrodir %{_rpmconfigdir}/macros.d}
 
-# No i586 on SLE-12, as the rpmlints are broken and can't handle the big rpms resulting from this build.
-%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
+# We don't ship i586 anywhere anymore
 ExclusiveArch:  aarch64 ppc64le x86_64 s390x
-%else
-# Firefox only supports i686
-%ifarch %ix86
-ExclusiveArch:  i586 i686
-BuildArch:      i686
-%{expand:%%global optflags %(echo "%optflags"|sed -e s/i586/i686/) -march=i686 -mtune=generic -msse2}
-%endif
-%endif
+
+# Let mach set the appropriate LTO-flags for us, but correctly.
 %{expand:%%global optflags %(echo "%optflags"|sed -e s/-flto=auto//) }
 
 # general build definitions
@@ -103,8 +99,8 @@ BuildRequires:  gcc13-c++
 %else
 BuildRequires:  gcc-c++
 %endif
-BuildRequires:  cargo1.76
-BuildRequires:  rust1.76
+BuildRequires:  cargo1.78
+BuildRequires:  rust1.78
 %if 0%{useccache} != 0
 BuildRequires:  ccache
 %endif
@@ -116,19 +112,22 @@ BuildRequires:  makeinfo
 BuildRequires:  mozilla-nspr-devel >= 4.35
 BuildRequires:  mozilla-nss-devel >= 3.100
 BuildRequires:  nasm >= 2.14
-BuildRequires:  nodejs >= 12.22.12
-%if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
+%if 0%{?sle_version} >= 120000 && 0%{?sle_version} <= 150000
+BuildRequires:  nodejs12 >= 12.22.12
 BuildRequires:  libXtst-devel
-BuildRequires:  python-libxml2
+#BuildRequires:  python-libxml2
 BuildRequires:  python39
 BuildRequires:  python39-curses
 BuildRequires:  python39-devel
 %else
-%if 0%{?sle_version} >= 150000 && 0%{?sle_version} <= 150600
+%if 0%{?sle_version} > 150000 && 0%{?sle_version} <= 150600
+BuildRequires:  nodejs12 >= 12.22.12
 BuildRequires:  python39
 BuildRequires:  python39-curses
 BuildRequires:  python39-devel
 %else
+# ALP
+BuildRequires:  nodejs >= 12.22.12
 BuildRequires:  python3 >= 3.7
 BuildRequires:  python3-curses
 BuildRequires:  python3-devel
@@ -146,11 +145,7 @@ BuildRequires:  zip
 %if 0%{?suse_version} < 1550
 BuildRequires:  pkgconfig(gconf-2.0) >= 1.2.1
 %endif
-%if (0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000)
-BuildRequires:  clang6-devel
-%else
-BuildRequires:  clang-devel >= 5
-%endif
+BuildRequires:  clang15-devel
 BuildRequires:  pkgconfig(glib-2.0) >= 2.22
 BuildRequires:  pkgconfig(gobject-2.0)
 BuildRequires:  pkgconfig(gtk+-3.0) >= 3.14.0
@@ -229,6 +224,10 @@ Patch21:        svg-rendering.patch
 Patch22:        mozilla-partial-revert-1768632.patch
 Patch23:        mozilla-rust-disable-future-incompat.patch
 Patch24:        mozilla-bmo1822730.patch
+Patch25:        mozilla-bmo1902304.patch
+%if (0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000)
+Patch26:        fix-sle12-build-errors.patch
+%endif
 # Firefox/browser
 Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
@@ -380,11 +379,11 @@ export BUILD_OFFICIAL=1
 export MOZ_TELEMETRY_REPORTING=1
 export MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE=system
 export CFLAGS="%{optflags}"
+%if 0%{?clang_build} == 0
 %if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150600
 export CC=gcc-13
 export CXX=g++-13
 %else
-%if 0%{?clang_build} == 0
 export CC=gcc
 export CXX=g++
 %endif
@@ -398,8 +397,13 @@ export CXX=g++
 # A lie to prevent -Wl,--gc-sections being set which requires more memory than 32bit can offer
 #export GC_SECTIONS_BREAKS_DEBUG_RANGES=yes
 %endif
+%if 0%{?build_hardened}
 export LDFLAGS="\$LDFLAGS -fPIC -Wl,-z,relro,-z,now"
+%endif
 %ifarch ppc64 ppc64le
+%if 0%{?clang_build} == 0
+#export CFLAGS="\$CFLAGS -mminimal-toc"
+%endif
 %endif
 %ifarch %ix86
 # Not enough memory on 32-bit systems, reduce debug info.
@@ -436,7 +440,7 @@ ac_add_options --enable-default-toolkit=cairo-gtk3
 %ifarch %ix86 %arm
 ac_add_options --disable-debug-symbols
 %else
-ac_add_options --enable-debug-symbols=-g0
+ac_add_options --enable-debug-symbols=-g1
 %endif
 ac_add_options --disable-install-strip
 %ifarch %ix86 %arm
@@ -492,7 +496,7 @@ ac_add_options --enable-optimize="-O1"
 %endif
 %ifarch x86_64
 # LTO needs newer toolchain stack only (at least GCC 8.2.1 (r268506)
-%if 0%{?suse_version} > 1500
+%if 0%{?suse_version} > 1600
 ac_add_options --enable-lto
 %if 0%{?do_profiling}
 ac_add_options MOZ_PGO=1
@@ -580,8 +584,10 @@ grep amazondotcom dist/firefox/browser/omni.ja
 # copy tree into RPM_BUILD_ROOT
 mkdir -p %{buildroot}%{progdir}
 cp -rf $RPM_BUILD_DIR/obj/dist/%{srcname}/* %{buildroot}%{progdir}
+%if %localize
 mkdir -p %{buildroot}%{progdir}/browser/extensions
 cp -rf $RPM_BUILD_DIR/langpacks_artifacts/* %{buildroot}%{progdir}/browser/extensions/
+%endif
 mkdir -p %{buildroot}%{progdir}/distribution/extensions
 mkdir -p %{buildroot}%{progdir}/browser/defaults/preferences/
 # renaming executables (for regular vs. ESR)
@@ -722,9 +728,7 @@ exit 0
 %{progdir}/dependentlibs.list
 %{progdir}/*.so
 %{progdir}/glxtest
-%if 0%{wayland_supported}
 %{progdir}/vaapitest
-%endif
 %ifarch aarch64 riscv64 %arm
 %{progdir}/v4l2test
 %endif

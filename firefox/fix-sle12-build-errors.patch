@@ -1,0 +1,13 @@
+Index: firefox-124.0.1/mfbt/Assertions.h
+===================================================================
+--- firefox-124.0.1.orig/mfbt/Assertions.h
++++ firefox-124.0.1/mfbt/Assertions.h
+@@ -230,7 +230,7 @@ MOZ_NoReturn(int aLine) {
+ #    define MOZ_REALLY_CRASH(line)                                  \
+       do {                                                          \
+         *((volatile int*)MOZ_CRASH_WRITE_ADDR) = line; /* NOLINT */ \
+-        MOZ_NOMERGE ::abort();                                      \
++        ::abort();                                                    \
+       } while (false)
+ #  else
+ #    define MOZ_REALLY_CRASH(line)                                  \
