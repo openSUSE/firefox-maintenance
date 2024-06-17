@@ -1,8 +1,8 @@
 #
 # spec file for package mozilla-nss
 #
-# Copyright (c) 2023 SUSE LLC
-# Copyright (c) 2006-2023 Wolfgang Rosenauer
+# Copyright (c) 2024 SUSE LLC
+# Copyright (c) 2006-2024 Wolfgang Rosenauer
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -17,14 +17,15 @@
 #
 
 
-%global nss_softokn_fips_version 3.92
+%global nss_softokn_fips_version 3.100
 %define NSPR_min_version 4.35
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 %define nssdbdir %{_sysconfdir}/pki/nssdb
+%global crypto_policies_version 20210118
 Name:           mozilla-nss
-Version:        3.92
+Version:        3.100
 Release:        0
-%define underscore_version 3_92
+%define underscore_version 3_100
 Summary:        Network Security Services
 License:        MPL-2.0
 Group:          System/Libraries
@@ -77,6 +78,8 @@ Patch44:        nss-fips-tests-enable-fips.patch
 Patch45:        nss-fips-drbg-libjitter.patch
 Patch46:        nss-allow-slow-tests.patch
 Patch47:        nss-fips-pct-pubkeys.patch
+Patch48:        nss-fips-test.patch
+Patch49:        nss-allow-slow-tests-s390x.patch
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 # aarch64 + gcc4.8 fails to build on SLE-12 due to undefined references
 BuildRequires:  gcc9-c++
@@ -92,6 +95,9 @@ BuildRequires:  jitterentropy-devel
 # Libjitter needs to be present before AND after the install
 Requires(pre):  libjitterentropy3
 Requires:       libjitterentropy3
+%endif
+%if 0%{?suse_version} >= 1550 || 0%{?sle_version} >= 150400
+Requires:       crypto-policies >= %{crypto_policies_version}
 %endif
 Requires:       libfreebl3 >= %{nss_softokn_fips_version}
 Requires:       libsoftokn3 >= %{nss_softokn_fips_version}
@@ -192,45 +198,50 @@ Mozilla project.
 %prep
 %setup -q -n nss-%{version}
 cd nss
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
+%patch -P 1 -p1
+%patch -P 2 -p1
+%patch -P 3 -p1
+%patch -P 4 -p1
 %if 0%{?suse_version} > 1110
-%patch5 -p1
+%patch -P 5 -p1
 %endif
-%patch6 -p1
-%patch7 -p1
+%patch -P 6 -p1
+%patch -P 7 -p1
 # FIPS patches
-%patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%patch13 -p1
-%patch14 -p1
-%patch15 -p1
-%patch16 -p1
-%patch17 -p1
-%patch18 -p1
-%patch19 -p1
-%patch20 -p1
-%patch21 -p1
-%patch22 -p1
-%patch24 -p1
-%patch25 -p1
-%patch26 -p1
-%patch27 -p1
-%patch37 -p1
-%patch38 -p1
-%patch40 -p1
-%patch41 -p1
-%patch44 -p1
+%patch -P 9 -p1
+%patch -P 10 -p1
+%patch -P 11 -p1
+%patch -P 12 -p1
+%patch -P 13 -p1
+%patch -P 14 -p1
+%patch -P 15 -p1
+%patch -P 16 -p1
+%patch -P 17 -p1
+%patch -P 18 -p1
+%patch -P 19 -p1
+%patch -P 20 -p1
+%patch -P 21 -p1
+%patch -P 22 -p1
+%patch -P 24 -p1
+%patch -P 25 -p1
+%patch -P 26 -p1
+%patch -P 27 -p1
+%patch -P 37 -p1
+%patch -P 38 -p1
+%patch -P 40 -p1
+%patch -P 41 -p1
+%patch -P 44 -p1
 # Libjitter only for SLE15 SP4+
 %if 0%{?sle_version} >= 150400
-%patch45 -p1
+%patch -P 45 -p1
 %endif
-%patch46 -p1
-%patch47 -p1
+%patch -P 46 -p1
+%patch -P 47 -p1
+%patch -P 48 -p1
+%ifarch s390x
+# slow test on s390x, permit more time
+%patch -P 49 -p1
+%endif
 
 # additional CA certificates
 #cd security/nss/lib/ckfw/builtins
@@ -270,6 +281,13 @@ export NSS_ENABLE_FIPS_INDICATORS=1
 export NSS_FIPS_MODULE_ID="\"SUSE Linux Enterprise NSS %{version}-%{release}\""
 #export SQLITE_LIB_NAME=nsssqlite3
 export MAKE_FLAGS="BUILD_OPT=1"
+%if 0%{?suse_version} >= 1550 || 0%{?sle_version} >= 150400
+# Set the policy file location
+# if set NSS will always check for the policy file and load if it exists
+#export POLICY_FILE="nss.config"
+# location of the policy file
+#export POLICY_PATH="/etc/crypto-policies/back-ends"
+%endif
 EOF
 
 source ../obsenv.sh
@@ -291,6 +309,11 @@ export HOST="localhost"
 export DOMSUF="localdomain"
 export USE_IP=TRUE
 export IP_ADDRESS="127.0.0.1"
+%if 0%{?suse_version} >= 1550 || 0%{?sle_version} >= 150400
+# This is necessary because the test suite tests algorithms that are
+# disabled by the system policy.
+export NSS_IGNORE_SYSTEM_POLICY=1
+%endif
 EOF
 source ../obsenv.sh
 source ../obstestenv.sh
@@ -454,6 +477,11 @@ if [ $1 = 0 ]; then
 fi
 
 %postun sysinit -p /sbin/ldconfig
+
+%if 0%{?suse_version} >= 1550 || 0%{?sle_version} >= 150400
+%posttrans
+update-crypto-policies &> /dev/null || :
+%endif
 
 %files
 %{_libdir}/libnss3.so
