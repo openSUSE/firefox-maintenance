@@ -78,6 +78,7 @@ Patch45:        nss-fips-drbg-libjitter.patch
 Patch46:        nss-allow-slow-tests.patch
 Patch47:        nss-fips-pct-pubkeys.patch
 Patch48:        nss-fix-bmo1836925.patch
+Patch49:        nss-fips-bsc1223724.patch
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 # aarch64 + gcc4.8 fails to build on SLE-12 due to undefined references
 BuildRequires:  gcc9-c++
@@ -233,6 +234,7 @@ cd nss
 %patch46 -p1
 %patch47 -p1
 %patch48 -p1
+%patch49 -p1
 
 # additional CA certificates
 #cd security/nss/lib/ckfw/builtins
