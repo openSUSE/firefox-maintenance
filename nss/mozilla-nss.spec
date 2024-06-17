@@ -103,6 +103,7 @@ Requires:       libnssckbi.so()(64bit)
 %else
 Requires:       libnssckbi.so
 %endif
+Provides:       nss = %{version}
 %ifnarch %sparc
 %if ! 0%{?qemu_user_space_build}
 %define run_testsuite 1
