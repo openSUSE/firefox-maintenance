@@ -1,7 +1,7 @@
 #
 # spec file
 #
-# Copyright (c) 2023 SUSE LLC
+# Copyright (c) 2024 SUSE LLC
 # Copyright (c) 2006-2023 Wolfgang Rosenauer <wr@rosenauer.org>
 #
 # All modifications and additions to the file contributed by third parties
@@ -27,10 +27,10 @@
 # orig_version 70.0
 # orig_suffix b3
 # major 69
-# mainver %major.99
+# mainver %%major.99
 %define major          115
-%define mainver        %major.5.0
-%define orig_version   115.5.0
+%define mainver        %major.11.0
+%define orig_version   115.11.0
 %define orig_suffix    %nil
 %define update_channel release
 %define source_prefix  thunderbird-%{orig_version}
