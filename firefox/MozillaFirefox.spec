@@ -29,8 +29,8 @@
 # major 69
 # mainver %%major.99
 %define major          115
-%define mainver        %major.6.0
-%define orig_version   115.6.0
+%define mainver        %major.12.0
+%define orig_version   115.12.0
 %define orig_suffix    esr
 %define update_channel release
 %define branding       1
