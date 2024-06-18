@@ -31,7 +31,7 @@
 %define major          128
 %define mainver        %major.0
 %define orig_version   128.0
-%define orig_suffix    b2
+%define orig_suffix    b4
 %define update_channel release
 %define branding       1
 %define devpkg         1
@@ -224,7 +224,6 @@ Patch21:        svg-rendering.patch
 Patch22:        mozilla-partial-revert-1768632.patch
 Patch23:        mozilla-rust-disable-future-incompat.patch
 Patch24:        mozilla-bmo1822730.patch
-Patch25:        mozilla-bmo1902304.patch
 %if (0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000)
 Patch26:        fix-sle12-build-errors.patch
 %endif
