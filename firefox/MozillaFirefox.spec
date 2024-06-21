@@ -207,23 +207,17 @@ Patch1:         mozilla-nongnome-proxies.patch
 Patch2:         mozilla-kde.patch
 Patch3:         mozilla-ntlm-full-path.patch
 Patch4:         mozilla-aarch64-startup-crash.patch
-Patch5:         mozilla-fix-aarch64-libopus.patch
 Patch6:         mozilla-s390-context.patch
 Patch7:         mozilla-pgo.patch
 Patch8:         mozilla-reduce-rust-debuginfo.patch
 Patch10:        mozilla-bmo1504834-part1.patch
-Patch11:        mozilla-bmo1504834-part3.patch
-Patch12:        mozilla-bmo1512162.patch
 Patch14:        mozilla-bmo849632.patch
 Patch15:        mozilla-bmo998749.patch
 Patch17:        mozilla-libavcodec58_91.patch
 Patch18:        mozilla-silence-no-return-type.patch
-Patch19:        mozilla-bmo531915.patch
 Patch20:        one_swizzle_to_rule_them_all.patch
 Patch21:        svg-rendering.patch
-Patch22:        mozilla-partial-revert-1768632.patch
 Patch23:        mozilla-rust-disable-future-incompat.patch
-Patch24:        mozilla-bmo1822730.patch
 %if (0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000)
 Patch26:        fix-sle12-build-errors.patch
 %endif
