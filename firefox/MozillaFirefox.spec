@@ -31,7 +31,7 @@
 %define major          128
 %define mainver        %major.0
 %define orig_version   128.0
-%define orig_suffix    b5
+%define orig_suffix    b6
 %define update_channel release
 %define branding       1
 %define devpkg         1
@@ -191,7 +191,7 @@ Source9:        firefox.js
 Source11:       firefox.1
 Source12:       mozilla-get-app-id
 Source13:       spellcheck.js
-Source14:       https://github.com/openSUSE/firefox-scripts/raw/545dee2/create-tar.sh
+Source14:       https://github.com/openSUSE/firefox-scripts/raw/9cd45f1/create-tar.sh
 Source15:       firefox-appdata.xml
 Source16:       %{name}.changes
 Source17:       firefox-search-provider.ini
