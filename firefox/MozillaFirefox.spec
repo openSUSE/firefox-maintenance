@@ -31,7 +31,7 @@
 %define major          128
 %define mainver        %major.0
 %define orig_version   128.0
-%define orig_suffix    b7
+%define orig_suffix    esr
 %define update_channel release
 %define branding       1
 %define devpkg         1
