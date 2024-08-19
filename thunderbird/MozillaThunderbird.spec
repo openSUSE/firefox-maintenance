@@ -1,8 +1,8 @@
 #
-# spec file
+# spec file for package MozillaThunderbird
 #
-# Copyright (c) 2023 SUSE LLC
-# Copyright (c) 2006-2023 Wolfgang Rosenauer <wr@rosenauer.org>
+# Copyright (c) 2024 SUSE LLC
+# Copyright (c) 2006-2024 Wolfgang Rosenauer <wr@rosenauer.org>
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -28,10 +28,10 @@
 # orig_suffix b3
 # major 69
 # mainver %%major.99
-%define major          115
+%define major          128
 %define mainver        %major.1.0
-%define orig_version   115.1.0
-%define orig_suffix    %nil
+%define orig_version   128.1.0
+%define orig_suffix    esr
 %define update_channel release
 %define source_prefix  thunderbird-%{orig_version}
 
@@ -41,6 +41,9 @@
 # upstream default is clang (to use gcc for large parts set to 0)
 %define clang_build    0
 
+# PIE, full relro
+%define build_hardened 1
+
 %bcond_with only_print_mozconfig
 
 %bcond_without mozilla_tb_kde4
@@ -48,14 +51,12 @@
 %bcond_without mozilla_tb_optimize_for_size
 
 # define if ccache should be used or not
-%define useccache     0
+%define useccache     1
 
-# Firefox only supports i686
-%ifarch %ix86
-ExclusiveArch:  i586 i686
-BuildArch:      i686
-%{expand:%%global optflags %(echo "%optflags"|sed -e s/i586/i686/) -march=i686 -mtune=generic -msse2}
-%endif
+# We don't ship i586 anywhere anymore
+ExclusiveArch:  aarch64 ppc64le x86_64 s390x
+
+# Let mach set the appropriate LTO-flags for us, but correctly.
 %{expand:%%global optflags %(echo "%optflags"|sed -e s/-flto=auto//) }
 
 # general build definitions
@@ -88,35 +89,47 @@ BuildRequires:  Mesa-devel
 BuildRequires:  alsa-devel
 BuildRequires:  autoconf213
 BuildRequires:  dbus-1-glib-devel
+BuildRequires:  dejavu-fonts
 BuildRequires:  fdupes
 BuildRequires:  memory-constraints
-%if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150500
-BuildRequires:  gcc12
-BuildRequires:  gcc12-c++
+%if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150600
+BuildRequires:  gcc13
+BuildRequires:  gcc13-c++
 %else
 BuildRequires:  gcc-c++
 %endif
-BuildRequires:  cargo1.69
-BuildRequires:  rust1.69
+BuildRequires:  cargo1.78
+BuildRequires:  rust1.78
 %if 0%{useccache} != 0
 BuildRequires:  ccache
 %endif
 BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
 BuildRequires:  mozilla-nspr-devel >= 4.35
-BuildRequires:  mozilla-nss-devel >= 3.90
+BuildRequires:  mozilla-nss-devel >= 3.101.1
 BuildRequires:  nasm >= 2.14
-BuildRequires:  nodejs >= 12.22.12
-%if 0%{?sle_version} >= 150000 && 0%{?sle_version} <= 150500
+%if 0%{?sle_version} >= 120000 && 0%{?sle_version} <= 150000
+BuildRequires:  nodejs12 >= 12.22.12
+BuildRequires:  libXtst-devel
+#BuildRequires:  python-libxml2
 BuildRequires:  python39
 BuildRequires:  python39-curses
 BuildRequires:  python39-devel
 %else
+%if 0%{?sle_version} > 150000 && 0%{?sle_version} <= 150600
+BuildRequires:  nodejs12 >= 12.22.12
+BuildRequires:  python39
+BuildRequires:  python39-curses
+BuildRequires:  python39-devel
+%else
+# ALP
+BuildRequires:  nodejs >= 12.22.12
 BuildRequires:  python3 >= 3.7
 BuildRequires:  python3-curses
 BuildRequires:  python3-devel
 %endif
-BuildRequires:  rust-cbindgen >= 0.24.3
+%endif
+BuildRequires:  rust-cbindgen >= 0.26
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
 BuildRequires:  xorg-x11-libXt-devel
@@ -128,7 +141,7 @@ BuildRequires:  zip
 %if 0%{?suse_version} < 1550
 BuildRequires:  pkgconfig(gconf-2.0) >= 1.2.1
 %endif
-BuildRequires:  clang-devel >= 5
+BuildRequires:  clang15-devel
 BuildRequires:  pkgconfig(glib-2.0) >= 2.22
 BuildRequires:  pkgconfig(gobject-2.0)
 BuildRequires:  pkgconfig(gtk+-3.0) >= 3.14.0
@@ -185,24 +198,18 @@ Patch2:         mozilla-kde.patch
 %endif
 Patch3:         mozilla-ntlm-full-path.patch
 Patch4:         mozilla-aarch64-startup-crash.patch
-Patch5:         mozilla-fix-aarch64-libopus.patch
 Patch6:         mozilla-s390-context.patch
 Patch7:         mozilla-pgo.patch
 Patch8:         mozilla-reduce-rust-debuginfo.patch
-Patch9:         mozilla-bmo1504834-part1.patch
-Patch10:        mozilla-bmo1504834-part3.patch
-Patch11:        mozilla-bmo1512162.patch
-Patch12:        mozilla-fix-top-level-asm.patch
-Patch13:        mozilla-bmo849632.patch
-Patch14:        mozilla-bmo998749.patch
-Patch15:        mozilla-libavcodec58_91.patch
-Patch16:        mozilla-silence-no-return-type.patch
-Patch17:        mozilla-bmo531915.patch
-Patch18:        one_swizzle_to_rule_them_all.patch
-Patch19:        svg-rendering.patch
-Patch20:        mozilla-partial-revert-1768632.patch
-Patch21:        mozilla-bmo1775202.patch
-Patch22:        mozilla-rust-disable-future-incompat.patch
+Patch10:        mozilla-bmo1504834-part1.patch
+Patch14:        mozilla-bmo849632.patch
+Patch15:        mozilla-bmo998749.patch
+Patch17:        mozilla-libavcodec58_91.patch
+Patch18:        mozilla-silence-no-return-type.patch
+Patch20:        one_swizzle_to_rule_them_all.patch
+Patch21:        svg-rendering.patch
+Patch24:        mozilla-bmo1898476.patch
+Patch25:        mozilla-bmo1907511.patch
 %endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 PreReq:         /bin/sh
@@ -216,6 +223,12 @@ PreReq:         textutils
 Recommends:     libcanberra0
 Recommends:     libotr5
 Recommends:     libpulse0
+# To make security-keys (e.g. Yubikey) work with TB, it needs the udev-rules installed.
+# A clean package with the most common rules exists only in SP3 onwards. `u2f-hosts` could be used on older
+# code streams, but it contains more than just the rules, so we're not recommending it here.
+%if 0%{?suse_version} >= 1600 || 0%{?sle_version} >= 150300
+Recommends:     libfido2-udev
+%endif
 Requires(post): desktop-file-utils
 Requires(postun):desktop-file-utils
 %define libgssapi libgssapi_krb5.so.2
@@ -306,25 +319,27 @@ export BUILD_OFFICIAL=1
 export MOZ_TELEMETRY_REPORTING=1
 export MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE=system
 export CFLAGS="%{optflags}"
-%if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150500
-export CC=gcc-12
-export CXX=g++-12
-%else
 %if 0%{?clang_build} == 0
+%if 0%{?suse_version} < 1550 && 0%{?sle_version} <= 150600
+export CC=gcc-13
+export CXX=g++-13
+%else
 export CC=gcc
 export CXX=g++
-%if 0%{?gcc_version:%{gcc_version}} >= 12
-export CFLAGS="\$CFLAGS -fimplicit-constexpr"
-%endif
 %endif
 %endif
 %ifarch %arm %ix86
+### NOTE: these sections are not required anymore. Alson --no-keep-memory + -Wl,-z,pack-relative-relocs causes
+### ld to go OOM (https://sourceware.org/bugzilla/show_bug.cgi?id=30756)
 # Limit RAM usage during link
-export LDFLAGS="\$LDFLAGS -Wl,--no-keep-memory -Wl,--reduce-memory-overheads"
+# export LDFLAGS="\$LDFLAGS -Wl,--no-keep-memory -Wl,--reduce-memory-overheads -Wl,--no-map-whole-files -Wl,--hash-size=31"
+#
 # A lie to prevent -Wl,--gc-sections being set which requires more memory than 32bit can offer
-export GC_SECTIONS_BREAKS_DEBUG_RANGES=yes
+#export GC_SECTIONS_BREAKS_DEBUG_RANGES=yes
 %endif
+%if 0%{?build_hardened}
 export LDFLAGS="\$LDFLAGS -fPIC -Wl,-z,relro,-z,now"
+%endif
 %ifarch ppc64 ppc64le
 %if 0%{?clang_build} == 0
 #export CFLAGS="\$CFLAGS -mminimal-toc"
@@ -349,7 +364,7 @@ cat << EOF > $MOZCONFIG
 mk_add_options MOZILLA_OFFICIAL=1
 mk_add_options BUILD_OFFICIAL=1
 mk_add_options MOZ_MAKE_FLAGS=%{?jobs:-j%jobs}
-mk_add_options MOZ_OBJDIR=$RPM_BUILD_DIR/obj
+mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../obj
 ac_add_options --disable-bootstrap
 ac_add_options --prefix=%{_prefix}
 ac_add_options --libdir=%{_libdir}
@@ -368,12 +383,6 @@ ac_add_options --disable-debug-symbols
 ac_add_options --enable-debug-symbols=-g1
 %endif
 ac_add_options --disable-install-strip
-# building with elf-hack started to fail everywhere with FF73
-#%%if 0%%{?suse_version} > 1549
-%ifarch %arm %ix86 x86_64
-ac_add_options --disable-elf-hack
-%endif
-#%%endif
 ac_add_options --with-system-nspr
 ac_add_options --with-system-nss
 %if 0%{useccache} != 0
@@ -387,7 +396,7 @@ ac_add_options --disable-updater
 ac_add_options --disable-tests
 ac_add_options --enable-alsa
 ac_add_options --disable-debug
-ac_add_options --disable-necko-wifi
+#ac_add_options --disable-necko-wifi
 ac_add_options --enable-update-channel=%{update_channel}
 ac_add_options --with-unsigned-addon-scopes=app
 ac_add_options --allow-addon-sideload
@@ -415,8 +424,8 @@ ac_add_options --enable-optimize="-O1"
 %endif
 %ifarch x86_64
 # LTO needs newer toolchain stack only (at least GCC 8.2.1 (r268506)
-%if 0%{?suse_version} > 1500
-#ac_add_options --enable-lto
+%if 0%{?suse_version} > 1600
+ac_add_options --enable-lto
 %if 0%{?do_profiling}
 ac_add_options MOZ_PGO=1
 %endif
@@ -443,6 +452,9 @@ xvfb-run --server-args="-screen 0 1920x1080x24" \
 
 # build additional locales
 %if %localize
+# Work around the following Exception: Cannot use MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE="system" for any sites other than ('mach', 'build', 'common'). The current attempted site is "tb_common".
+# by unsetting MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE, which we don't need for l10n-packages
+unset MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE
 truncate -s 0 %{_tmppath}/translations.{common,other}
 # langpack-build can not be done in parallel easily (see https://bugzilla.mozilla.org/show_bug.cgi?id=1660943)
 # Therefore, we have to have a separate obj-dir for each language
@@ -462,11 +474,7 @@ ac_add_options --without-wasm-sandboxed-libraries
 ac_add_options --enable-official-branding
 EOF
 
-%ifarch %ix86
-%define njobs 1
-%else
 %define njobs 0%{?jobs:%jobs}
-%endif
 mkdir -p $RPM_BUILD_DIR/langpacks_artifacts/
 
 sed -r '/^(ja-JP-mac|ga-IE|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{source_prefix}/comm/mail/locales/shipped-locales \
@@ -535,6 +543,9 @@ mkdir -p %{buildroot}%{_datadir}/applications
 install -m 644 %{SOURCE1} \
                %{buildroot}%{_datadir}/applications/%{desktop_file_name}.desktop
 %suse_update_desktop_file %{desktop_file_name} Network Email GTK
+# additional mime-types
+mkdir -p %{buildroot}%{_datadir}/mime/packages
+# cp %{SOURCE8} %{buildroot}%{_datadir}/mime/packages/%{progname}.xml
 # appdata
 mkdir -p %{buildroot}%{_datadir}/appdata
 cp %{SOURCE9} %{buildroot}%{_datadir}/appdata/%{desktop_file_name}.appdata.xml
@@ -594,22 +605,17 @@ exit 0
 %{progdir}/dependentlibs.list
 %{progdir}/*.so
 %{progdir}/glxtest
-%if 0%{wayland_supported}
 %{progdir}/vaapitest
-%endif
 %{progdir}/omni.ja
 %{progdir}/fonts/
 %{progdir}/pingsender
 %{progdir}/platform.ini
-%{progdir}/plugin-container
 %{progdir}/rnp-cli
 %{progdir}/rnpkeys
 %{progdir}/thunderbird-bin
 # crashreporter files
 %if %crashreporter
 %{progdir}/crashreporter
-%{progdir}/crashreporter.ini
-%{progdir}/Throbber-small.gif
 %{progdir}/minidump-analyzer
 %endif
 %dir %{progdir}/chrome/
@@ -618,6 +624,7 @@ exit 0
 %{progdir}/isp/
 %{_datadir}/appdata/
 %{_datadir}/applications/%{desktop_file_name}.desktop
+%{_datadir}/mime/packages/
 %{_datadir}/icons/hicolor/*/apps/%{progname}.png
 %{_datadir}/icons/hicolor/symbolic/apps/%{progname}-symbolic.svg
 %{_bindir}/%{progname}
