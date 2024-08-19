@@ -17,14 +17,14 @@
 #
 
 
-%global nss_softokn_fips_version 3.101.1
+%global nss_softokn_fips_version 3.101.2
 %define NSPR_min_version 4.35
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 %define nssdbdir %{_sysconfdir}/pki/nssdb
 Name:           mozilla-nss
-Version:        3.101.1
+Version:        3.101.2
 Release:        0
-%define underscore_version 3_101_1
+%define underscore_version 3_101_2
 Summary:        Network Security Services
 License:        MPL-2.0
 Group:          System/Libraries
@@ -80,6 +80,8 @@ Patch47:        nss-fips-pct-pubkeys.patch
 Patch48:        nss-fips-test.patch
 Patch49:        nss-allow-slow-tests-s390x.patch
 Patch50:        nss-fips-bsc1223724.patch
+Patch51:        nss-fips-aes-gcm-restrict.patch
+Patch52:        nss-fips-safe-memset.patch
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 # aarch64 + gcc4.8 fails to build on SLE-12 due to undefined references
 BuildRequires:  gcc9-c++
@@ -146,6 +148,7 @@ applications that use NSS.
 Summary:        System NSS Initialization
 Group:          System/Management
 Requires:       mozilla-nss >= %{version}
+Requires(post): sed
 Requires(post): coreutils
 
 %description sysinit
@@ -241,6 +244,11 @@ cd nss
 %patch -P 49 -p1
 %endif
 %patch -P 50 -p1
+%patch -P 51 -p1
+%if 0%{?sle_version} >= 150000
+# glibc on SLE-12 is too old and doesn't have explicit_bzero yet. 
+%patch -P 52 -p1
+%endif
 
 # additional CA certificates
 #cd security/nss/lib/ckfw/builtins
