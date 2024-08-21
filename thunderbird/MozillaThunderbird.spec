@@ -68,7 +68,7 @@ ExclusiveArch:  aarch64 ppc64le x86_64 s390x
 %define gnome_dir     %{_prefix}
 %define desktop_file_name %{progname}
 %define __provides_exclude ^lib.*\\.so.*$
-%define __requires_exclude ^(libmoz.*|liblgpllibs.*|libxul.*|libldap.*|libldif.*|libprldap.*|librnp.*)$
+%define __requires_exclude ^(libmoz.*|liblgpllibs.*|libxul.*|libgk.*|libldap.*|libldif.*|libprldap.*|librnp.*)$
 %define localize 1
 %ifarch %ix86 x86_64
 %define crashreporter 1
@@ -210,6 +210,7 @@ Patch20:        one_swizzle_to_rule_them_all.patch
 Patch21:        svg-rendering.patch
 Patch24:        mozilla-bmo1898476.patch
 Patch25:        mozilla-bmo1907511.patch
+Patch26:        thunderbird-fix-CVE-2024-34703.patch
 %endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 PreReq:         /bin/sh
@@ -474,7 +475,10 @@ ac_add_options --without-wasm-sandboxed-libraries
 ac_add_options --enable-official-branding
 EOF
 
-%define njobs 0%{?jobs:%jobs}
+#%%define njobs 0%{?jobs:%jobs}
+# Weird race condition when building langpacks which comes and goes in OBS/IBS is hitting heavy with TB 128
+# so we have to build it sequentially, sadly.
+%define njobs 1
 mkdir -p $RPM_BUILD_DIR/langpacks_artifacts/
 
 sed -r '/^(ja-JP-mac|ga-IE|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{source_prefix}/comm/mail/locales/shipped-locales \
