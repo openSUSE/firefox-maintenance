@@ -17,14 +17,15 @@
 #
 
 
-%global nss_softokn_fips_version 3.101
+%global nss_softokn_fips_version 3.104
 %define NSPR_min_version 4.35
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 %define nssdbdir %{_sysconfdir}/pki/nssdb
+%global crypto_policies_version 20210218
 Name:           mozilla-nss
-Version:        3.101
+Version:        3.104
 Release:        0
-%define underscore_version 3_101
+%define underscore_version 3_104
 Summary:        Network Security Services
 License:        MPL-2.0
 Group:          System/Libraries
@@ -80,6 +81,8 @@ Patch47:        nss-fips-pct-pubkeys.patch
 Patch48:        nss-fips-test.patch
 Patch49:        nss-allow-slow-tests-s390x.patch
 Patch50:        nss-fips-bsc1223724.patch
+Patch51:        nss-fips-aes-gcm-restrict.patch
+Patch52:        nss-fips-safe-memset.patch
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 # aarch64 + gcc4.8 fails to build on SLE-12 due to undefined references
 BuildRequires:  gcc9-c++
@@ -149,6 +152,7 @@ applications that use NSS.
 Summary:        System NSS Initialization
 Group:          System/Management
 Requires:       mozilla-nss >= %{version}
+Requires(post): sed
 Requires(post): coreutils
 
 %description sysinit
@@ -244,6 +248,11 @@ cd nss
 %patch -P 49 -p1
 %endif
 %patch -P 50 -p1
+%patch -P 51 -p1
+%if 0%{?sle_version} >= 150000
+# glibc on SLE-12 is too old and doesn't have explicit_bzero yet.
+%patch -P 52 -p1
+%endif
 
 # additional CA certificates
 #cd security/nss/lib/ckfw/builtins
@@ -450,15 +459,15 @@ install -m 744 %{SOURCE6} %{buildroot}%{_sbindir}/
 install -m 644 %{SOURCE7} %{buildroot}%{nssdbdir}
 install -m 644 %{SOURCE8} %{buildroot}%{nssdbdir}
 install -m 644 %{SOURCE9} %{buildroot}%{nssdbdir}
-# create shlib sigs after extracting debuginfo
+# create shlib sigs after extracting debuginfo with a hard-coded key to produce reproducible checksums, using the same key that openssl uses.
 %define __spec_install_post \
   %{?__debug_package:%{__debug_install_post}} \
   %{__arch_install_post} \
   %__os_install_post \
-  LD_LIBRARY_PATH=:%{buildroot}%{_libdir} %{buildroot}%{_libexecdir}/nss/shlibsign -i %{buildroot}%{_libdir}/libsoftokn3.so \
-  LD_LIBRARY_PATH=:%{buildroot}%{_libdir} %{buildroot}%{_libexecdir}/nss/shlibsign -i %{buildroot}%{_libdir}/libnssdbm3.so \
-  LD_LIBRARY_PATH=:%{buildroot}%{_libdir} %{buildroot}%{_libexecdir}/nss/shlibsign -i %{buildroot}/%{_libdir}/libfreebl3.so \
-  LD_LIBRARY_PATH=:%{buildroot}%{_libdir} %{buildroot}%{_libexecdir}/nss/shlibsign -i %{buildroot}/%{_libdir}/libfreeblpriv3.so \
+  LD_LIBRARY_PATH=:%{buildroot}%{_libdir} %{buildroot}%{_libexecdir}/nss/shlibsign -K f4556650ac31d35461610bac4ed81b1a181b2d8a43ea2854cbae22ca74560813 -i %{buildroot}%{_libdir}/libsoftokn3.so \
+  LD_LIBRARY_PATH=:%{buildroot}%{_libdir} %{buildroot}%{_libexecdir}/nss/shlibsign -K f4556650ac31d35461610bac4ed81b1a181b2d8a43ea2854cbae22ca74560813 -i %{buildroot}%{_libdir}/libnssdbm3.so \
+  LD_LIBRARY_PATH=:%{buildroot}%{_libdir} %{buildroot}%{_libexecdir}/nss/shlibsign -K f4556650ac31d35461610bac4ed81b1a181b2d8a43ea2854cbae22ca74560813 -i %{buildroot}/%{_libdir}/libfreebl3.so \
+  LD_LIBRARY_PATH=:%{buildroot}%{_libdir} %{buildroot}%{_libexecdir}/nss/shlibsign -K f4556650ac31d35461610bac4ed81b1a181b2d8a43ea2854cbae22ca74560813 -i %{buildroot}/%{_libdir}/libfreeblpriv3.so \
 %{nil}
 
 %post -p /sbin/ldconfig
