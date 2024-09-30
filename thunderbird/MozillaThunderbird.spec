@@ -29,8 +29,8 @@
 # major 69
 # mainver %%major.99
 %define major          128
-%define mainver        %major.1.0
-%define orig_version   128.1.0
+%define mainver        %major.2.3
+%define orig_version   128.2.3
 %define orig_suffix    esr
 %define update_channel release
 %define source_prefix  thunderbird-%{orig_version}
@@ -208,8 +208,6 @@ Patch17:        mozilla-libavcodec58_91.patch
 Patch18:        mozilla-silence-no-return-type.patch
 Patch20:        one_swizzle_to_rule_them_all.patch
 Patch21:        svg-rendering.patch
-Patch24:        mozilla-bmo1898476.patch
-Patch25:        mozilla-bmo1907511.patch
 Patch26:        thunderbird-fix-CVE-2024-34703.patch
 %endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
