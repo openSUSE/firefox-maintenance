@@ -1,12 +1,22 @@
 # HG changeset patch
+
+From: Martin Sirringhaus <martin.sirringhaus@suse.com>
+
 # User Wolfgang Rosenauer <wr@rosenauer.org>
 # Parent  9959fe2a13a39cbeb98ca1bef2e21caba16717bd
+---
+ build/moz.configure/lto-pgo.configure          |    6 +++---
+ build/pgo/profileserver.py                     |   25 ++++++++++++++++++++----
+ build/unix/mozconfig.unix                      |    9 +++++++++
+ extensions/spellcheck/src/moz.build            |    2 ++
+ toolkit/components/terminator/nsTerminator.cpp |    5 +++++
+ 5 files changed, 40 insertions(+), 7 deletions(-)
 
-Index: firefox-115.0/build/moz.configure/lto-pgo.configure
-===================================================================
---- firefox-115.0.orig/build/moz.configure/lto-pgo.configure
-+++ firefox-115.0/build/moz.configure/lto-pgo.configure
-@@ -251,8 +251,8 @@ def lto(
+diff --git a/build/moz.configure/lto-pgo.configure b/build/moz.configure/lto-pgo.configure
+index eb0f87400885..257a71a4e5df 100644
+--- a/build/moz.configure/lto-pgo.configure
++++ b/build/moz.configure/lto-pgo.configure
+@@ -347,8 +347,8 @@ def lto(
              cflags.append("-flto")
              ldflags.append("-flto")
          else:
@@ -17,7 +27,7 @@ Index: firefox-115.0/build/moz.configure/lto-pgo.configure
  
          if target.os == "Android" and "cross" in values:
              # Work around https://github.com/rust-lang/rust/issues/90088
-@@ -268,7 +268,7 @@ def lto(
+@@ -364,7 +364,7 @@ def lto(
          if "full" in values:
              cflags.append("-flto")
          else:
@@ -26,10 +36,10 @@ Index: firefox-115.0/build/moz.configure/lto-pgo.configure
          # With clang-cl, -flto can only be used with -c or -fuse-ld=lld.
          # AC_TRY_LINKs during configure don't have -c, so pass -fuse-ld=lld.
          cflags.append("-fuse-ld=lld")
-Index: firefox-115.0/build/pgo/profileserver.py
-===================================================================
---- firefox-115.0.orig/build/pgo/profileserver.py
-+++ firefox-115.0/build/pgo/profileserver.py
+diff --git a/build/pgo/profileserver.py b/build/pgo/profileserver.py
+index 6017810c873f..64c76af933ea 100755
+--- a/build/pgo/profileserver.py
++++ b/build/pgo/profileserver.py
 @@ -11,7 +11,7 @@ import subprocess
  import sys
  
@@ -39,7 +49,7 @@ Index: firefox-115.0/build/pgo/profileserver.py
  from mozfile import TemporaryDirectory
  from mozhttpd import MozHttpd
  from mozprofile import FirefoxProfile, Preferences
-@@ -87,9 +87,22 @@ if __name__ == "__main__":
+@@ -97,9 +97,22 @@ if __name__ == "__main__":
      locations = ServerLocations()
      locations.add_host(host="127.0.0.1", port=PORT, options="primary,privileged")
  
@@ -65,7 +75,7 @@ Index: firefox-115.0/build/pgo/profileserver.py
  
      with TemporaryDirectory() as profilePath:
          # TODO: refactor this into mozprofile
-@@ -213,6 +226,10 @@ if __name__ == "__main__":
+@@ -229,6 +242,10 @@ if __name__ == "__main__":
              print("Firefox exited successfully, but produced a crashreport")
              sys.exit(1)
  
@@ -76,10 +86,10 @@ Index: firefox-115.0/build/pgo/profileserver.py
          llvm_profdata = env.get("LLVM_PROFDATA")
          if llvm_profdata:
              profraw_files = glob.glob("*.profraw")
-Index: firefox-115.0/build/unix/mozconfig.unix
-===================================================================
---- firefox-115.0.orig/build/unix/mozconfig.unix
-+++ firefox-115.0/build/unix/mozconfig.unix
+diff --git a/build/unix/mozconfig.unix b/build/unix/mozconfig.unix
+index 05bf666b3925..de449359b01f 100644
+--- a/build/unix/mozconfig.unix
++++ b/build/unix/mozconfig.unix
 @@ -4,6 +4,15 @@ if [ -n "$FORCE_GCC" ]; then
      CC="$MOZ_FETCHES_DIR/gcc/bin/gcc"
      CXX="$MOZ_FETCHES_DIR/gcc/bin/g++"
@@ -96,21 +106,21 @@ Index: firefox-115.0/build/unix/mozconfig.unix
      # We want to make sure we use binutils and other binaries in the tooltool
      # package.
      mk_add_options "export PATH=$MOZ_FETCHES_DIR/gcc/bin:$MOZ_FETCHES_DIR/binutils/bin:$PATH"
-Index: firefox-115.0/extensions/spellcheck/src/moz.build
-===================================================================
---- firefox-115.0.orig/extensions/spellcheck/src/moz.build
-+++ firefox-115.0/extensions/spellcheck/src/moz.build
-@@ -28,3 +28,5 @@ EXPORTS.mozilla += [
+diff --git a/extensions/spellcheck/src/moz.build b/extensions/spellcheck/src/moz.build
+index c4ce09efca34..ee64cb1f48fa 100644
+--- a/extensions/spellcheck/src/moz.build
++++ b/extensions/spellcheck/src/moz.build
+@@ -26,3 +26,5 @@ EXPORTS.mozilla += [
      "mozInlineSpellChecker.h",
      "mozSpellChecker.h",
  ]
 +
 +CXXFLAGS += ['-fno-devirtualize']
-Index: firefox-115.0/toolkit/components/terminator/nsTerminator.cpp
-===================================================================
---- firefox-115.0.orig/toolkit/components/terminator/nsTerminator.cpp
-+++ firefox-115.0/toolkit/components/terminator/nsTerminator.cpp
-@@ -460,6 +460,11 @@ void nsTerminator::StartWatchdog() {
+diff --git a/toolkit/components/terminator/nsTerminator.cpp b/toolkit/components/terminator/nsTerminator.cpp
+index 8c456b142a4f..cb8109f7f966 100644
+--- a/toolkit/components/terminator/nsTerminator.cpp
++++ b/toolkit/components/terminator/nsTerminator.cpp
+@@ -330,6 +330,11 @@ void nsTerminator::StartWatchdog() {
    }
  #endif
  

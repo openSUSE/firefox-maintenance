@@ -1,8 +1,8 @@
 #
 # spec file for package MozillaFirefox
 #
-# Copyright (c) 2024 SUSE LLC
-# Copyright (c) 2006-2024 Wolfgang Rosenauer <wr@rosenauer.org>
+# Copyright (c) 2025 SUSE LLC
+# Copyright (c) 2006-2025 Wolfgang Rosenauer <wr@rosenauer.org>
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -28,9 +28,9 @@
 # orig_suffix b3
 # major 69
 # mainver %%major.99
-%define major          128
-%define mainver        %major.12.0
-%define orig_version   128.12.0
+%define major          140
+%define mainver        %major.0
+%define orig_version   140.0
 %define orig_suffix    esr
 %define update_channel release
 %define branding       1
@@ -70,6 +70,7 @@ ExclusiveArch:  aarch64 ppc64le x86_64 s390x
 %define firefox_appid \{ec8030f7-c20a-464f-9b0e-13a3a9e97384\}
 %define __provides_exclude ^lib.*\\.so.*$
 %define __requires_exclude ^(libmoz.*|liblgpllibs.*|libxul.*|libgk.*)$
+
 %define localize 1
 %ifarch %ix86 x86_64
 %define crashreporter 1
@@ -99,8 +100,8 @@ BuildRequires:  gcc13-c++
 %else
 BuildRequires:  gcc-c++
 %endif
-BuildRequires:  cargo1.78
-BuildRequires:  rust1.78
+BuildRequires:  cargo1.86
+BuildRequires:  rust1.86
 %if 0%{useccache} != 0
 BuildRequires:  ccache
 %endif
@@ -109,8 +110,8 @@ BuildRequires:  libcurl-devel
 BuildRequires:  libiw-devel
 BuildRequires:  libproxy-devel
 BuildRequires:  makeinfo
-BuildRequires:  mozilla-nspr-devel >= 4.35
-BuildRequires:  mozilla-nss-devel >= 3.101.1
+BuildRequires:  mozilla-nspr-devel >= 4.36
+BuildRequires:  mozilla-nss-devel >= 3.112
 BuildRequires:  nasm >= 2.14
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} <= 150000
 BuildRequires:  nodejs12 >= 12.22.12
@@ -133,9 +134,12 @@ BuildRequires:  python3-curses
 BuildRequires:  python3-devel
 %endif
 %endif
-BuildRequires:  rust-cbindgen >= 0.26
+BuildRequires:  rust-cbindgen >= 0.27
+%if 0%{?suse_version} > 1600
+BuildRequires:  translate-suse-desktop
+%endif
 BuildRequires:  unzip
-BuildRequires:  update-desktop-files
+# BuildRequires:  update-desktop-files
 BuildRequires:  xorg-x11-libXt-devel
 %if 0%{?do_profiling}
 BuildRequires:  xvfb-run
@@ -169,20 +173,19 @@ Provides:       firefox = %{version}-%{release}
 Provides:       web_browser
 Provides:       appdata()
 Provides:       appdata(firefox.appdata.xml)
-# this is needed to match this package with the kde4 helper package without the main package
-# having a hard requirement on the kde4 package
-%define kde_helper_version 6
-Provides:       mozilla-kde4-version = %{kde_helper_version}
 Summary:        Mozilla %{appname} Web Browser
 License:        MPL-2.0
 Group:          Productivity/Networking/Web/Browsers
 URL:            http://www.mozilla.org/
 %if !%{with only_print_mozconfig}
 Source:         http://ftp.mozilla.org/pub/%{srcname}/releases/%{version}%{orig_suffix}/source/%{srcname}-%{orig_version}%{orig_suffix}.source.tar.xz
-Source1:        MozillaFirefox.desktop
+Source1:        MozillaFirefox.desktop.in.in
 Source2:        MozillaFirefox-rpmlintrc
 Source3:        mozilla.sh.in
 Source4:        tar_stamps
+# Ready made desktop file for products that don't support %%translate_suse_desktop.
+# You can be prompted for the update during the Factory build.
+Source5:        MozillaFirefox.desktop
 %if %{localize}
 Source7:        l10n-%{orig_version}%{orig_suffix}.tar.xz
 %endif
@@ -191,7 +194,7 @@ Source9:        firefox.js
 Source11:       firefox.1
 Source12:       mozilla-get-app-id
 Source13:       spellcheck.js
-Source14:       https://github.com/openSUSE/firefox-scripts/raw/2db396e/create-tar.sh
+Source14:       https://github.com/openSUSE/firefox-scripts/raw/913fab1/create-tar.sh
 Source15:       firefox-appdata.xml
 Source16:       %{name}.changes
 Source17:       firefox-search-provider.ini
@@ -204,7 +207,6 @@ Source20:       https://ftp.mozilla.org/pub/%{srcname}/releases/%{version}%{orig
 Source21:       https://ftp.mozilla.org/pub/%{srcname}/releases/%{version}%{orig_suffix}/KEY#/mozilla.keyring
 # Gecko/Toolkit
 Patch1:         mozilla-nongnome-proxies.patch
-Patch2:         mozilla-kde.patch
 Patch3:         mozilla-ntlm-full-path.patch
 Patch4:         mozilla-aarch64-startup-crash.patch
 Patch6:         mozilla-s390-context.patch
@@ -217,18 +219,15 @@ Patch17:        mozilla-libavcodec58_91.patch
 Patch18:        mozilla-silence-no-return-type.patch
 Patch20:        one_swizzle_to_rule_them_all.patch
 Patch21:        svg-rendering.patch
-Patch23:        mozilla-rust-disable-future-incompat.patch
-%if (0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000)
-Patch26:        fix-sle12-build-errors.patch
-%endif
+Patch24:        mozilla-bmo1746799.patch
 # Firefox/browser
-Patch101:       firefox-kde.patch
 Patch102:       firefox-branded-icons.patch
 %endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post): coreutils shared-mime-info desktop-file-utils
 Requires(postun): shared-mime-info desktop-file-utils
 Requires:       %{name}-branding >= 68
+Requires:       xdg-desktop-portal
 %requires_ge    mozilla-nspr
 %requires_ge    mozilla-nss
 %requires_ge    libfreetype6
@@ -327,11 +326,33 @@ fi
 %else
 %setup -q -n %{srcname}-%{orig_version}
 %endif
+%if 0%{?suse_version} > 1600
+cp %{SOURCE1} %{desktop_file_name}.desktop.in.in
+%else
+cp %{SOURCE5} %{desktop_file_name}.desktop
+%endif
 cd $RPM_BUILD_DIR/%{srcname}-%{orig_version}
 %autopatch -p1
 %endif
 
 %build
+# desktop file
+%if 0%{?suse_version} > 1600
+sed "s:%%NAME:%{appname}:g
+s:%%EXEC:%{progname}:g
+s:%%ICON:%{progname}:g
+s:%%WMCLASS:%{progname}%{major}:g" \
+  %{desktop_file_name}.desktop.in.in > %{desktop_file_name}.desktop.in
+%translate_suse_desktop %{desktop_file_name}.desktop
+if ! diff %{desktop_file_name}.desktop %{SOURCE5} ; then
+cat <<EOF
+A new version of desktop file exists. Please update MozillaFirefox.desktop
+rpm source from $PWD/%{desktop_file_name}.desktop
+to get translations to older products.
+EOF
+  exit 1
+fi
+%endif
 %if !%{with only_print_mozconfig}
 # no need to add build time to binaries
 modified="$(sed -n '/^----/n;s/ - .*$//;p;q' "%{_sourcedir}/%{pkgname}.changes")"
@@ -346,12 +367,6 @@ sed -i "s|/usr/bin/env python3|/usr/bin/env python3.9|" mach
 sed -i "s|potential_python_binary = f\"python3.{i}\"|potential_python_binary = f\"python3.9.{i}\"|" mach
 export PYTHON3=/usr/bin/python3.9
 %endif
-
-kdehelperversion=$(cat toolkit/xre/nsKDEUtils.cpp | grep '#define KMOZILLAHELPER_VERSION' | cut -d ' ' -f 3)
-if test "$kdehelperversion" != %{kde_helper_version}; then
-  echo fix kde helper version in the .spec file
-  exit 1
-fi
 
 # When doing only_print_mozconfig, this file isn't necessarily available, so skip it
 cp %{SOURCE4} .obsenv.sh
@@ -394,9 +409,6 @@ export CXX=g++
 export LDFLAGS="\$LDFLAGS -fPIC -Wl,-z,relro,-z,now"
 %endif
 %ifarch ppc64 ppc64le
-%if 0%{?clang_build} == 0
-#export CFLAGS="\$CFLAGS -mminimal-toc"
-%endif
 %endif
 %ifarch %ix86
 # Not enough memory on 32-bit systems, reduce debug info.
@@ -566,6 +578,7 @@ ccache -s
 %endif
 
 %install
+install -D -m 0644 %{desktop_file_name}.desktop %{buildroot}%{_datadir}/applications/%{desktop_file_name}.desktop
 cd $RPM_BUILD_DIR/obj
 source %{SOURCE4}
 export MOZ_SOURCE_STAMP=$RELEASE_TAG
@@ -619,14 +632,6 @@ s:%%PROFILE:.mozilla/firefox:g" \
   %{SOURCE3} > %{buildroot}%{progdir}/%{progname}.sh
 chmod 755 %{buildroot}%{progdir}/%{progname}.sh
 ln -sf ../..%{progdir}/%{progname}.sh %{buildroot}%{_bindir}/%{progname}
-# desktop file
-mkdir -p %{buildroot}%{_datadir}/applications
-sed "s:%%NAME:%{appname}:g
-s:%%EXEC:%{progname}:g
-s:%%ICON:%{progname}:g
-s:%%WMCLASS:%{progname}%{major}:g" \
-  %{SOURCE1} > %{buildroot}%{_datadir}/applications/%{desktop_file_name}.desktop
-%suse_update_desktop_file %{desktop_file_name} Network WebBrowser GTK
 # additional mime-types
 mkdir -p %{buildroot}%{_datadir}/mime/packages
 cp %{SOURCE8} %{buildroot}%{_datadir}/mime/packages/%{progname}.xml
@@ -710,7 +715,6 @@ exit 0
 %dir %{progdir}/browser/
 %dir %{progdir}/browser/chrome/
 %{progdir}/browser/defaults
-%{progdir}/browser/features/
 %{progdir}/browser/chrome/icons
 %{progdir}/browser/omni.ja
 %dir %{progdir}/distribution/
@@ -734,10 +738,11 @@ exit 0
 %{progdir}/platform.ini
 %if %crashreporter
 %{progdir}/crashreporter
-#%{progdir}/crashreporter.ini
-#%{progdir}/Throbber-small.gif
-%{progdir}/minidump-analyzer
-#%{progdir}/browser/crashreporter-override.ini
+%{progdir}/crashhelper
+#%%{progdir}/crashreporter.ini
+#%%{progdir}/Throbber-small.gif
+#%%{progdir}/minidump-analyzer
+#%%{progdir}/browser/crashreporter-override.ini
 %endif
 %{_datadir}/applications/%{desktop_file_name}.desktop
 %{_datadir}/mime/packages/%{progname}.xml

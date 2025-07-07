@@ -1,16 +1,19 @@
 # HG changeset patch
+
+From: Martin Sirringhaus <martin.sirringhaus@suse.com>
+
 # Parent e0751ad74e835e80041a61ea00c2a63bf6fbe2de
-# Parent  ebf6598a9309200fcea0cedb08e39161b82a73f9
+# Parent  9309f1ac14b7173985576932c01874184be1dcf9
+---
+ browser/branding/branding-common.mozbuild |    3 +++
+ browser/installer/package-manifest.in     |    3 +++
+ 2 files changed, 6 insertions(+)
 
 diff --git a/browser/branding/branding-common.mozbuild b/browser/branding/branding-common.mozbuild
+index a38663a3dc1e..c8c32bc298b9 100644
 --- a/browser/branding/branding-common.mozbuild
 +++ b/browser/branding/branding-common.mozbuild
-@@ -26,12 +26,15 @@ def FirefoxBranding():
-             "PrivateBrowsing_70.png",
-             "VisualElements_150.png",
-             "VisualElements_70.png",
-         ]
-     elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
+@@ -31,6 +31,9 @@ def FirefoxBranding():
          FINAL_TARGET_FILES.chrome.icons.default += [
              "default128.png",
              "default16.png",
@@ -20,16 +23,11 @@ diff --git a/browser/branding/branding-common.mozbuild b/browser/branding/brandi
              "default32.png",
              "default48.png",
              "default64.png",
-         ]
 diff --git a/browser/installer/package-manifest.in b/browser/installer/package-manifest.in
+index d06952934172..89000c77fe05 100644
 --- a/browser/installer/package-manifest.in
 +++ b/browser/installer/package-manifest.in
-@@ -216,20 +216,23 @@
- @RESPATH@/browser/chrome/browser@JAREXT@
- @RESPATH@/browser/chrome/browser.manifest
- @RESPATH@/chrome/pdfjs.manifest
- @RESPATH@/chrome/pdfjs/*
- @RESPATH@/chrome/toolkit@JAREXT@
+@@ -223,10 +223,13 @@
  @RESPATH@/chrome/toolkit.manifest
  #ifdef MOZ_GTK
  @RESPATH@/browser/chrome/icons/default/default16.png
@@ -41,10 +39,5 @@ diff --git a/browser/installer/package-manifest.in b/browser/installer/package-m
  @RESPATH@/browser/chrome/icons/default/default128.png
 +@RESPATH@/browser/chrome/icons/default/default256.png
  #endif
- @RESPATH@/browser/features/*
  
  ; [DevTools Startup Files]
- @RESPATH@/browser/chrome/devtools-startup@JAREXT@
- @RESPATH@/browser/chrome/devtools-startup.manifest
- 
- ; DevTools

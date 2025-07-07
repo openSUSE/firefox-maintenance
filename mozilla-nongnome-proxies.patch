@@ -1,19 +1,22 @@
 # HG changeset patch
+
+From: Martin Sirringhaus <martin.sirringhaus@suse.com>
+
 # User Wolfgang Rosenauer
 # Date 1558442915 -7200
 #      Tue May 21 14:48:35 2019 +0200
 # Node ID 6bcf2dfebc1ea2aa34e5cc61152709fc8e409dc5
 # Parent  715f01d61df8627117e6aefca540f0c1bba45011
 Do not use gconf for proxy settings if not running within Gnome
-Index: toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp
-===================================================================
-RCS file: /cvsroot/mozilla/toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp,v
-retrieving revision 1.1
+---
+ .../system/unixproxy/nsUnixSystemProxySettings.cpp |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
 diff --git a/toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp b/toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp
+index 3d8435f9827f..4b87fc5a1914 100644
 --- a/toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp
 +++ b/toolkit/system/unixproxy/nsUnixSystemProxySettings.cpp
-@@ -52,10 +52,13 @@ nsUnixSystemProxySettings::GetMainThread
+@@ -52,10 +52,13 @@ nsUnixSystemProxySettings::GetMainThreadOnly(bool* aMainThreadOnly) {
  }
  
  void nsUnixSystemProxySettings::Init() {

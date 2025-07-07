@@ -1,12 +1,20 @@
 # HG changeset patch
-# Parent  9fcbd287056a40084b1e679f787bf683b291f323
-Taken from https://bugzilla.mozilla.org/show_bug.cgi?id=1504834
 
-Index: firefox-128.0/gfx/2d/DrawTargetSkia.cpp
-===================================================================
---- firefox-128.0.orig/gfx/2d/DrawTargetSkia.cpp
-+++ firefox-128.0/gfx/2d/DrawTargetSkia.cpp
-@@ -156,7 +156,8 @@ static IntRect CalculateSurfaceBounds(co
+From: Martin Sirringhaus <martin.sirringhaus@suse.com>
+
+# Parent  e31f5228a09ed69d7ac3c84e54f0faa6a5910ae0
+Taken from https://bugzilla.mozilla.org/show_bug.cgi?id=1504834
+---
+ gfx/2d/DrawTargetSkia.cpp            |    3 ++-
+ gfx/2d/Types.h                       |   13 +++----------
+ gfx/skia/skia/modules/skcms/skcms.cc |   22 ++++++++++++++++------
+ 3 files changed, 21 insertions(+), 17 deletions(-)
+
+diff --git a/gfx/2d/DrawTargetSkia.cpp b/gfx/2d/DrawTargetSkia.cpp
+index 26ec951c7d11..610f6d11c6b6 100644
+--- a/gfx/2d/DrawTargetSkia.cpp
++++ b/gfx/2d/DrawTargetSkia.cpp
+@@ -160,7 +160,8 @@ static IntRect CalculateSurfaceBounds(const IntSize& aSize, const Rect* aBounds,
  }
  
  static const int kARGBAlphaOffset =
@@ -16,11 +24,11 @@ Index: firefox-128.0/gfx/2d/DrawTargetSkia.cpp
  
  static bool VerifyRGBXFormat(uint8_t* aData, const IntSize& aSize,
                               const int32_t aStride, SurfaceFormat aFormat) {
-Index: firefox-128.0/gfx/2d/Types.h
-===================================================================
---- firefox-128.0.orig/gfx/2d/Types.h
-+++ firefox-128.0/gfx/2d/Types.h
-@@ -89,18 +89,11 @@ enum class SurfaceFormat : int8_t {
+diff --git a/gfx/2d/Types.h b/gfx/2d/Types.h
+index b1053223d3b7..828cb5cf6a34 100644
+--- a/gfx/2d/Types.h
++++ b/gfx/2d/Types.h
+@@ -101,18 +101,11 @@ enum class SurfaceFormat : int8_t {
    // This represents the unknown format.
    UNKNOWN,  // TODO: Replace uses with Maybe<SurfaceFormat>.
  
@@ -42,10 +50,10 @@ Index: firefox-128.0/gfx/2d/Types.h
  
    // The following values are OS and endian-independent synonyms.
    //
-Index: firefox-128.0/gfx/skia/skia/modules/skcms/skcms.cc
-===================================================================
---- firefox-128.0.orig/gfx/skia/skia/modules/skcms/skcms.cc
-+++ firefox-128.0/gfx/skia/skia/modules/skcms/skcms.cc
+diff --git a/gfx/skia/skia/modules/skcms/skcms.cc b/gfx/skia/skia/modules/skcms/skcms.cc
+index 703af72b74ea..97ff241325a7 100644
+--- a/gfx/skia/skia/modules/skcms/skcms.cc
++++ b/gfx/skia/skia/modules/skcms/skcms.cc
 @@ -31,6 +31,8 @@
          #include <avx512fintrin.h>
          #include <avx512dqintrin.h>

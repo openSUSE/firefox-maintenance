@@ -1,10 +1,17 @@
 # HG changeset patch
+
+From: Martin Sirringhaus <martin.sirringhaus@suse.com>
+
 # Parent  135d931b3e674a670473f69f8c079e741ac63643
+---
+ build/moz.configure/rust.configure |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/build/moz.configure/rust.configure b/build/moz.configure/rust.configure
+index b92c26dcab0c..0db45298648e 100644
 --- a/build/moz.configure/rust.configure
 +++ b/build/moz.configure/rust.configure
-@@ -668,7 +668,7 @@ def rust_compile_flags(
+@@ -679,7 +679,7 @@ def rust_compile_flags(
          debug_assertions = False
  
      if debug_symbols:
