@@ -226,7 +226,11 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires(post): coreutils shared-mime-info desktop-file-utils
 Requires(postun): shared-mime-info desktop-file-utils
 Requires:       %{name}-branding >= 68
+%if 0%{?suse_version} >= 1600 || 0%{?sle_version} >= 120500
 Requires:       xdg-desktop-portal
+%else
+Recommends:     xdg-desktop-portal
+%endif
 %requires_ge    mozilla-nspr
 %requires_ge    mozilla-nss
 %requires_ge    libfreetype6
