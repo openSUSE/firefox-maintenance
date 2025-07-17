@@ -1,8 +1,8 @@
 #
 # spec file for package MozillaThunderbird
 #
-# Copyright (c) 2024 SUSE LLC
-# Copyright (c) 2006-2024 Wolfgang Rosenauer <wr@rosenauer.org>
+# Copyright (c) 2025 SUSE LLC
+# Copyright (c) 2006-2025 Wolfgang Rosenauer <wr@rosenauer.org>
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -25,14 +25,14 @@
 # FF70beta3 would be released as FF69.99
 # orig_version would be the upstream tar ball
 # orig_version 70.0
-# orig_suffix b3
+# orig_suffix b3 (or esr)
 # major 69
 # mainver %%major.99
-%define major          128
-%define mainver        %major.2.3
-%define orig_version   128.2.3
+%define major          140
+%define mainver        %major.0.1
+%define orig_version   140.0.1
 %define orig_suffix    esr
-%define update_channel release
+%define update_channel esr
 %define source_prefix  thunderbird-%{orig_version}
 
 # PGO builds do not work in TW currently (bmo#1680306)
@@ -46,8 +46,6 @@
 
 %bcond_with only_print_mozconfig
 
-%bcond_without mozilla_tb_kde4
-%bcond_with    mozilla_tb_valgrind
 %bcond_without mozilla_tb_optimize_for_size
 
 # define if ccache should be used or not
@@ -66,7 +64,11 @@ ExclusiveArch:  aarch64 ppc64le x86_64 s390x
 %define appname  Thunderbird
 %define progdir %{_prefix}/%_lib/%{progname}
 %define gnome_dir     %{_prefix}
+%if "%orig_suffix" == "esr"
+%define desktop_file_name %{progname}-esr
+%else
 %define desktop_file_name %{progname}
+%endif
 %define __provides_exclude ^lib.*\\.so.*$
 %define __requires_exclude ^(libmoz.*|liblgpllibs.*|libxul.*|libgk.*|libldap.*|libldif.*|libprldap.*|librnp.*)$
 %define localize 1
@@ -98,15 +100,15 @@ BuildRequires:  gcc13-c++
 %else
 BuildRequires:  gcc-c++
 %endif
-BuildRequires:  cargo1.78
-BuildRequires:  rust1.78
+BuildRequires:  cargo1.86
+BuildRequires:  rust1.86
 %if 0%{useccache} != 0
 BuildRequires:  ccache
 %endif
 BuildRequires:  libXcomposite-devel
 BuildRequires:  libcurl-devel
-BuildRequires:  mozilla-nspr-devel >= 4.35
-BuildRequires:  mozilla-nss-devel >= 3.101.1
+BuildRequires:  mozilla-nspr-devel >= 4.36
+BuildRequires:  mozilla-nss-devel >= 3.112
 BuildRequires:  nasm >= 2.14
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} <= 150000
 BuildRequires:  nodejs12 >= 12.22.12
@@ -129,7 +131,10 @@ BuildRequires:  python3-curses
 BuildRequires:  python3-devel
 %endif
 %endif
-BuildRequires:  rust-cbindgen >= 0.26
+BuildRequires:  rust-cbindgen >= 0.27
+%if 0%{?suse_version} > 1600
+BuildRequires:  translate-suse-desktop
+%endif
 BuildRequires:  unzip
 BuildRequires:  update-desktop-files
 BuildRequires:  xorg-x11-libXt-devel
@@ -151,9 +156,6 @@ BuildRequires:  pkgconfig(libpulse)
 %if %{with_pipewire0_3}
 BuildRequires:  pkgconfig(libpipewire-0.3)
 %endif
-%if %{with mozilla_tb_valgrind}
-BuildRequires:  pkgconfig(valgrind)
-%endif
 # libavcodec is required for H.264 support but the
 # openSUSE version is currently not able to play H.264
 # therefore the Packman version is required
@@ -166,12 +168,6 @@ Provides:       thunderbird = %{version}
 Obsoletes:      MozillaThunderbird-devel < %{version}
 Provides:       appdata()
 Provides:       appdata(thunderbird.appdata.xml)
-%if %{with mozilla_tb_kde4}
-# this is needed to match this package with the kde4 helper package without the main package
-# having a hard requirement on the kde4 package
-%define kde_helper_version 6
-Provides:       mozilla-kde4-version = %{kde_helper_version}
-%endif
 Summary:        An integrated email, news feeds, chat, and newsgroups client
 License:        MPL-2.0
 Group:          Productivity/Networking/Email/Clients
@@ -188,14 +184,11 @@ Source7:        l10n-%{orig_version}%{orig_suffix}.tar.xz
 %endif
 Source9:        thunderbird.appdata.xml
 Source13:       spellcheck.js
-Source14:       https://github.com/openSUSE/firefox-scripts/raw/c3f287d/create-tar.sh
+Source14:       https://github.com/openSUSE/firefox-scripts/raw/2db396e/create-tar.sh
 Source20:       https://ftp.mozilla.org/pub/%{srcname}/releases/%{version}%{orig_suffix}/source/%{srcname}-%{orig_version}%{orig_suffix}.source.tar.xz.asc
 Source21:       https://ftp.mozilla.org/pub/%{srcname}/releases/%{version}%{orig_suffix}/KEY#/mozilla.keyring
 # Gecko/Toolkit
 Patch1:         mozilla-nongnome-proxies.patch
-%if %{with mozilla_tb_kde4}
-Patch2:         mozilla-kde.patch
-%endif
 Patch3:         mozilla-ntlm-full-path.patch
 Patch4:         mozilla-aarch64-startup-crash.patch
 Patch6:         mozilla-s390-context.patch
@@ -208,6 +201,7 @@ Patch17:        mozilla-libavcodec58_91.patch
 Patch18:        mozilla-silence-no-return-type.patch
 Patch20:        one_swizzle_to_rule_them_all.patch
 Patch21:        svg-rendering.patch
+Patch24:        mozilla-bmo1746799.patch
 Patch26:        thunderbird-fix-CVE-2024-34703.patch
 %endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -216,6 +210,11 @@ PreReq:         coreutils
 PreReq:         fileutils
 PreReq:         textutils
 ### build options end
+%if 0%{?suse_version} >= 1600 || 0%{?sle_version} >= 120500
+Requires:       xdg-desktop-portal
+%else
+Recommends:     xdg-desktop-portal
+%endif
 %requires_ge    mozilla-nspr
 %requires_ge    mozilla-nss
 %requires_ge    libfreetype6
@@ -291,14 +290,6 @@ DATE="\"$(date -d "${modified}" "+%%b %%e %%Y")\""
 TIME="\"$(date -d "${modified}" "+%%R")\""
 find . -regex ".*\.c\|.*\.cpp\|.*\.h" -exec sed -i "s/__DATE__/${DATE}/g;s/__TIME__/${TIME}/g" {} +
 
-%if %{with mozilla_tb_kde4}
-kdehelperversion=$(cat toolkit/xre/nsKDEUtils.cpp | grep '#define KMOZILLAHELPER_VERSION' | cut -d ' ' -f 3)
-if test "$kdehelperversion" != %{kde_helper_version}; then
-  echo fix kde helper version in the .spec file
-  exit 1
-fi
-%endif
-
 # When doing only_print_mozconfig, this file isn't necessarily available, so skip it
 cp %{SOURCE4} .obsenv.sh
 %else
@@ -308,7 +299,7 @@ echo "" > .obsenv.sh
 
 cat >> .obsenv.sh <<EOF
 export CARGO_HOME=${RPM_BUILD_DIR}/%{srcname}-%{orig_version}/.cargo
-export MOZ_SOURCE_CHANGESET=\$RELEASE_TAG
+#export MOZ_SOURCE_CHANGESET=\$RELEASE_TAG
 export SOURCE_REPO=\$RELEASE_REPO
 export source_repo=\$RELEASE_REPO
 export MOZ_SOURCE_REPO=\$RELEASE_REPO
@@ -362,7 +353,7 @@ source ./.obsenv.sh
 cat << EOF > $MOZCONFIG
 mk_add_options MOZILLA_OFFICIAL=1
 mk_add_options BUILD_OFFICIAL=1
-mk_add_options MOZ_MAKE_FLAGS=%{?jobs:-j%jobs}
+mk_add_options MOZ_MAKE_FLAGS=%{?_smp_mflags}
 mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../obj
 ac_add_options --disable-bootstrap
 ac_add_options --prefix=%{_prefix}
@@ -429,10 +420,6 @@ ac_add_options --enable-lto
 ac_add_options MOZ_PGO=1
 %endif
 %endif
-%if %{with mozilla_tb_valgrind}
-ac_add_options --disable-jemalloc
-ac_add_options --enable-valgrind
-%endif
 %endif
 EOF
 
@@ -473,10 +460,10 @@ ac_add_options --without-wasm-sandboxed-libraries
 ac_add_options --enable-official-branding
 EOF
 
-#%%define njobs 0%{?jobs:%jobs}
+%define njobs 0%{?jobs:%jobs}
 # Weird race condition when building langpacks which comes and goes in OBS/IBS is hitting heavy with TB 128
 # so we have to build it sequentially, sadly.
-%define njobs 1
+#%%define njobs 1
 mkdir -p $RPM_BUILD_DIR/langpacks_artifacts/
 
 sed -r '/^(ja-JP-mac|ga-IE|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{source_prefix}/comm/mail/locales/shipped-locales \
@@ -545,12 +532,10 @@ mkdir -p %{buildroot}%{_datadir}/applications
 install -m 644 %{SOURCE1} \
                %{buildroot}%{_datadir}/applications/%{desktop_file_name}.desktop
 %suse_update_desktop_file %{desktop_file_name} Network Email GTK
-# additional mime-types
-mkdir -p %{buildroot}%{_datadir}/mime/packages
-# cp %{SOURCE8} %{buildroot}%{_datadir}/mime/packages/%{progname}.xml
 # appdata
 mkdir -p %{buildroot}%{_datadir}/appdata
-cp %{SOURCE9} %{buildroot}%{_datadir}/appdata/%{desktop_file_name}.appdata.xml
+sed -e 's,thunderbird.desktop,%{desktop_file_name}.desktop,g' \
+   %{SOURCE9} > %{buildroot}%{_datadir}/appdata/%{desktop_file_name}.appdata.xml
 # apply SUSE defaults
 sed -e 's,RPM_VERSION,%{mainversion},g
 s,GSSAPI,%{libgssapi},g' \
@@ -580,6 +565,8 @@ rm -f %{buildroot}%{progdir}/updater.ini
 rm -f %{buildroot}%{progdir}/update.locale
 rm -f %{buildroot}%{progdir}/dictionaries/en-US*
 rm -f %{buildroot}%{progdir}/nspr-config
+# Only needed for CI / automated testing:
+rm -f %{buildroot}%{progdir}/interesting_serverknobs.json
 # Some sites use different partitions for /usr/(lib|lib64) and /usr/share.  Since you
 # can't create hardlinks across partitions, we'll do this more than once.
 %fdupes %{buildroot}%{progdir}
@@ -618,7 +605,7 @@ exit 0
 # crashreporter files
 %if %crashreporter
 %{progdir}/crashreporter
-%{progdir}/minidump-analyzer
+%{progdir}/crashhelper
 %endif
 %dir %{progdir}/chrome/
 %{progdir}/chrome/icons/
@@ -626,7 +613,6 @@ exit 0
 %{progdir}/isp/
 %{_datadir}/appdata/
 %{_datadir}/applications/%{desktop_file_name}.desktop
-%{_datadir}/mime/packages/
 %{_datadir}/icons/hicolor/*/apps/%{progname}.png
 %{_datadir}/icons/hicolor/symbolic/apps/%{progname}-symbolic.svg
 %{_bindir}/%{progname}
