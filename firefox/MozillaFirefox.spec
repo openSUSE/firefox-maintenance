@@ -1,4 +1,3 @@
-#
 # spec file for package MozillaFirefox
 #
 # Copyright (c) 2025 SUSE LLC
@@ -428,7 +427,7 @@ source ./.obsenv.sh
 cat << EOF > $MOZCONFIG
 mk_add_options MOZILLA_OFFICIAL=1
 mk_add_options BUILD_OFFICIAL=1
-mk_add_options MOZ_MAKE_FLAGS=%{?jobs:-j%jobs}
+mk_add_options MOZ_MAKE_FLAGS=%{?_smp_mflags}
 mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../obj
 . \$topsrcdir/browser/config/mozconfig
 ac_add_options --disable-bootstrap
@@ -549,7 +548,12 @@ ac_add_options --enable-official-branding
 %endif
 EOF
 
+%if 0%{?suse_version} >= 1600
+# Needed for reproducible builds, only available for rpm version >= 4.19
+%define njobs ${RPM_BUILD_NCPUS:-0}
+%else
 %define njobs 0%{?jobs:%jobs}
+%endif
 mkdir -p $RPM_BUILD_DIR/langpacks_artifacts/
 sed -r '/^(ja-JP-mac|ga-IE|en-US|)$/d;s/ .*$//' $RPM_BUILD_DIR/%{srcname}-%{orig_version}/browser/locales/shipped-locales \
     | xargs -n 1 %{?njobs:-P %njobs} -I {} /bin/sh -c '
