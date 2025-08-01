@@ -1,0 +1,20 @@
+The Firefox pref `widget.use-xdg-desktop-portal.file-picker` is a tristate with the states:
+0 - Never
+1 - Always
+2 - Auto
+where Auto means "yes" if Firefox detects that is run inside a flatpak, or if a certain env-variable is set, "no" otherwise.
+With this patch, we flip the auto-state also to "yes" (for the file-picker only!), if we are running KDE.
+
+diff --git a/widget/gtk/WidgetUtilsGtk.cpp b/widget/gtk/WidgetUtilsGtk.cpp
+index afa392d0d5a1f..c7621c1d0c0a2 100644
+--- a/widget/gtk/WidgetUtilsGtk.cpp
++++ b/widget/gtk/WidgetUtilsGtk.cpp
+@@ -294,6 +294,8 @@ bool ShouldUsePortal(PortalKind aPortalKind) {
+   const int32_t pref = [&] {
+     switch (aPortalKind) {
+       case PortalKind::FilePicker:
++        // We want to use the FilePicker-Portal on KDE, if possible
++        autoBehavior |= IsKdeDesktopEnvironment();
+         return StaticPrefs::widget_use_xdg_desktop_portal_file_picker();
+       case PortalKind::MimeHandler:
+         // Mime portal breaks default browser handling, see bug 1516290.

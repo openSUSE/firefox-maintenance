@@ -28,8 +28,8 @@
 # major 69
 # mainver %%major.99
 %define major          140
-%define mainver        %major.0
-%define orig_version   140.0
+%define mainver        %major.1.0
+%define orig_version   140.1.0
 %define orig_suffix    esr
 %define update_channel release
 %define branding       1
@@ -206,6 +206,10 @@ Source20:       https://ftp.mozilla.org/pub/%{srcname}/releases/%{version}%{orig
 Source21:       https://ftp.mozilla.org/pub/%{srcname}/releases/%{version}%{orig_suffix}/KEY#/mozilla.keyring
 # Gecko/Toolkit
 Patch1:         mozilla-nongnome-proxies.patch
+# Use xdg-desktop-portal file picker on KDE on SLE-15
+%if 0%{?sle_version} > 150000 && 0%{?sle_version} <= 150700
+Patch2:         mozilla-kde-force-xdg-portal.patch
+%endif
 Patch3:         mozilla-ntlm-full-path.patch
 Patch4:         mozilla-aarch64-startup-crash.patch
 Patch6:         mozilla-s390-context.patch
