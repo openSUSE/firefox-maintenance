@@ -28,8 +28,8 @@
 # major 69
 # mainver %%major.99
 %define major          140
-%define mainver        %major.1.0
-%define orig_version   140.1.0
+%define mainver        %major.2.0
+%define orig_version   140.2.0
 %define orig_suffix    esr
 %define update_channel release
 %define branding       1
@@ -429,6 +429,13 @@ source ./.obsenv.sh
 
 %ifarch aarch64 %arm ppc64 ppc64le riscv64
 %limit_build -m 2500
+%endif
+
+# Mitigating OOM-errors on SLE-16
+%if 0%{?suse_version} == 1600
+%ifarch s390x
+%limit_build -m 2500
+%endif
 %endif
 
 # Generating mozconfig
