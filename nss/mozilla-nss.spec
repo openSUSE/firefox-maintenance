@@ -1,8 +1,8 @@
 #
 # spec file for package mozilla-nss
 #
-# Copyright (c) 2024 SUSE LLC
-# Copyright (c) 2006-2024 Wolfgang Rosenauer
+# Copyright (c) 2025 SUSE LLC and contributors
+# Copyright (c) 2006-2025 Wolfgang Rosenauer
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -17,15 +17,15 @@
 #
 
 
-%global nss_softokn_fips_version 3.104
-%define NSPR_min_version 4.35
+%global nss_softokn_fips_version 3.115
+%define NSPR_min_version 4.36
 %define nspr_ver %(rpm -q --queryformat '%%{VERSION}' mozilla-nspr)
 %define nssdbdir %{_sysconfdir}/pki/nssdb
 %global crypto_policies_version 20210218
 Name:           mozilla-nss
-Version:        3.104
+Version:        3.115.1
 Release:        0
-%define underscore_version 3_104
+%define underscore_version 3_115_1
 Summary:        Network Security Services
 License:        MPL-2.0
 Group:          System/Libraries
@@ -50,7 +50,7 @@ Patch2:         system-nspr.patch
 Patch3:         nss-no-rpath.patch
 Patch4:         add-relro-linker-option.patch
 Patch5:         malloc.patch
-Patch6:         bmo-1400603.patch
+Patch6:         bmo1962556.patch
 Patch7:         nss-sqlitename.patch
 Patch9:         nss-fips-use-getrandom.patch
 Patch10:        nss-fips-dsa-kat.patch
@@ -71,7 +71,6 @@ Patch25:        nss-fips-detect-fips-mode-fixes.patch
 Patch26:        nss-fips-combined-hash-sign-dsa-ecdsa.patch
 Patch27:        nss-fips-aes-keywrap-post.patch
 Patch37:        nss-fips-fix-missing-nspr.patch
-Patch38:        nss-fips-stricter-dh.patch
 Patch40:        nss-fips-180-3-csp-clearing.patch
 Patch41:        nss-fips-pbkdf-kat-compliance.patch
 Patch44:        nss-fips-tests-enable-fips.patch
@@ -82,7 +81,6 @@ Patch48:        nss-fips-test.patch
 Patch49:        nss-allow-slow-tests-s390x.patch
 Patch50:        nss-fips-bsc1223724.patch
 Patch51:        nss-fips-aes-gcm-restrict.patch
-Patch52:        nss-fips-safe-memset.patch
 %if 0%{?sle_version} >= 120000 && 0%{?sle_version} < 150000
 # aarch64 + gcc4.8 fails to build on SLE-12 due to undefined references
 BuildRequires:  gcc9-c++
@@ -232,7 +230,6 @@ cd nss
 %patch -P 26 -p1
 %patch -P 27 -p1
 %patch -P 37 -p1
-%patch -P 38 -p1
 %patch -P 40 -p1
 %patch -P 41 -p1
 %patch -P 44 -p1
@@ -249,10 +246,6 @@ cd nss
 %endif
 %patch -P 50 -p1
 %patch -P 51 -p1
-%if 0%{?sle_version} >= 150000
-# glibc on SLE-12 is too old and doesn't have explicit_bzero yet.
-%patch -P 52 -p1
-%endif
 
 # additional CA certificates
 #cd security/nss/lib/ckfw/builtins
@@ -283,7 +276,7 @@ export NSPR_INCLUDE_DIR=`nspr-config --includedir`
 export NSPR_LIB_DIR=`nspr-config --libdir`
 export OPT_FLAGS="%{optflags} -fno-strict-aliasing -fPIE -pie"
 export LIBDIR=%{_libdir}
-%ifarch x86_64 s390x ppc64 ppc64le ia64 aarch64 riscv64
+%ifarch x86_64 s390x ppc64 ppc64le ia64 aarch64 riscv64 loongarch64
 export USE_64=1
 %endif
 export NSS_DISABLE_GTESTS=1
@@ -330,7 +323,20 @@ source ../obsenv.sh
 source ../obstestenv.sh
 cd tests
 ./all.sh
-if grep "FAILED" ../../../tests_results/security/localhost.1/output.log ; then
+# This file can live at different places when built in OBS or using "osc build":
+if [ -s ../../../tests_results/security/localhost.1/output.log ]; then
+  output_log=../../../tests_results/security/localhost.1/output.log
+elif [ -s ../../tests_results/security/localhost.1/output.log ]; then
+  output_log=../../tests_results/security/localhost.1/output.log
+elif [ -s ../tests_results/security/localhost.1/output.log ]; then
+  output_log=../tests_results/security/localhost.1/output.log
+elif [ -s ../security/localhost.1/output.log ]; then
+  output_log=../security/localhost.1/output.log
+else
+  echo "Cannot find tests_results output.log - Assuming testsuite failed"
+  exit 1
+fi
+if grep "FAILED" $output_log ; then
   echo "Testsuite FAILED"
   exit 1
 fi
