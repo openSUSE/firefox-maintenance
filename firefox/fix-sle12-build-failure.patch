@@ -1,0 +1,24 @@
+Index: firefox-153.0/mozglue/misc/Sprintf.h
+===================================================================
+--- firefox-153.0.orig/mozglue/misc/Sprintf.h
++++ firefox-153.0/mozglue/misc/Sprintf.h
+@@ -48,8 +48,7 @@ struct MOZ_STACK_CLASS SprintfAppend fin
+ }  // namespace mozilla
+ #  endif  // SPRINTF_H_USES_VSNPRINTF
+ 
+-MOZ_FORMAT_PRINTF(3, 0)
+-[[maybe_unused]]
++[[maybe_unused]] MOZ_FORMAT_PRINTF(3, 0)
+ static int VsprintfBuf(char* buffer, size_t bufsize, const char* format,
+                        va_list args) {
+   MOZ_ASSERT(format != buffer);
+@@ -66,8 +65,7 @@ static int VsprintfBuf(char* buffer, siz
+ #  endif
+ }
+ 
+-MOZ_FORMAT_PRINTF(3, 4)
+-[[maybe_unused]]
++[[maybe_unused]] MOZ_FORMAT_PRINTF(3, 4)
+ static int SprintfBuf(char* buffer, size_t bufsize, const char* format, ...) {
+   va_list args;
+   va_start(args, format);

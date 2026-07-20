@@ -4,15 +4,11 @@
 # Parent  3399aced682c232525633755ff79b37a0be75548
 Bug 634334 - call to the ntlm_auth helper fails
 
-diff --git a/extensions/auth/nsAuthSambaNTLM.cpp b/extensions/auth/nsAuthSambaNTLM.cpp
---- a/extensions/auth/nsAuthSambaNTLM.cpp
-+++ b/extensions/auth/nsAuthSambaNTLM.cpp
-@@ -148,17 +148,17 @@ nsresult nsAuthSambaNTLM::SpawnNTLMAuthH
-     }
- 
-     base::LaunchOptions options;
-     options.fds_to_remap.push_back(
-         std::pair{toChildPipeRead.get(), STDIN_FILENO});
+Index: mozilla-esr153/extensions/auth/nsAuthSambaNTLM.cpp
+===================================================================
+--- mozilla-esr153.orig/extensions/auth/nsAuthSambaNTLM.cpp
++++ mozilla-esr153/extensions/auth/nsAuthSambaNTLM.cpp
+@@ -150,7 +150,7 @@ nsresult nsAuthSambaNTLM::SpawnNTLMAuthH
      options.fds_to_remap.push_back(
          std::pair{fromChildPipeWrite.get(), STDOUT_FILENO});
  
@@ -20,9 +16,4 @@ diff --git a/extensions/auth/nsAuthSambaNTLM.cpp b/extensions/auth/nsAuthSambaNT
 +    std::vector<std::string> argvVec{"/usr/bin/ntlm_auth",        "--helper-protocol",
                                       "ntlmssp-client-1", "--use-cached-creds",
                                       "--username",       username};
- 
-     auto result = base::LaunchApp(argvVec, std::move(options), &mChildPID);
-     if (result.isErr()) {
-       return NS_ERROR_FAILURE;
-     }
  
