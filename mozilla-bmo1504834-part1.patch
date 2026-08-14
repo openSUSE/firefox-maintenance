@@ -2,10 +2,10 @@
 # Parent  ed92e2fa6996864cd05177e2d4012c2aa867bf54
 Taken from https://bugzilla.mozilla.org/show_bug.cgi?id=1504834
 
-Index: mozilla-esr153/gfx/2d/DrawTargetSkia.cpp
+Index: firefox-153.0/gfx/2d/DrawTargetSkia.cpp
 ===================================================================
---- mozilla-esr153.orig/gfx/2d/DrawTargetSkia.cpp
-+++ mozilla-esr153/gfx/2d/DrawTargetSkia.cpp
+--- firefox-153.0.orig/gfx/2d/DrawTargetSkia.cpp
++++ firefox-153.0/gfx/2d/DrawTargetSkia.cpp
 @@ -175,7 +175,8 @@ static IntRect CalculateSurfaceBounds(co
  }
  
@@ -16,10 +16,10 @@ Index: mozilla-esr153/gfx/2d/DrawTargetSkia.cpp
  
  static bool VerifyRGBXFormat(uint8_t* aData, const IntSize& aSize,
                               const int32_t aStride, SurfaceFormat aFormat) {
-Index: mozilla-esr153/gfx/skia/skia/modules/skcms/skcms.cc
+Index: firefox-153.0/gfx/skia/skia/modules/skcms/skcms.cc
 ===================================================================
---- mozilla-esr153.orig/gfx/skia/skia/modules/skcms/skcms.cc
-+++ mozilla-esr153/gfx/skia/skia/modules/skcms/skcms.cc
+--- firefox-153.0.orig/gfx/skia/skia/modules/skcms/skcms.cc
++++ firefox-153.0/gfx/skia/skia/modules/skcms/skcms.cc
 @@ -31,6 +31,8 @@
          #include <avx512fintrin.h>
          #include <avx512dqintrin.h>
@@ -64,3 +64,22 @@ Index: mozilla-esr153/gfx/skia/skia/modules/skcms/skcms.cc
  #endif
  }
  
+Index: firefox-153.0/gfx/2d/Types.h
+===================================================================
+--- firefox-153.0.orig/gfx/2d/Types.h
++++ firefox-153.0/gfx/2d/Types.h
+@@ -109,12 +109,8 @@ enum class SurfaceFormat : int8_t {
+   // The following values are endian-independent synonyms. The _UINT32 suffix
+   // indicates that the name reflects the layout when viewed as a uint32_t
+   // value.
+-  A8R8G8B8_UINT32 = std::endian::native == std::endian::little
+-                        ? B8G8R8A8
+-                        : A8R8G8B8,  // 0xAARRGGBB
+-  X8R8G8B8_UINT32 = std::endian::native == std::endian::little
+-                        ? B8G8R8X8
+-                        : X8R8G8B8,  // 0x00RRGGBB
++  A8R8G8B8_UINT32 = B8G8R8A8,  // 0xAARRGGBB
++  X8R8G8B8_UINT32 = B8G8R8X8,  // 0x00RRGGBB
+ 
+   // The following values are OS and endian-independent synonyms.
+   //
